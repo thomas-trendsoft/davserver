@@ -31,8 +31,8 @@ public class DAVUtil {
 		int i=0;
 		if (ret.length > 0) {
 			for (i=0;i<ret.length;i++) {
-				if (!ret[i].isEmpty()) {
-					comps.add(ret[0]);
+				if (!ret[i].trim().isEmpty()) {
+					comps.add(ret[i]);
 				}
 			}
 		}

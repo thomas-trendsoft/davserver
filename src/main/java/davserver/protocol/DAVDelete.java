@@ -23,7 +23,7 @@ public class DAVDelete {
 			try {
 				r = repos.locate(durl.getResref());
 			} catch (NotFoundException e) {
-				// ignore for delete
+				DAVUtil.handleError(new DAVException(404,"not found"), resp);
 				return;
 			} catch (NotAllowedException e) {
 				DAVUtil.handleError(new DAVException(403,"not allowed"), resp);
@@ -32,12 +32,13 @@ public class DAVDelete {
 		}
 		
 		if (r == null) {
-			System.out.println("nothing to delete");
+			DAVUtil.handleError(new DAVException(404,"not found"), resp);
 			return;
 		}
 		
 		try {
 			repos.remove(r);
+			resp.setStatusCode(204);
 		} catch (LockedException le) {
 			DAVUtil.handleError(new DAVException(423,le.getMessage()),resp);
 			return;

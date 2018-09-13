@@ -43,6 +43,7 @@ public class DAVPut {
 			DAVUtil.handleError(new DAVException(405, ee.getMessage()),resp);
 			return;			
 		} catch (RepositoryException re) {
+			re.printStackTrace();
 			DAVUtil.handleError(new DAVException(500,re.getMessage()),resp);
 			return;
 		} catch (IOException e) {

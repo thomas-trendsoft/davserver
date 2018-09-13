@@ -75,7 +75,7 @@ public class SimpleRepository implements IRepository {
 		if (comps.size() == 0) {
 			throw new ConflictException("cannot write to root resource");
 		} 
-		
+				
 		SimpleCollection cur = root;
 		for (int i=0;i<comps.size()-2;i++) {
 			Resource r = cur.getChild(comps.get(i));
@@ -91,7 +91,7 @@ public class SimpleRepository implements IRepository {
 		
 		String   last   = comps.get(comps.size()-1);
 		Resource active = cur.getChild(last);
-
+		
 		if (active == null) {
 			active = new SimpleResource();
 			cur.addChild(last, active);
@@ -101,7 +101,7 @@ public class SimpleRepository implements IRepository {
 		
 		if (active instanceof SimpleResource) {
 			String strdata = IOUtils.toString(data, "utf-8");
-			System.out.println(data);
+			System.out.println(strdata);
 			((SimpleResource)active).setContent(strdata);
 		}
 	}
