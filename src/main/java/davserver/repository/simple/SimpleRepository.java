@@ -66,7 +66,7 @@ public class SimpleRepository implements IRepository {
 		}
 		
 		cur.addChild(last, new SimpleCollection());
-		
+		System.out.println("added child: " + cur + ":" + last);
 	}
 	
 	public void createResource(String ref,InputStream data) throws RepositoryException,IOException {
@@ -94,10 +94,15 @@ public class SimpleRepository implements IRepository {
 
 		if (active == null) {
 			active = new SimpleResource();
+			cur.addChild(last, active);
 		} else if (active instanceof SimpleCollection) {
 			throw new NotAllowedException("cannot write to an collection");
-		} else if (active instanceof SimpleResource) {
-			((SimpleResource)active).setContent(IOUtils.toString(data, "utf-8"));
+		} 
+		
+		if (active instanceof SimpleResource) {
+			String strdata = IOUtils.toString(data, "utf-8");
+			System.out.println(data);
+			((SimpleResource)active).setContent(strdata);
 		}
 	}
 	
@@ -115,11 +120,13 @@ public class SimpleRepository implements IRepository {
 		}
 		
 		List<String> comps = DAVUtil.getPathComps(uri);
+		System.out.println("path: " + comps.size() + ":" + root);
 		SimpleCollection cur = root;
-		for (int i=0;i<comps.size()-1;i++) {
+		for (int i=0;i<comps.size()-2;i++) {
 			if (cur == null) {
 				throw new NotFoundException(uri + " not found");
 			}
+			System.out.println("check " + comps.get(i));
 			Resource r = cur.getChild(comps.get(i));
 			if (r instanceof SimpleCollection) {
 				cur = (SimpleCollection)r;
@@ -130,10 +137,15 @@ public class SimpleRepository implements IRepository {
 		
 		if (cur == null) {
 			throw new NotFoundException("resource not found");
+		} else {
+			System.out.println("try to read");
+			Resource r = cur.getChild(comps.get(comps.size()-1));
+			if (r == null) {
+				throw new NotFoundException("not found");
+			} else {
+				return r;
+			}
 		}
-
-		System.out.println("no resource found");
-		return null;
 	}
 	
 	public ILockManager getLockManager() {

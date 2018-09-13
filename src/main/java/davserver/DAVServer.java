@@ -10,8 +10,6 @@ import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicLineParser;
 
-import davserver.utils.MyLineParser;
-
 public class DAVServer {
 	
 	public final static String Namespace = "DAV:";

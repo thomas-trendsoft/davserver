@@ -1,5 +1,9 @@
 package davserver.repository.simple;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -30,8 +34,19 @@ public class SimpleResource extends Resource {
 		this.content = str;
 	}
 	
-	public String getContent() {
-		return content;
+	public InputStream getContent() throws IOException {
+		return new ByteArrayInputStream(content.getBytes("utf-8"));
 	}
+
+	@Override
+	public int getContentLength() {
+		try {
+			return content.getBytes("utf-8").length;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return content.length();
+		}
+	}
+
 
 }

@@ -64,7 +64,11 @@ public class DAVPropFind {
 								p = new ResourceType(DAVServer.Namespace,"collection");
 							else 
 								p = new ResourceType(null,null);
-						} 
+						} else if (spr.getName().compareTo("getcontentlength")==0) {
+							p = new Property(DAVServer.Namespace, "getcontentlength", r.getContentLength());
+						} else {
+							System.out.println("UNKNOWN dav property: " + spr.getName());
+						}
 					}
 					if (p == null) {
 						System.out.println("property not found: " + spr.getNs() + ":" + spr.getName());

@@ -1,5 +1,7 @@
 package davserver.repository.simple;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -35,5 +37,7 @@ public class SimpleCollection extends Collection {
 	public void addChild(String name,Resource r) {
 		childs.put(name, r);
 	}
+
+
 
 }
