@@ -1,0 +1,18 @@
+- xml
+-- properties = <NS:name xmlns:NS="nsuri">value or child nodes</NS:name>
+- multiresponse
+- pre and post conditions
+- urls without / ending may handled as collection => set to content-location header in response
+- locking resources
+- prefer auth errors on response
+- content-type application/xml
+- bad xml = 400 bad request (not parseable)
+- urls have to be encoded %20 = " " 
+- unexpected body = 415 unsupported media type
+- error responses like that https://tools.ietf.org/html/rfc3253#section-1.6
+- update etag and last modified each update
+
+
+- PROPFIND
+-- Depth header 0,1,infinity
+-- propfind element = list of requestes elements no such element = all properties

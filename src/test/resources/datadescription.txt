@@ -1,0 +1,3 @@
+- properties = name/value pairs live and dead properties (server enforced or not)
+- collections
+- entries
