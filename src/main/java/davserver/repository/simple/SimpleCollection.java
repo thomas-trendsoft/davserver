@@ -1,7 +1,5 @@
 package davserver.repository.simple;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -23,10 +21,13 @@ public class SimpleCollection extends Collection {
 		properties.put("creationdate",new Property(DAVServer.Namespace,"creationdate",new Date(0)));
 		childs = new HashMap<String,Resource>();
 	}
+	
+	public HashMap<String,Resource> getChilds() {
+		return childs;
+	}
 
 	@Override
 	public Property getProperty(PropertyRef ref) {
-		System.out.println("get property: " + ref.getName());
 		return properties.get(ref.getName());
 	}
 	
@@ -37,7 +38,24 @@ public class SimpleCollection extends Collection {
 	public void addChild(String name,Resource r) {
 		childs.put(name, r);
 	}
+	
+	public String toString(String pre) {
+		String ret = "";
+		for (String n : childs.keySet()) {
+			Resource r  = childs.get(n);
+			boolean col = r instanceof SimpleCollection;
+			ret += pre + n + (col ? "(C)" : "(R)") + "\n";
+			if (r instanceof SimpleCollection) {
+				ret += ((SimpleCollection) r).toString(pre + "  ");
+			}
+		}
+		return ret;		
+	}
 
+	@Override
+	public String toString() {
+		return toString("");
+	}
 
 
 }

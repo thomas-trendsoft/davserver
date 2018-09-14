@@ -13,5 +13,9 @@ For testing surpose i will try to get this framework running against the litmus 
 0. init.................. pass
 1. begin................. pass
 2. options............... pass
-3. put_get............... WARNING: length mismatch: 4 vs 41
-
+3. put_get............... pass
+4. put_get_utf8_segment.. pass
+5. mkcol_over_plain...... pass
+6. delete................ pass
+7. delete_null........... pass
+8. delete_fragment....... FAIL (DELETE on `/simple/litmus/frag/': 404 Not Found)

@@ -36,6 +36,7 @@ public class DAVPut {
 		try {
 			repos.createResource(url.getResref(),req.getEntity().getContent());
 			resp.setStatusCode(201);
+			System.out.println(repos.toString());
 		} catch (ConflictException ce) {
 			DAVUtil.handleError(new DAVException(409, ce.getMessage()),resp);
 			return;

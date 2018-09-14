@@ -47,9 +47,11 @@ public class DAVMkCol {
 			return;
 		}
 		
+		// create new collection
 		try {
 			repos.createCollection(url.getResref());
 			resp.setStatusCode(201);
+			System.out.println(repos.toString());
 		} catch (ConflictException ce) {
 			DAVUtil.handleError(new DAVException(409, ce.getMessage()),resp);
 			return;

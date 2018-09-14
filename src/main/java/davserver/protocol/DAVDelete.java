@@ -16,36 +16,24 @@ public class DAVDelete {
 
 	public void handleDelete(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) {
 		System.out.println("handle delete");
-		Resource r = null;
-		
-		// check resource to be deleted
-		if (durl.getResref() == null) {
-			try {
-				r = repos.locate(durl.getResref());
-			} catch (NotFoundException e) {
-				DAVUtil.handleError(new DAVException(404,"not found"), resp);
-				return;
-			} catch (NotAllowedException e) {
-				DAVUtil.handleError(new DAVException(403,"not allowed"), resp);
-				return;
-			}
-		}
-		
-		if (r == null) {
+
+		if (durl == null || durl.getResref() == null) {
 			DAVUtil.handleError(new DAVException(404,"not found"), resp);
 			return;
 		}
 		
 		try {
-			repos.remove(r);
+			repos.remove(durl.getResref());
 			resp.setStatusCode(204);
 		} catch (LockedException le) {
 			DAVUtil.handleError(new DAVException(423,le.getMessage()),resp);
 			return;
-		} catch (Exception e) {
-			e.printStackTrace();
-			DAVUtil.handleError(new DAVException(500,e.getMessage()),resp);
+		} catch (NotFoundException e) {
+			DAVUtil.handleError(new DAVException(404,e.getMessage()),resp);
 			return;
+		} catch (NotAllowedException e) {
+			DAVUtil.handleError(new DAVException(403,e.getMessage()),resp);
+			return;			
 		}
 		
 	}

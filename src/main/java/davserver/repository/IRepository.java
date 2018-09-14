@@ -3,6 +3,7 @@ package davserver.repository;
 import java.io.IOException;
 import java.io.InputStream;
 
+import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.repository.error.RepositoryException;
@@ -11,7 +12,7 @@ public interface IRepository {
 	
 	public Resource locate(String uri) throws NotFoundException,NotAllowedException;
 	
-	public void remove(Resource r) throws Exception;
+	public void remove(String uri) throws NotFoundException,NotAllowedException,LockedException;
 	
 	public void createCollection(String ref) throws RepositoryException;
 	
