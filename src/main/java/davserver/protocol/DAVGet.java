@@ -20,19 +20,29 @@ import davserver.repository.Resource;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 
+/**
+ * HTTP GET Implementation class
+ * 
+ * @author tkrieger
+ *
+ */
 public class DAVGet {
 
 	private boolean debug;
 	
+	/**
+	 * Defaultkonstruktor 
+	 */
 	public DAVGet() {
 		this.debug = true;
 	}
 	
 	/**
+	 * Handle the HTTP Get Method
 	 * 
-	 * @param req
-	 * @param response
-	 * @param repos
+	 * @param req HTTP Request
+	 * @param response HTTP Response
+	 * @param repos Repository
 	 */
 	public void handleGet(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
 		System.out.println("handle get");

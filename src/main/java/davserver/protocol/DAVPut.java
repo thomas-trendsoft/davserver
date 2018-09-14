@@ -13,6 +13,12 @@ import davserver.repository.error.ConflictException;
 import davserver.repository.error.RepositoryException;
 import davserver.repository.error.ResourceExistsException;
 
+/**
+ * HTTP PUT Implementation class
+ * 
+ * @author tkrieger
+ *
+ */
 public class DAVPut {
 
 	

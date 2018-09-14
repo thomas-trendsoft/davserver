@@ -29,10 +29,19 @@ import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.utils.XMLParser;
 
+/**
+ * HTTP PROPFIND Implementation class
+ * 
+ * @author tkrieger
+ *
+ */
 public class DAVPropFind {
 	
 	private boolean debug;
 	
+	/**
+	 * Defaultkonstruktor 
+	 */
 	public DAVPropFind() {
 		this.debug = true;
 	}

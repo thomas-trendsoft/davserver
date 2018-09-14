@@ -12,8 +12,22 @@ import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 
+/**
+ * DELETE Implementation Class
+ * 
+ * @author tkrieger
+ *
+ */
 public class DAVDelete {
 
+	/**
+	 * Handle the HTTP Method
+	 * 
+	 * @param req HTTP Request
+	 * @param resp HTTP Response
+	 * @param repos Repository
+	 * @param durl DAV Url
+	 */
 	public void handleDelete(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) {
 		System.out.println("handle delete");
 

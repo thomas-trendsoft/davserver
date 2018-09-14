@@ -15,10 +15,19 @@ import davserver.DAVUtil;
 import davserver.repository.IRepository;
 import davserver.utils.XMLParser;
 
+/**
+ * HTTP LOCK Implementation class
+ * 
+ * @author tkrieger
+ *
+ */
 public class DAVLock {
 
 	private boolean debug;
 	
+	/**
+	 * Defaultkonstruktor 
+	 */
 	public DAVLock() {
 		this.debug = true;
 	}

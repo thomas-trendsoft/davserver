@@ -15,13 +15,21 @@ import davserver.repository.error.NotFoundException;
 import davserver.repository.error.RepositoryException;
 import davserver.repository.error.ResourceExistsException;
 
+/**
+ * HTTP MKCOL Implementation class
+ * 
+ * @author tkrieger
+ *
+ */
 public class DAVMkCol {
 	
 	/**
 	 * Make Collection Implementation
 	 * 
-	 * @param req
-	 * @param resp
+	 * @param req HTTP Request
+	 * @param resp HTTP Response
+	 * @param repos Repository
+	 * @param url DAV Url
 	 */
 	public void handleMkCol(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
 		System.out.println("handle mkcol");
