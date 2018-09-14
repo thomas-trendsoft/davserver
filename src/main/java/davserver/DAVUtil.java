@@ -16,6 +16,7 @@ import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
 import davserver.repository.ResourceType;
+import davserver.repository.error.NotAllowedException;
 import davserver.utils.XMLParser;
 
 public class DAVUtil {
@@ -24,15 +25,24 @@ public class DAVUtil {
 	 * Parse DAV Url form URI
 	 * @param path
 	 * @return
+	 * @throws NotAllowedException 
 	 */
-	public static List<String> getPathComps(String path) {
+	public static List<String> getPathComps(String path) throws NotAllowedException {
 		List<String> comps = new LinkedList<String>();
 		String[] ret = path.split("/");
 		int i=0;
 		if (ret.length > 0) {
 			for (i=0;i<ret.length;i++) {
 				if (!ret[i].trim().isEmpty()) {
-					comps.add(ret[i]);
+					if (ret[i].trim().compareTo("..")==0) {
+						if (comps.size() > 0) {
+							comps.remove(comps.size()-1);
+						} else {
+							throw new NotAllowedException("no ref path found");
+						}
+					} else {
+						comps.add(ret[i]);						
+					}
 				}
 			}
 		}

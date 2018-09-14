@@ -41,7 +41,7 @@ public class SimpleRepository implements IRepository {
 		} 
 		
 		SimpleCollection cur = root;
-		for (int i=0;i<comps.size()-2;i++) {
+		for (int i=0;i<comps.size()-1;i++) {
 			Resource r = cur.getChild(comps.get(i));
 			if (r == null) {
 				throw new ConflictException("no parent found");
@@ -145,7 +145,7 @@ public class SimpleRepository implements IRepository {
 		}
 	}
 
-	public Resource locate(String uri) throws NotFoundException {
+	public Resource locate(String uri) throws NotFoundException, NotAllowedException {
 		System.out.println("locate resource: " + uri);
 		
 		// check root collection

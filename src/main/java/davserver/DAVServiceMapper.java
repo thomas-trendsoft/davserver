@@ -1,29 +1,19 @@
 package davserver;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
 import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.protocol.HttpContext;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 import davserver.protocol.DAVDelete;
 import davserver.protocol.DAVGet;
@@ -33,15 +23,7 @@ import davserver.protocol.DAVOptions;
 import davserver.protocol.DAVPropFind;
 import davserver.protocol.DAVPut;
 import davserver.repository.IRepository;
-import davserver.repository.Property;
-import davserver.repository.PropertyRef;
-import davserver.repository.Resource;
-import davserver.repository.error.ConflictException;
-import davserver.repository.error.LockedException;
-import davserver.repository.error.RepositoryException;
-import davserver.repository.error.ResourceExistsException;
 import davserver.repository.simple.SimpleRepository;
-import davserver.utils.XMLParser;
 
 // TODO Make Error Handling with multiple messages easier or enable it at least
 public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
@@ -171,7 +153,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		} else if (method.compareTo("DELETE")==0) {
 			delete.handleDelete(req, response, repos,durl);
 		} else if (method.compareTo("MKCOL")==0) {
-			mkcol.handleMkCol(req,response, repos,durl);
+			mkcol.handleMkCol((HttpEntityEnclosingRequest)req,response, repos,durl);
 		} else if (method.compareTo("PUT")==0) {
 			put.handlePut((HttpEntityEnclosingRequest)req,response,repos,durl);
 		} else if (method.compareTo("LOCK")==0) {

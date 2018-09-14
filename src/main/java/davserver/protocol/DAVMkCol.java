@@ -1,5 +1,6 @@
 package davserver.protocol;
 
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 
@@ -22,9 +23,15 @@ public class DAVMkCol {
 	 * @param req
 	 * @param resp
 	 */
-	public void handleMkCol(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
+	public void handleMkCol(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
 		System.out.println("handle mkcol");
 		Resource r = null;
+		
+		// check if a body is given
+		if (req.getEntity().getContentLength() > 0) {
+			DAVUtil.handleError(new DAVException(415,"No supported body mkcol"), resp);
+			return;
+		}
 		
 		// Check if a resource exits add the location
 		if (url.getResref() == null) {

@@ -30,7 +30,7 @@ public class DAVUrl {
 			} else {
 				repository = URLDecoder.decode(uri.substring(1, ci),"utf-8");
 			}
-			
+						
 			// create resource url
 			if (uri.length() >= ci) {
 				resref = URLDecoder.decode(uri.substring(ci),"utf-8");
