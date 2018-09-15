@@ -2,6 +2,7 @@ package davserver.repository.simple;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import davserver.DAVServer;
 import davserver.repository.Collection;
@@ -55,6 +56,11 @@ public class SimpleCollection extends Collection {
 	@Override
 	public String toString() {
 		return toString("");
+	}
+
+	@Override
+	public Iterator<Resource> getChildIterator() {
+		return childs.values().iterator();
 	}
 
 

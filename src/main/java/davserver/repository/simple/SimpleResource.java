@@ -4,10 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.UUID;
 
 import davserver.DAVServer;
+import davserver.DAVUtil;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
@@ -45,6 +48,16 @@ public class SimpleResource extends Resource {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return content.length();
+		}
+	}
+
+	@Override
+	public String getETag() {
+		try {
+			return DAVUtil.createHash(this.content);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return UUID.randomUUID().toString();
 		}
 	}
 

@@ -43,8 +43,9 @@ public class DAVGet {
 	 * @param req HTTP Request
 	 * @param response HTTP Response
 	 * @param repos Repository
+	 * @param head Flag for head request without body
 	 */
-	public void handleGet(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
+	public void handleGet(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,boolean head) {
 		System.out.println("handle get");
 		
 		// check url and repos
@@ -55,13 +56,14 @@ public class DAVGet {
 		
 		try {
 			Resource r = repos.locate(url.getResref());
+			resp.addHeader("ETag",r.getETag());
 			if (r instanceof Collection) {
 				DAVUtil.handleError(new DAVException(415,"not implemented"), resp);
 				return;				
 			} else if (r == null) {
 				DAVUtil.handleError(new DAVException(404,"not found"), resp);
 				return;				
-			} else {
+			} else if (!head) {
 				InputStream data;
 				if ((data = r.getContent()) != null) {
 					resp.setEntity(new InputStreamEntity(data));

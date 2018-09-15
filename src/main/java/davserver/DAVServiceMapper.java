@@ -146,7 +146,9 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		} else if (method.compareTo("PROPFIND")==0) {
 			propfind.handlePropFind((HttpEntityEnclosingRequest)req, response, repos,durl);
 		} else if (method.compareTo("GET")==0) {
-			get.handleGet(req,response, repos,durl);
+			get.handleGet(req,response, repos,durl,false);
+		} else if (method.compareTo("HEAD")==0) {
+			get.handleGet(req, response, repos, durl, true);
 		} else if (method.compareTo("OPTIONS")==0) {
 			System.out.println("options prepare: " + durl.getResref());
 			options.handleOptions(req, response, repos,durl);

@@ -31,6 +31,11 @@ public abstract class Resource {
 	 * @return
 	 */
 	public abstract Property getProperty(PropertyRef ref);
+	
+	/**
+	 * Get the current 
+	 */
+	public abstract String getETag();
 
 	/**
 	 * Check writeable status 

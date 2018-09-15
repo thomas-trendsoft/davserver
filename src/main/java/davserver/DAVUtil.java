@@ -1,5 +1,7 @@
 package davserver;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,17 +11,47 @@ import org.apache.http.HttpResponse;
 import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
-import davserver.repository.Collection;
-import davserver.repository.Property;
-import davserver.repository.PropertyRef;
-import davserver.repository.Resource;
-import davserver.repository.ResourceType;
 import davserver.repository.error.NotAllowedException;
 import davserver.utils.XMLParser;
 
 public class DAVUtil {
+	
+	/**
+	 * Helping method to create ETags 
+	 * 
+	 * @param data
+	 * @throws NoSuchAlgorithmException
+	 */
+	public static String createHash(String data) throws NoSuchAlgorithmException {
+	    MessageDigest md = MessageDigest.getInstance("MD5");
+	    md.update(data.getBytes());
+	    byte[] digest = md.digest();
+	    return hex2String(digest);
+	}
+	
+    /**
+     * Hilfsmethode zur Umwandlung eines Byte-Arrays in ein String (hashes etc.)
+     * 
+     * @param data
+     * @return Den data-Parameter als Hex-String
+     */
+    public static String hex2String(byte[] data)
+    {
+            String out,t;
+            int    c;
+            
+            out = "";
+            for (c=0;c<data.length;c++)
+            {
+                    t = Integer.toHexString(data[c] & 0xFF);
+                    if (t.length() < 2)
+                            t = "0" + t;
+                    out += t;
+            }
+            return out;
+    }
+
 	
 	/**
 	 * Parse DAV Url form URI
@@ -71,6 +103,8 @@ public class DAVUtil {
 		
 		resp.setStatusCode(e.getStatus());
 	}
+	
+	
 	
 	/**
 	 * Debugging Help method
