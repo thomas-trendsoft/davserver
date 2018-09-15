@@ -10,7 +10,7 @@ Authentication will be target in the future.
  
 THE PROJECT IS WORK IN PROGRESS and no useful release is done yet.
 
-For testing surpose i will try to get this framework running against the litmus project (https://github.com/tolsen/litmus).
+For testing surpose i will try to get this framework running against the litmus project (https://github.com/tolsen/litmus). First steps are done the library passes the base tests. 
 
 ## Litmus Progress
 

@@ -15,6 +15,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.protocol.HttpContext;
 
+import davserver.protocol.DAVCopy;
 import davserver.protocol.DAVDelete;
 import davserver.protocol.DAVGet;
 import davserver.protocol.DAVLock;
@@ -79,6 +80,11 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	private DAVOptions options;
 	
 	/**
+	 * COPY Implementation
+	 */
+	private DAVCopy copy;
+	
+	/**
 	 * Defaultkonstruktor 
 	 */
 	public DAVServiceMapper() {
@@ -93,6 +99,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		mkcol    = new DAVMkCol();
 		delete   = new DAVDelete();
 		options  = new DAVOptions();
+		copy     = new DAVCopy();
 		
 	}
 	
@@ -152,6 +159,8 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		} else if (method.compareTo("OPTIONS")==0) {
 			System.out.println("options prepare: " + durl.getResref());
 			options.handleOptions(req, response, repos,durl);
+		} else if (method.compareTo("COPY")==0) {
+			copy.handleCopy(req,response,repos,durl);
 		} else if (method.compareTo("DELETE")==0) {
 			delete.handleDelete(req, response, repos,durl);
 		} else if (method.compareTo("MKCOL")==0) {

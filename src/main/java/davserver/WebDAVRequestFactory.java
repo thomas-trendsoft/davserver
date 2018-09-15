@@ -25,6 +25,11 @@ public class WebDAVRequestFactory implements HttpRequestFactory {
             "LOCK"
     };
 
+    private static final String[] RFC4918_COMMON_METHODS = {
+            "COPY",
+            "MOVE"
+    };
+
     private static final String[] RFC2616_SPECIAL_METHODS = {
         "HEAD",
         "OPTIONS",
@@ -47,7 +52,7 @@ public class WebDAVRequestFactory implements HttpRequestFactory {
         Args.notNull(requestline, "Request line");
         final String method = requestline.getMethod();
         System.out.println("check method: " + method);
-        if (isOneOf(RFC2616_COMMON_METHODS, method)) {
+        if (isOneOf(RFC2616_COMMON_METHODS, method)  || isOneOf(RFC4918_COMMON_METHODS,method)) {
             return new BasicHttpRequest(requestline);
         } else if (isOneOf(RFC2616_ENTITY_ENC_METHODS, method) || isOneOf(RFC4918_ENTITY_ENC_METHODS,method)) {
             return new BasicHttpEntityEnclosingRequest(requestline);
