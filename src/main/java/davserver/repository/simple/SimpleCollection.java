@@ -16,7 +16,8 @@ public class SimpleCollection extends Collection {
 	
 	private HashMap<String,Resource> childs;
 	
-	public SimpleCollection() {
+	public SimpleCollection(String name) {
+		super(name);
 		properties = new HashMap<String,Property>();
 		properties.put("getlastmodified", new Property(DAVServer.Namespace,"getlastmodified",new Date(0)));
 		properties.put("creationdate",new Property(DAVServer.Namespace,"creationdate",new Date(0)));
@@ -62,6 +63,16 @@ public class SimpleCollection extends Collection {
 	public Iterator<Resource> getChildIterator() {
 		return childs.values().iterator();
 	}
+	
+	@Override
+	public void setProperty(Property p) {
+		if (p != null)
+			this.properties.put(p.getName(), p);
+	}
 
+	@Override
+	public Iterator<Property> getPropertyIterator() {
+		return properties.values().iterator();
+	}
 
 }

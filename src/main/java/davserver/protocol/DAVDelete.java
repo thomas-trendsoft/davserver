@@ -7,7 +7,6 @@ import davserver.DAVException;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
 import davserver.repository.IRepository;
-import davserver.repository.Resource;
 import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;

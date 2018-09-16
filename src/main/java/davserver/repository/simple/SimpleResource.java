@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.UUID;
 
 import davserver.DAVServer;
@@ -21,7 +22,8 @@ public class SimpleResource extends Resource {
 	
 	private String content;
 	
-	public SimpleResource() {
+	public SimpleResource(String name) {
+		super(name);
 		properties = new HashMap<String,Property>();
 		properties.put("getlastmodified", new Property(DAVServer.Namespace,"getlastmodified",new Date(0)));
 		properties.put("creationdate",new Property(DAVServer.Namespace,"creationdate",new Date(0)));
@@ -51,6 +53,7 @@ public class SimpleResource extends Resource {
 		}
 	}
 
+
 	@Override
 	public String getETag() {
 		try {
@@ -59,6 +62,17 @@ public class SimpleResource extends Resource {
 			e.printStackTrace();
 			return UUID.randomUUID().toString();
 		}
+	}
+
+	@Override
+	public Iterator<Property> getPropertyIterator() {
+		return properties.values().iterator();
+	}
+	
+	@Override
+	public void setProperty(Property p) {
+		if (p != null)
+			this.properties.put(p.getName(), p);
 	}
 
 

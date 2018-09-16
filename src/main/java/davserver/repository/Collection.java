@@ -16,6 +16,10 @@ import davserver.DAVUtil;
  */
 public abstract class Collection extends Resource {
 
+	public Collection(String name) {
+		super(name);
+	}
+
 	/***
 	 * Query a collection child with name 
 	 * 

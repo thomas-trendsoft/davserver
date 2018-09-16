@@ -10,7 +10,7 @@ import org.apache.http.util.Args;
 
 /**
  * HTTP Components Request Factory for WebDAV HTTP methods
- * 
+ * 	
  * @author tkrieger
  *
  */

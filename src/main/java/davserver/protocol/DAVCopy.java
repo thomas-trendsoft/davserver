@@ -3,6 +3,7 @@ package davserver.protocol;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
 
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
@@ -13,6 +14,7 @@ import davserver.DAVUrl;
 import davserver.DAVUtil;
 import davserver.repository.Collection;
 import davserver.repository.IRepository;
+import davserver.repository.Property;
 import davserver.repository.Resource;
 import davserver.repository.error.ConflictException;
 import davserver.repository.error.NotAllowedException;
@@ -26,8 +28,75 @@ import davserver.repository.error.ResourceExistsException;
  *
  */
 public class DAVCopy {
+	
+	/**
+	 * Copy a complete collection with depth from source to target
+	 * 
+	 * @param source
+	 * @param target
+	 */
+	private void copyCollection(IRepository repos, Collection source,String target,int depth) 
+			throws NotAllowedException, ConflictException, ResourceExistsException, NotFoundException, IOException 
+	{
+		Iterator<Resource> citer = source.getChildIterator();
+		Collection         nc    = repos.createCollection(target);
+		
+		copyProperties(source, nc);
+		
+		// Iterate child resource
+		while (citer.hasNext()) {
+			Resource r = citer.next();
+			if (r instanceof Collection && depth > 0) {
+				copyCollection(repos,(Collection)r,target + "/" + r.getName(),depth-1);
+			} else {
+				copyResource(repos,r,target + "/" + r.getName());
+			}
+		}
+	}
+	
+	/**
+	 * Copy a resource from source to target 
+	 * 
+	 * @param repos
+	 * @param source
+	 * @param target
+	 * @throws NotAllowedException
+	 * @throws ConflictException
+	 * @throws ResourceExistsException
+	 * @throws NotFoundException
+	 * @throws IOException
+	 */
+	private void copyResource(IRepository repos,Resource source,String target) 
+			throws NotAllowedException, ConflictException, ResourceExistsException, NotFoundException, IOException 
+	{
+		Resource r = repos.createResource(target, source.getContent());	
+		copyProperties(source,r);
+	}
+	
+	/**
+	 * Copy the properties of a resource to an target 
+	 * 
+	 * @param src
+	 * @param target
+	 */
+	private void copyProperties(Resource src,Resource target) {
+		Iterator<Property> iter = src.getPropertyIterator();
+		
+		while (iter.hasNext()) {
+			Property p = iter.next();
+			target.setProperty(p);
+		}
+	}
 
 	
+	/**
+	 * Handle COPY Request
+	 * 
+	 * @param req
+	 * @param resp
+	 * @param repos
+	 * @param url
+	 */
 	public void handleCopy(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
 		System.out.println("handle copy/move");
 
@@ -74,10 +143,20 @@ public class DAVCopy {
 			
 			// Check resource type of source element 
 			if (src instanceof Collection) {
-				DAVUtil.handleError(new DAVException(500,"not implemented"), resp);
-				return;
+				int    dv    = Integer.MAX_VALUE;
+				Header depth = req.getFirstHeader("Depth");
+				if (depth != null && depth.getValue().compareTo("infinity") != 0) {
+					try {
+						dv = Integer.parseInt(depth.getValue());
+					} catch (NumberFormatException nfe) {
+						DAVUtil.handleError(new DAVException(400,"bad request"), resp);
+						return;
+					}
+				}
+				copyCollection(repos,(Collection)src,turl.getResref(),dv);
+			// copy simple resource
 			} else {
-				repos.createResource(turl.getResref(), src.getContent());
+				copyResource(repos,src,turl.getResref());
 				resp.setStatusCode(201);
 			}
 			

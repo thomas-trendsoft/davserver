@@ -2,6 +2,7 @@ package davserver.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 import davserver.DAVUrl;
 
@@ -18,9 +19,14 @@ public abstract class Resource {
 	private boolean writeable;
 	
 	/**
+	 * Name of the resource
+	 */
+	private String name;
+	
+	/**
 	 * Defaultkonstruktor 
 	 */
-	public Resource() {
+	public Resource(String name) {
 		writeable = true;
 	}
 
@@ -31,6 +37,20 @@ public abstract class Resource {
 	 * @return
 	 */
 	public abstract Property getProperty(PropertyRef ref);
+	
+	/**
+	 * Set a property for the resource
+	 * 
+	 * @param p
+	 */
+	public abstract void setProperty(Property p);
+	
+	/**
+	 * Get a resource property iterator
+	 * 
+	 * @return
+	 */
+	public abstract Iterator<Property> getPropertyIterator();
 	
 	/**
 	 * Get the current 
@@ -60,5 +80,13 @@ public abstract class Resource {
 	 * @throws IOException
 	 */
 	public abstract InputStream getContent() throws IOException;
-	
+
+	/**
+	 * Get the resource name
+	 * @return
+	 */
+	public String getName() {
+		return name;
+	}
+
 }

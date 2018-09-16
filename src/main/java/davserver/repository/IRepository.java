@@ -44,7 +44,7 @@ public interface IRepository {
 	 * @param ref Resource reference
 	 * @throws RepositoryException
 	 */
-	public void createCollection(String ref) throws RepositoryException;
+	public Collection createCollection(String ref) throws NotAllowedException,ResourceExistsException,ConflictException;
 	
 	/**
 	 * Create a new resource on the given resource reference 
@@ -54,7 +54,7 @@ public interface IRepository {
 	 * @throws RepositoryException
 	 * @throws IOException
 	 */
-	public void createResource(String ref,InputStream data) throws NotAllowedException,ConflictException,ResourceExistsException,NotFoundException,IOException;
+	public Resource createResource(String ref,InputStream data) throws NotAllowedException,ConflictException,ResourceExistsException,NotFoundException,IOException;
 	
 	/**
 	 * Check if the repository supports locking

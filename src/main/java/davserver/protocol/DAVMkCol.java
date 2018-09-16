@@ -1,7 +1,6 @@
 package davserver.protocol;
 
 import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 
 import davserver.DAVException;

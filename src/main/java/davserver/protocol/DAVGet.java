@@ -2,14 +2,10 @@ package davserver.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
@@ -28,13 +24,10 @@ import davserver.repository.error.NotFoundException;
  */
 public class DAVGet {
 
-	private boolean debug;
-	
 	/**
 	 * Defaultkonstruktor 
 	 */
 	public DAVGet() {
-		this.debug = true;
 	}
 	
 	/**
@@ -57,11 +50,11 @@ public class DAVGet {
 		try {
 			Resource r = repos.locate(url.getResref());
 			resp.addHeader("ETag",r.getETag());
-			if (r instanceof Collection) {
-				DAVUtil.handleError(new DAVException(415,"not implemented"), resp);
-				return;				
-			} else if (r == null) {
+			if (r == null) {
 				DAVUtil.handleError(new DAVException(404,"not found"), resp);
+				return;								
+			} else if (r instanceof Collection) {
+				DAVUtil.handleError(new DAVException(415,"not implemented"), resp);
 				return;				
 			} else if (!head) {
 				InputStream data;
