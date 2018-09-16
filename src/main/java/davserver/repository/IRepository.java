@@ -3,10 +3,12 @@ package davserver.repository;
 import java.io.IOException;
 import java.io.InputStream;
 
+import davserver.repository.error.ConflictException;
 import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.repository.error.RepositoryException;
+import davserver.repository.error.ResourceExistsException;
 
 /**
  * Repository Interface for own repository implementations 
@@ -52,7 +54,7 @@ public interface IRepository {
 	 * @throws RepositoryException
 	 * @throws IOException
 	 */
-	public void createResource(String ref,InputStream data) throws RepositoryException,IOException;
+	public void createResource(String ref,InputStream data) throws NotAllowedException,ConflictException,ResourceExistsException,NotFoundException,IOException;
 	
 	/**
 	 * Check if the repository supports locking

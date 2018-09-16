@@ -8,6 +8,12 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.util.Args;
 
+/**
+ * HTTP Components Request Factory for WebDAV HTTP methods
+ * 
+ * @author tkrieger
+ *
+ */
 public class WebDAVRequestFactory implements HttpRequestFactory {
 	
     private static final String[] RFC2616_COMMON_METHODS = {

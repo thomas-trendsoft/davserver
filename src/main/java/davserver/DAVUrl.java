@@ -3,14 +3,35 @@ package davserver;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+/**
+ * Resource URL Helper class 
+ * 
+ * @author tkrieger
+ *
+ */
 public class DAVUrl {
 	
+	/**
+	 * URL prefix
+	 */
 	private String prefix;
 	
+	/**
+	 * Repository name (URL Path Element)
+	 */
 	private String repository;
 	
+	/**
+	 * Resource reference
+	 */
 	private String resref;
 	
+	/**
+	 * Defaultkonstruktor 
+	 * 
+	 * @param url
+	 * @param prefix
+	 */
 	public DAVUrl(String url,String prefix) {
 
 		this.prefix     = prefix;
@@ -48,14 +69,29 @@ public class DAVUrl {
 		}
 	}
 
+	/**
+	 * Get url prefix
+	 * 
+	 * @return
+	 */
 	public String getPrefix() {
 		return prefix;
 	}
 
+	/**
+	 * Get the repository name
+	 * 
+	 * @return
+	 */
 	public String getRepository() {
 		return repository;
 	}
 
+	/**
+	 * Get resource reference
+	 * 
+	 * @return
+	 */
 	public String getResref() {
 		return resref;
 	}

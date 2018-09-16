@@ -15,6 +15,12 @@ import org.w3c.dom.Element;
 import davserver.repository.error.NotAllowedException;
 import davserver.utils.XMLParser;
 
+/**
+ * Helping class for some protocol support 
+ * 
+ * @author tkrieger
+ *
+ */
 public class DAVUtil {
 	
 	/**

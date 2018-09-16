@@ -71,7 +71,7 @@ public class SimpleRepository implements IRepository {
 		System.out.println("added child collection :" + last);
 	}
 	
-	public void createResource(String ref,InputStream data) throws RepositoryException,IOException {
+	public void createResource(String ref,InputStream data) throws ConflictException,NotAllowedException,IOException {
 		List<String> comps = DAVUtil.getPathComps(ref);
 		
 		if (comps.size() == 0) {
