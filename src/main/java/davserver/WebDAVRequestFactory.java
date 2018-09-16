@@ -27,6 +27,7 @@ public class WebDAVRequestFactory implements HttpRequestFactory {
     
     private static final String[] RFC4918_ENTITY_ENC_METHODS = {
             "PROPFIND",
+            "PROPPATCH",
             "MKCOL",
             "LOCK"
     };

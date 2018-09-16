@@ -22,6 +22,7 @@ import davserver.protocol.DAVLock;
 import davserver.protocol.DAVMkCol;
 import davserver.protocol.DAVOptions;
 import davserver.protocol.DAVPropFind;
+import davserver.protocol.DAVPropPatch;
 import davserver.protocol.DAVPut;
 import davserver.repository.IRepository;
 import davserver.repository.simple.SimpleRepository;
@@ -48,6 +49,11 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	 * PROPFIND Implementation
 	 */
 	private DAVPropFind propfind;
+	
+	/**
+	 * PROFPATCH Implementation
+	 */
+	private DAVPropPatch proppatch;
 	
 	/**
 	 * LOCK Implementation
@@ -149,9 +155,13 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 
 		// 404 if no repository is found
 		if (repos == null) {
-			response.setStatusCode(404);			
-		} else if (method.compareTo("PROPFIND")==0) {
-			propfind.handlePropFind((HttpEntityEnclosingRequest)req, response, repos,durl);
+			response.setStatusCode(404);	
+		} else if (method.startsWith("PROP")) {
+			if (method.compareTo("PROPFIND")==0) {
+				propfind.handlePropFind((HttpEntityEnclosingRequest)req, response, repos,durl);
+			} else if (method.compareTo("PROPPATCH")==0) {
+				proppatch.handlePropPatch((HttpEntityEnclosingRequest)req,response,repos,durl);
+			}
 		} else if (method.compareTo("GET")==0) {
 			get.handleGet(req,response, repos,durl,false);
 		} else if (method.compareTo("HEAD")==0) {
@@ -160,7 +170,9 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 			System.out.println("options prepare: " + durl.getResref());
 			options.handleOptions(req, response, repos,durl);
 		} else if (method.compareTo("COPY")==0) {
-			copy.handleCopy(req,response,repos,durl);
+			copy.handleCopy(req,response,repos,durl,false);
+		} else if (method.compareTo("MOVE")==0) {
+			copy.handleCopy(req, response, repos, durl, true);
 		} else if (method.compareTo("DELETE")==0) {
 			delete.handleDelete(req, response, repos,durl);
 		} else if (method.compareTo("MKCOL")==0) {

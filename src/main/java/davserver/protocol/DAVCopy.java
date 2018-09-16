@@ -30,6 +30,15 @@ import davserver.repository.error.ResourceExistsException;
 public class DAVCopy {
 	
 	/**
+	 *  DELETE for move
+	 */
+	private DAVDelete delete;
+	
+	public DAVCopy() {
+		delete = new DAVDelete();
+	}
+	
+	/**
 	 * Copy a complete collection with depth from source to target
 	 * 
 	 * @param source
@@ -52,6 +61,7 @@ public class DAVCopy {
 				copyResource(repos,r,target + "/" + r.getName());
 			}
 		}
+		
 	}
 	
 	/**
@@ -97,7 +107,7 @@ public class DAVCopy {
 	 * @param repos
 	 * @param url
 	 */
-	public void handleCopy(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
+	public void handleCopy(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,boolean move) {
 		System.out.println("handle copy/move");
 
 		try {
@@ -131,10 +141,12 @@ public class DAVCopy {
 			}	
 			
 			try {
-				Resource target = repos.locate(turl.getResref());				
-				if (target != null && ow.getValue().compareTo("F")==0) {
-					DAVUtil.handleError(new DAVException(412,"precondition failed"), resp);
-					return;
+				Resource target = repos.locate(turl.getResref());
+				if (target != null) {
+					if (ow.getValue().compareTo("F")==0) {
+						DAVUtil.handleError(new DAVException(412,"precondition failed"), resp);
+						return;
+					} 
 				}
 			} catch (NotFoundException nfe) {
 				// exception ok 
@@ -143,6 +155,7 @@ public class DAVCopy {
 			
 			// Check resource type of source element 
 			if (src instanceof Collection) {
+				
 				int    dv    = Integer.MAX_VALUE;
 				Header depth = req.getFirstHeader("Depth");
 				if (depth != null && depth.getValue().compareTo("infinity") != 0) {
@@ -153,12 +166,20 @@ public class DAVCopy {
 						return;
 					}
 				}
+				
 				copyCollection(repos,(Collection)src,turl.getResref(),dv);
+				
 			// copy simple resource
 			} else {
 				copyResource(repos,src,turl.getResref());
-				resp.setStatusCode(201);
 			}
+			
+			// if move delete the source
+			if (move) {
+				delete.handleDelete(req, resp, repos, url);
+			}
+			
+			resp.setStatusCode(201);
 			
 		} catch (NotAllowedException nae) {
 			DAVUtil.handleError(new DAVException(403,nae.getMessage()), resp);

@@ -52,7 +52,7 @@ public class DAVGet {
 			resp.addHeader("ETag",r.getETag());
 			if (r == null) {
 				DAVUtil.handleError(new DAVException(404,"not found"), resp);
-				return;								
+				return;
 			} else if (r instanceof Collection) {
 				DAVUtil.handleError(new DAVException(415,"not implemented"), resp);
 				return;				
