@@ -28,6 +28,7 @@ public abstract class Resource {
 	 */
 	public Resource(String name) {
 		writeable = true;
+		this.name = name;
 	}
 
 	/**

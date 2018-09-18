@@ -57,7 +57,7 @@ public class DAVCopy {
 		while (citer.hasNext()) {
 			Resource r = citer.next();
 			if (r instanceof Collection && depth > 0) {
-				copyCollection(repos,(Collection)r,target + "/" + r.getName(),depth-1);
+				copyCollection(repos,(Collection)r,target + "/" + ((Collection)r).getName(),depth-1);
 			} else {
 				copyResource(repos,r,target + "/" + r.getName());
 			}
@@ -110,6 +110,7 @@ public class DAVCopy {
 	 */
 	public void handleCopy(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,boolean move) {
 		System.out.println("handle copy/move");
+		int stat = 201;
 
 		try {
 			// check destination header
@@ -141,9 +142,18 @@ public class DAVCopy {
 				return;
 			}	
 			
+			// check if source and target the same
+			if (turl.getResref().compareTo(url.getResref()) == 0) {
+				DAVUtil.handleError(new DAVException(403,"source is target"), resp);
+				return;
+			}
+			
+			// check target and overwrite options
 			try {
 				Resource target = repos.locate(turl.getResref());
 				if (target != null) {
+					// update http response
+					stat = 204;
 					if (ow == null || ow.getValue().compareTo("F")==0) {
 						DAVUtil.handleError(new DAVException(412,"precondition failed"), resp);
 						return;
@@ -187,10 +197,14 @@ public class DAVCopy {
 			
 			// if move delete the source
 			if (move) {
-				delete.handleDelete(req, resp, repos, url);
+				try {
+					repos.remove(url.getResref());
+				} catch (LockedException le) {
+					DAVUtil.handleError(new DAVException(500,"cant delete source"), resp);
+				}
 			}
 			
-			resp.setStatusCode(201);
+			resp.setStatusCode(stat);
 			
 		} catch (NotAllowedException nae) {
 			DAVUtil.handleError(new DAVException(403,nae.getMessage()), resp);

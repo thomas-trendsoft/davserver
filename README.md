@@ -35,29 +35,26 @@ For testing surpose i will try to get this framework running against the litmus 
 16. chk_ETag.............. pass
 17. finish................ pass
 <- summary for `basic': of 18 tests run: 18 passed, 0 failed. 100.0%
--> running 'copymove':
+-> running écopymove':
  0. init.................. pass
  1. begin................. pass
  2. copy_init............. pass
  3. copy_simple........... pass
- 4. copy_overwrite........ FAIL (COPY overwrites collection: 403 Forbidden)
+ 4. copy_overwrite........ pass
  5. copy_nodestcoll....... WARNING: COPY to non-existant collection '/simple/litmus/nonesuch' gave '403 Forbidden' not 409
     ...................... pass (with 1 warning)
  6. copy_cleanup.......... pass
  7. copy_content_check.... pass
- 8. copy_coll_depth....... FAIL (COPY destination missing coll /simple/litmus/cdest/subsrc? 404 Not Found)
- 9. copy_coll............. WARNING: COPY to new collection gave 200, should be 201
-    ...................... FAIL (COPY-to-self should fail)
+ 8. copy_coll_depth....... FAIL (collection COPY é/simple/litmus/csrc/' to é/simple/litmus/cdest/': 500 Internal Server Error)
+ 9. copy_coll............. pass
 10. depth_zero_copy....... FAIL (collection COPY é/simple/litmus/copy-a' to é/simple/litmus/copy-b', depth infinity: 500 Internal Server Error)
-11. copy_med_on_coll...... FAIL (collection COPY é/simple/litmus/foofile' to é/simple/litmus/dest': 403 Forbidden)
+11. copy_med_on_coll...... pass
 12. move.................. pass
-13. move_coll............. WARNING: COPY to new collection gave 200, should be 201
-WARNING: Move to new collection gave 200, should be 201
-    ...................... FAIL (MOVE-to-self should fail)
+13. move_coll............. pass
 14. move_cleanup.......... pass
 15. move_content_check.... pass
-16. move_collection_check. FAIL (DELETE on normal resource failed: 404 Not Found)
+16. move_collection_check. pass
 17. finish................ pass
-<- summary for écopymove': of 18 tests run: 11 passed, 7 failed. 61.1%
--> 4 warnings were issued.
+<- summary for écopymove': of 18 tests run: 16 passed, 2 failed. 88.9%
+-> 1 warning was issued.
 
