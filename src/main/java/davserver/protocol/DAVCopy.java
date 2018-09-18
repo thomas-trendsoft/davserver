@@ -17,6 +17,7 @@ import davserver.repository.IRepository;
 import davserver.repository.Property;
 import davserver.repository.Resource;
 import davserver.repository.error.ConflictException;
+import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.repository.error.ResourceExistsException;
@@ -143,10 +144,20 @@ public class DAVCopy {
 			try {
 				Resource target = repos.locate(turl.getResref());
 				if (target != null) {
-					if (ow.getValue().compareTo("F")==0) {
+					if (ow == null || ow.getValue().compareTo("F")==0) {
 						DAVUtil.handleError(new DAVException(412,"precondition failed"), resp);
 						return;
-					} 
+					} else if (ow.getValue().compareTo("T")==0) {
+						try {
+							repos.remove(turl.getResref());
+						} catch (LockedException e) {
+							e.printStackTrace();
+							DAVUtil.handleError(new DAVException(412,"locked"), resp);
+						}
+					} else {
+						DAVUtil.handleError(new DAVException(400,"bad request"), resp);
+						return;
+					}
 				}
 			} catch (NotFoundException nfe) {
 				// exception ok 
@@ -159,9 +170,9 @@ public class DAVCopy {
 				int    dv    = Integer.MAX_VALUE;
 				Header depth = req.getFirstHeader("Depth");
 				if (depth != null && depth.getValue().compareTo("infinity") != 0) {
-					try {
-						dv = Integer.parseInt(depth.getValue());
-					} catch (NumberFormatException nfe) {
+					if (depth.getValue().compareTo("0")==0) {
+						dv = 0;
+					} else {
 						DAVUtil.handleError(new DAVException(400,"bad request"), resp);
 						return;
 					}

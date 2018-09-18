@@ -49,19 +49,21 @@ public class DAVGet {
 		
 		try {
 			Resource r = repos.locate(url.getResref());
-			resp.addHeader("ETag",r.getETag());
-			if (r == null) {
+			if (r != null) {
+				resp.addHeader("ETag",r.getETag());
+				if (r instanceof Collection) {
+					DAVUtil.handleError(new DAVException(415,"not implemented"), resp);
+					return;
+				} else if (!head) {
+					InputStream data;
+					if ((data = r.getContent()) != null) {
+						resp.setEntity(new InputStreamEntity(data));
+					}
+				}
+			} else {
 				DAVUtil.handleError(new DAVException(404,"not found"), resp);
 				return;
-			} else if (r instanceof Collection) {
-				DAVUtil.handleError(new DAVException(415,"not implemented"), resp);
-				return;				
-			} else if (!head) {
-				InputStream data;
-				if ((data = r.getContent()) != null) {
-					resp.setEntity(new InputStreamEntity(data));
-				}
-			}
+			} 
 		} catch (NotAllowedException nae) {
 			DAVUtil.handleError(new DAVException(403,"not allowed"), resp);
 			return;

@@ -27,6 +27,11 @@ public class Property {
 	private Object value;
 	
 	/**
+	 * Live flag
+	 */
+	private boolean live;
+	
+	/**
 	 * Defaultkonstruktor 
 	 * 
 	 * @param ns Namespace
@@ -100,5 +105,16 @@ public class Property {
 		}
 		return elem;
 	}
+
+	/**
+	 * live flag 
+	 * 
+	 * @return
+	 */
+	public boolean isLive() {
+		return live;
+	}
+	
+	
 	
 }
