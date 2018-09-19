@@ -49,6 +49,7 @@ public class DAVPropFind {
 		this.debug = true;
 	}
 	
+	
 	/**
 	 * Lists all Properties to an multistatus response 
 	 * 
@@ -57,20 +58,20 @@ public class DAVPropFind {
 	 * @param refs
 	 * @param depth
 	 */
-	public static void createPropFindResp(Element multistatus,DAVUrl rurl,Resource r,List<PropertyRef> refs,int depth) {
+	public void createPropFindResp(Element multistatus,DAVUrl rurl,Resource r,List<PropertyRef> refs,int depth) {
 		HashSet<String> done = new HashSet<String>();
-		
+		Document       owner = multistatus.getOwnerDocument();
 		// response root
-		Element rres = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "response");
+		Element rres = owner.createElementNS(DAVServer.Namespace, "response");
 		multistatus.appendChild(rres);
 
 		// href for resource
-		Element href = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace,"href");
+		Element href = owner.createElementNS(DAVServer.Namespace,"href");
 		href.setTextContent(rurl.getPrefix() + "/" + rurl.getRepository() + rurl.getResref());
 		rres.appendChild(href);
 		
 		// propstat element
-		Element propstat = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "propstat");
+		Element propstat = owner.createElementNS(DAVServer.Namespace, "propstat");
 		rres.appendChild(propstat);
 		
 		// iter property requests
@@ -100,9 +101,9 @@ public class DAVPropFind {
 						notfound.add(spr);
 					} else {
 						if (!done.contains(p.getNamespace() + ":" + p.getName())) {
-							Element prop = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "prop");
+							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 							propstat.appendChild(prop);
-							prop.appendChild(p.toXML(multistatus.getOwnerDocument()));
+							prop.appendChild(p.toXML(owner));
 							done.add(p.getNamespace() + ":" + p.getName());
 						}
 					}
@@ -112,9 +113,9 @@ public class DAVPropFind {
 				while (piter.hasNext()) {
 					Property p = piter.next();
 					if (!done.contains(p.getNamespace() + ":" + p.getName())) {
-						Element prop = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "prop");
+						Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 						propstat.appendChild(prop);
-						prop.appendChild(p.toXML(multistatus.getOwnerDocument()));
+						prop.appendChild(p.toXML(owner));
 						done.add(p.getNamespace() + ":" + p.getName());
 					}
  				}
@@ -126,17 +127,17 @@ public class DAVPropFind {
 						p = new ResourceType(DAVServer.Namespace,"collection");
 					else 
 						p = new ResourceType(null,null);					
-					Element prop = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "prop");
+					Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 					propstat.appendChild(prop);
-					prop.appendChild(p.toXML(multistatus.getOwnerDocument()));
+					prop.appendChild(p.toXML(owner));
 					done.add(p.getNamespace() + ":" + p.getName());
 				}
 				
 				if (!done.contains(DAVServer.Namespace + ":getcontentlength")) {
 					p = new Property(DAVServer.Namespace, "getcontentlength", r.getContentLength());
-					Element prop = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "prop");
+					Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 					propstat.appendChild(prop);
-					prop.appendChild(p.toXML(multistatus.getOwnerDocument()));
+					prop.appendChild(p.toXML(owner));
 					done.add(p.getNamespace() + ":" + p.getName());
 				}
 			}
@@ -171,7 +172,7 @@ public class DAVPropFind {
 	 * @return
 	 * @throws DAVException
 	 */
-	public static List<PropertyRef> readPropFindReq(Element root,Resource r) throws DAVException {
+	public List<PropertyRef> readPropFindReq(Element root,Resource r) throws DAVException {
 		
 		// check namespace and node name
 		if (root.getNamespaceURI() == null || root.getNamespaceURI().compareTo(DAVServer.Namespace) != 0) {

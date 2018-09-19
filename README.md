@@ -10,51 +10,12 @@ Authentication will be target in the future.
  
 THE PROJECT IS WORK IN PROGRESS and no useful release is done yet.
 
-For testing surpose i will try to get this framework running against the litmus project (https://github.com/tolsen/litmus). First steps are done the library passes the base tests. 
+For testing surpose i will try to get this framework running against the litmus project (https://github.com/tolsen/litmus). First steps are done the library passes the base tests.
+ 
+ First success to edit a simple text file on a hosted "WebDAV" drive on my Mac.
 
 ## Litmus Progress
 
--> running `basic':
- 0. init.................. pass
- 1. begin................. pass
- 2. options............... pass
- 3. put_get............... pass
- 4. put_get_utf8_segment.. pass
- 5. mkcol_over_plain...... pass
- 6. delete................ pass
- 7. delete_null........... pass
- 8. delete_fragment....... WARNING: DELETE removed collection resource with Request-URI including fragment; unsafe
-    ...................... pass (with 1 warning)
- 9. mkcol................. pass
-10. mkcol_percent_encoded. pass
-11. mkcol_again........... pass
-12. delete_coll........... pass
-13. mkcol_no_parent....... pass
-14. mkcol_with_body....... pass
-15. mkcol_forbidden....... pass
-16. chk_ETag.............. pass
-17. finish................ pass
-<- summary for `basic': of 18 tests run: 18 passed, 0 failed. 100.0%
--> running écopymove':
- 0. init.................. pass
- 1. begin................. pass
- 2. copy_init............. pass
- 3. copy_simple........... pass
- 4. copy_overwrite........ pass
- 5. copy_nodestcoll....... WARNING: COPY to non-existant collection '/simple/litmus/nonesuch' gave '403 Forbidden' not 409
-    ...................... pass (with 1 warning)
- 6. copy_cleanup.......... pass
- 7. copy_content_check.... pass
- 8. copy_coll_depth....... FAIL (collection COPY é/simple/litmus/csrc/' to é/simple/litmus/cdest/': 500 Internal Server Error)
- 9. copy_coll............. pass
-10. depth_zero_copy....... FAIL (collection COPY é/simple/litmus/copy-a' to é/simple/litmus/copy-b', depth infinity: 500 Internal Server Error)
-11. copy_med_on_coll...... pass
-12. move.................. pass
-13. move_coll............. pass
-14. move_cleanup.......... pass
-15. move_content_check.... pass
-16. move_collection_check. pass
-17. finish................ pass
-<- summary for écopymove': of 18 tests run: 16 passed, 2 failed. 88.9%
--> 1 warning was issued.
-
+-> running `basic': done (with warnings)
+-> running 'copymove': done (with warnings)
+-> running 'props': FAILS
