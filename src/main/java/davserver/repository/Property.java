@@ -114,7 +114,6 @@ public class Property {
 	public boolean isLive() {
 		return live;
 	}
-	
-	
+		
 	
 }

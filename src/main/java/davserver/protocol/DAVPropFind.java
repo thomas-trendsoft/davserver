@@ -1,6 +1,8 @@
 package davserver.protocol;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -55,10 +57,23 @@ public class DAVPropFind {
 	 * @param refs
 	 * @param depth
 	 */
-	public static void createPropFindResp(Element multistatus,Resource r,List<PropertyRef> refs,int depth) {
+	public static void createPropFindResp(Element multistatus,DAVUrl rurl,Resource r,List<PropertyRef> refs,int depth) {
+		HashSet<String> done = new HashSet<String>();
+		
+		// response root
 		Element rres = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "response");
 		multistatus.appendChild(rres);
+
+		// href for resource
+		Element href = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace,"href");
+		href.setTextContent(rurl.getPrefix() + "/" + rurl.getRepository() + rurl.getResref());
+		rres.appendChild(href);
 		
+		// propstat element
+		Element propstat = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "propstat");
+		rres.appendChild(propstat);
+		
+		// iter property requests
 		List<PropertyRef> notfound = new LinkedList<PropertyRef>();
 		System.out.println("req pref count: " + refs.size());
 		for (PropertyRef pr : refs) {
@@ -84,11 +99,68 @@ public class DAVPropFind {
 						System.out.println("property not found: " + spr.getNs() + ":" + spr.getName());
 						notfound.add(spr);
 					} else {
-						rres.appendChild(p.toXML(multistatus.getOwnerDocument()));
+						if (!done.contains(p.getNamespace() + ":" + p.getName())) {
+							Element prop = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "prop");
+							propstat.appendChild(prop);
+							prop.appendChild(p.toXML(multistatus.getOwnerDocument()));
+							done.add(p.getNamespace() + ":" + p.getName());
+						}
 					}
 				}
+			} else if (pr.getType() == PropertyRef.ALLPROP) {
+				Iterator<Property> piter = r.getPropertyIterator();
+				while (piter.hasNext()) {
+					Property p = piter.next();
+					if (!done.contains(p.getNamespace() + ":" + p.getName())) {
+						Element prop = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "prop");
+						propstat.appendChild(prop);
+						prop.appendChild(p.toXML(multistatus.getOwnerDocument()));
+						done.add(p.getNamespace() + ":" + p.getName());
+					}
+ 				}
+				
+				// dav properties
+				Property p;
+				if (!done.contains(DAVServer.Namespace + ":resourcetype")) {
+					if (r instanceof Collection)
+						p = new ResourceType(DAVServer.Namespace,"collection");
+					else 
+						p = new ResourceType(null,null);					
+					Element prop = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "prop");
+					propstat.appendChild(prop);
+					prop.appendChild(p.toXML(multistatus.getOwnerDocument()));
+					done.add(p.getNamespace() + ":" + p.getName());
+				}
+				
+				if (!done.contains(DAVServer.Namespace + ":getcontentlength")) {
+					p = new Property(DAVServer.Namespace, "getcontentlength", r.getContentLength());
+					Element prop = multistatus.getOwnerDocument().createElementNS(DAVServer.Namespace, "prop");
+					propstat.appendChild(prop);
+					prop.appendChild(p.toXML(multistatus.getOwnerDocument()));
+					done.add(p.getNamespace() + ":" + p.getName());
+				}
 			}
-		}			
+		}
+		
+		// on collection with depth request append child resources
+		if (depth > 0 && r instanceof Collection) {
+			System.out.println("append child resources");
+			Collection             c = (Collection)r;
+			Iterator<Resource> riter = c.getChildIterator();
+			String              base = rurl.getPrefix() + "/" + rurl.getRepository() + rurl.getResref();
+			
+			while (riter.hasNext()) {
+				String   nu  = null;
+				Resource cr  = riter.next();
+				if (cr instanceof Collection) {
+					nu = base + cr.getName() + "/";
+				} else {
+					nu = base + cr.getName();
+				}
+				DAVUrl curl = new DAVUrl(nu, rurl.getPrefix());
+				createPropFindResp(multistatus, curl, cr, refs, 0);
+			}
+		}
 		
 	}
 	
@@ -99,7 +171,7 @@ public class DAVPropFind {
 	 * @return
 	 * @throws DAVException
 	 */
-	public static List<PropertyRef> readPropFindReq(Element root) throws DAVException {
+	public static List<PropertyRef> readPropFindReq(Element root,Resource r) throws DAVException {
 		
 		// check namespace and node name
 		if (root.getNamespaceURI() == null || root.getNamespaceURI().compareTo(DAVServer.Namespace) != 0) {
@@ -127,6 +199,9 @@ public class DAVPropFind {
 							sr = sr.getNextSibling();
 						}
 						ret.add(plist);
+					} else if (e.getLocalName().compareTo("allprop")==0) {
+						PropertyRef all = new PropertyRef(PropertyRef.ALLPROP);
+						ret.add(all);
 					} else {
 						throw new DAVException(415,"Unsupported dav property: " + e.getNodeName());
 					}
@@ -206,7 +281,7 @@ public class DAVPropFind {
 				System.out.println("got a propfind body: " + body);
 				if (debug) { DAVUtil.debug(body); }
 				// read requested properties
-				reflist = readPropFindReq(body.getDocumentElement());
+				reflist = readPropFindReq(body.getDocumentElement(),r);
 			} catch (SAXParseException pe) {
 				System.out.println("bad xml");
 				DAVUtil.handleError(new DAVException(400,pe.getMessage()),resp);
@@ -241,7 +316,7 @@ public class DAVPropFind {
 			rdoc.appendChild(rroot);
 			
 			// Query requested properties
-			createPropFindResp(rroot, r, reflist, depthval);
+			createPropFindResp(rroot,durl, r, reflist, depthval);
 			xmlDoc = XMLParser.singleton().serializeDoc(rdoc);
 			
 		} catch (Exception e) {
