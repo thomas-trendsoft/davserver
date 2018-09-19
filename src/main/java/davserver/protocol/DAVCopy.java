@@ -45,19 +45,35 @@ public class DAVCopy {
 	 * @param source
 	 * @param target
 	 */
-	private void copyCollection(IRepository repos, Collection source,String target,int depth) 
+	private void copyCollection(IRepository repos, Collection source,String target,Resource tres,int depth) 
 			throws NotAllowedException, ConflictException, ResourceExistsException, NotFoundException, IOException 
 	{
-		Iterator<Resource> citer = source.getChildIterator();
-		Collection         nc    = repos.createCollection(target);
+		Iterator<Resource> citer = null;
+		Collection         nc;
+		if (depth > 0) {
+			citer = source.getChildIterator();
+		}
 		
+		if (target == null) {
+			nc    = repos.createCollection(target);	
+		} else if (depth == 0 && tres instanceof Collection) {
+			nc = (Collection)tres;
+		} else {
+			nc    = repos.createCollection(target);	
+		}
+
 		copyProperties(source, nc);
+		
+		// check if childs be copied
+		if (depth == 0) {
+			return;
+		}
 		
 		// Iterate child resource
 		while (citer.hasNext()) {
 			Resource r = citer.next();
 			if (r instanceof Collection && depth > 0) {
-				copyCollection(repos,(Collection)r,target + "/" + ((Collection)r).getName(),depth-1);
+				copyCollection(repos,(Collection)r,target + "/" + ((Collection)r).getName(),null,depth-1);
 			} else {
 				copyResource(repos,r,target + "/" + r.getName());
 			}
@@ -148,26 +164,37 @@ public class DAVCopy {
 				return;
 			}
 			
+			
+			int    dv    = Integer.MAX_VALUE;
+			Header depth = req.getFirstHeader("Depth");
+			if (depth != null && depth.getValue().compareTo("infinity") != 0) {
+				if (depth.getValue().compareTo("0")==0) {
+					dv = 0;
+				} else {
+					DAVUtil.handleError(new DAVException(400,"bad request"), resp);
+					return;
+				}
+			}
+
+			
 			// check target and overwrite options
+			Resource target = null;
 			try {
-				Resource target = repos.locate(turl.getResref());
+				target = repos.locate(turl.getResref());
 				if (target != null) {
 					// update http response
 					stat = 204;
 					if (ow == null || ow.getValue().compareTo("F")==0) {
 						DAVUtil.handleError(new DAVException(412,"precondition failed"), resp);
 						return;
-					} else if (ow.getValue().compareTo("T")==0) {
+					} else if (ow.getValue().compareTo("T")==0 && !(dv == 0 && target instanceof Collection)) {
 						try {
 							repos.remove(turl.getResref());
 						} catch (LockedException e) {
 							e.printStackTrace();
 							DAVUtil.handleError(new DAVException(412,"locked"), resp);
 						}
-					} else {
-						DAVUtil.handleError(new DAVException(400,"bad request"), resp);
-						return;
-					}
+					} 
 				}
 			} catch (NotFoundException nfe) {
 				// exception ok 
@@ -176,19 +203,8 @@ public class DAVCopy {
 			
 			// Check resource type of source element 
 			if (src instanceof Collection) {
-				
-				int    dv    = Integer.MAX_VALUE;
-				Header depth = req.getFirstHeader("Depth");
-				if (depth != null && depth.getValue().compareTo("infinity") != 0) {
-					if (depth.getValue().compareTo("0")==0) {
-						dv = 0;
-					} else {
-						DAVUtil.handleError(new DAVException(400,"bad request"), resp);
-						return;
-					}
-				}
-				
-				copyCollection(repos,(Collection)src,turl.getResref(),dv);
+								
+				copyCollection(repos,(Collection)src,turl.getResref(),target,dv);
 				
 			// copy simple resource
 			} else {
