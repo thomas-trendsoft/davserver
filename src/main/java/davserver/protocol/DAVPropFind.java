@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import davserver.DAVException;
 import davserver.DAVServer;
@@ -197,7 +198,6 @@ public class DAVPropFind {
 		}
 		System.out.println("depth : " + depthval);
 		
-		
 		// check for body if special properties or all (none body)
 		List<PropertyRef> reflist = null;
 		if (req.getEntity().getContentLength() > 0) {
@@ -207,18 +207,22 @@ public class DAVPropFind {
 				if (debug) { DAVUtil.debug(body); }
 				// read requested properties
 				reflist = readPropFindReq(body.getDocumentElement());
+			} catch (SAXParseException pe) {
+				System.out.println("bad xml");
+				DAVUtil.handleError(new DAVException(400,pe.getMessage()),resp);
+				return;
 			} catch (UnsupportedOperationException e) {
-				resp.setStatusCode(400);
-				e.printStackTrace();
+				DAVUtil.handleError(new DAVException(400,e.getMessage()),resp);
+				return;
 			} catch (SAXException e) {
-				resp.setStatusCode(400);
-				e.printStackTrace();
+				DAVUtil.handleError(new DAVException(400,e.getMessage()),resp);
+				return;
 			} catch (IOException e) {
-				e.printStackTrace();
-				resp.setStatusCode(500);
+				DAVUtil.handleError(new DAVException(500,e.getMessage()),resp);
+				return;
 			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
-				resp.setStatusCode(500);
+				DAVUtil.handleError(new DAVException(500,e.getMessage()),resp);
+				return;
 			} catch (DAVException e) {
 				DAVUtil.handleError(e,resp);
 				e.printStackTrace();
