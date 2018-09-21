@@ -138,7 +138,7 @@ public class Property {
 			davProperties.put(DAVServer.Namespace + "getetag",new PropertyRef(PropertyRef.DAV_ETAG));
 			davProperties.put(DAVServer.Namespace + "getcontenttype",new PropertyRef(PropertyRef.DAV_CONTENTTYPE));
 			davProperties.put(DAVServer.Namespace + "getcreationdate",new PropertyRef(PropertyRef.DAV_CREATIONDATE));
-			davProperties.put(DAVServer.Namespace + "getdisplayname",new PropertyRef(PropertyRef.DAV_DISPLAYNAME));
+			davProperties.put(DAVServer.Namespace + "displayname",new PropertyRef(PropertyRef.DAV_DISPLAYNAME));
 		}
 		return davProperties;
 	}
@@ -150,11 +150,12 @@ public class Property {
 	 * @param r
 	 * @return
 	 */
-	public static Property getDAVProperty(PropertyRef ref,Resource r) {
+	public static Property getDAVProperty(String ref,Resource r) {
 		Property    p  = null;
 		Date        d  = null;
-		PropertyRef dp = Property.getDAVProperties().get(ref.getNs() + ref.getName());
+		PropertyRef dp = Property.getDAVProperties().get(ref);
 		
+		System.out.println(dp + " " + ref);
 		if (dp == null) 
 			return null;
 		
@@ -167,7 +168,7 @@ public class Property {
 			p = new Property(DAVServer.Namespace, "getetag", r.getETag());
 			break;
 		case PropertyRef.DAV_DISPLAYNAME:
-			p = new Property(DAVServer.Namespace, "getdisplayname", r.getName());
+			p = new Property(DAVServer.Namespace, "displayname", r.getName());
 			break;
 		case PropertyRef.DAV_LASTMODIFIER:
 			d = r.getLastmodified();
@@ -180,10 +181,12 @@ public class Property {
 			if (d == null)
 				d = new Date(0);
 			p = new Property(DAVServer.Namespace, "getcreationdate", DAVUtil.dateFormat.format(d));
-			break;								
+			break;	
+		case PropertyRef.DAV_CONTENTTYPE:
+			p = new Property(DAVServer.Namespace, "getcontenttype", r.getContentType());
+			break;
 		}
 		
-		System.out.println("dav prop: " + dp + " -- " + dp.getType() + " - " + p.getName() + ":" + p.getNamespace());
 		return p;
 	}
 

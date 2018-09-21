@@ -90,7 +90,7 @@ public class DAVPropFind {
 								p = new ResourceType(DAVServer.Namespace,"collection");
 							else 
 								p = new ResourceType(null,null);
-						} else if ((p = Property.getDAVProperty(spr, r)) == null) {
+						} else if ((p = Property.getDAVProperty(spr.getNs() + spr.getName(), r)) == null) {
 							System.out.println("UNKNOWN dav property: " + spr.getName());
 						} 
 					}
@@ -132,9 +132,12 @@ public class DAVPropFind {
 				}
 				
 				for (String dpk : Property.getDAVProperties().keySet()) {
+					System.out.println("check: " + dpk);
 					if (!done.contains(dpk)) {
-						p = Property.getDAVProperty(Property.getDAVProperties().get(dpk), r);
+						System.out.println("try add");
+						p = Property.getDAVProperty(dpk, r);
 						if (p != null) {
+							System.out.println("add:");
 							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 							propstat.appendChild(prop);
 							prop.appendChild(p.toXML(owner));

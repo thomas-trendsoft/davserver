@@ -90,6 +90,14 @@ public abstract class Resource {
 	public abstract Date getLastmodified();
 	
 	/**
+	 * Content type accessor with default as binary data
+	 * @return
+	 */
+	public String getContentType() {
+		return "application/octet-stream";
+	}
+	
+	/**
 	 * Get the resource data as input stream
 	 * 
 	 * @return
