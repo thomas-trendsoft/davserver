@@ -7,11 +7,19 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import davserver.DAVException;
+import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
 import davserver.repository.IRepository;
+import davserver.repository.Property;
+import davserver.repository.Resource;
+import davserver.repository.error.NotAllowedException;
+import davserver.repository.error.NotFoundException;
 import davserver.utils.XMLParser;
 
 /**
@@ -42,26 +50,97 @@ public class DAVPropPatch {
 	 * @param durl Resource URL
 	 */
 	public void handlePropPatch(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) {
-		System.out.println("proppatch");
-		
+		Resource target;
+		Document body;
+
+		// check target resource
+		try {
+			target = repos.locate(durl.getResref());
+			if (target == null) {
+				DAVUtil.handleError(new DAVException(404,"not found"),resp);
+				return;			
+			}
+		} catch (NotAllowedException e) {
+			DAVUtil.handleError(new DAVException(403,"access denied"),resp);
+			return;
+		} catch (NotFoundException e) {
+			DAVUtil.handleError(new DAVException(404,"not found"),resp);
+			return;
+		}
+
+		// check patch body 
 		if (req.getEntity().getContentLength() > 0) {
 			try {
-				Document body = XMLParser.singleton().parseStream(req.getEntity().getContent());
+				body = XMLParser.singleton().parseStream(req.getEntity().getContent());
+				if (body == null) {
+					DAVUtil.handleError(new DAVException(400,"xml error"), resp);
+					return;
+				}
 				if (debug) { DAVUtil.debug(body); }
 			} catch (UnsupportedOperationException e) {
-				resp.setStatusCode(400);
-				e.printStackTrace();
+				DAVUtil.handleError(new DAVException(400,e.getMessage()),resp);
+				return;
 			} catch (SAXException e) {
-				resp.setStatusCode(400);
-				e.printStackTrace();
+				DAVUtil.handleError(new DAVException(400,e.getMessage()),resp);
+				return;
 			} catch (IOException e) {
-				e.printStackTrace();
-				resp.setStatusCode(500);
+				DAVUtil.handleError(new DAVException(500,e.getMessage()),resp);
+				return;
 			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
-				resp.setStatusCode(500);
+				DAVUtil.handleError(new DAVException(500,e.getMessage()),resp);
+				return;
 			} 
-		} 
+		} else {
+			DAVUtil.handleError(new DAVException(400,"bad request"),resp);
+			return;
+		}
+		
+		try {
+			// prepare response 
+			Document mstat = XMLParser.singleton().createDocument();
+			Element  rroot = mstat.createElementNS(DAVServer.Namespace, "multistatus");
+			Element  ret   = mstat.createElementNS(DAVServer.Namespace, "result");
+			
+			rroot.appendChild(ret);
+			
+			// parse request body
+			Node root = body.getFirstChild();
+			if (root.getNamespaceURI().compareTo(DAVServer.Namespace)==0 && root.getLocalName().compareTo("propertyupdate")==0) {
+				// search set elements
+				Node child = root.getFirstChild();
+				while (child != null) {
+					if (child instanceof Element) {
+						if (child.getNamespaceURI().compareTo(DAVServer.Namespace)==0 && child.getLocalName().compareTo("set")==0) {
+							// search prop elements
+							Node pchild = child.getFirstChild();
+							while (pchild != null) {
+								if (pchild instanceof Element && pchild.getNamespaceURI().compareTo(DAVServer.Namespace)==0 && pchild.getLocalName().compareTo("prop")==0) {
+									Node vchild = pchild.getFirstChild();
+									while (vchild != null) {
+										// first element as value
+										if (vchild instanceof Element) {
+											Property p = new Property(vchild.getNamespaceURI(),vchild.getLocalName(),vchild.getTextContent());
+											target.setProperty(p);
+										}
+										vchild = vchild.getNextSibling();
+									}
+								}
+								pchild = pchild.getNextSibling();
+							} // prop element
+						} 
+					} // set element
+					child = child.getNextSibling();
+				}
+			} else {
+				DAVUtil.handleError(new DAVException(400,"bad request"), resp);
+				return;
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			DAVUtil.handleError(new DAVException(500,e.getMessage()), resp);
+			return;
+		}
 	}
 	
 }

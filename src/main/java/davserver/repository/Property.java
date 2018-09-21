@@ -10,7 +10,7 @@ import org.w3c.dom.Element;
  *
  */
 public class Property {
-	
+		
 	/**
 	 * Property namespace 
 	 */

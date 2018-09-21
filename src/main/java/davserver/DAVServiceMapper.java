@@ -98,14 +98,15 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		this.repositories  = new HashMap<String, IRepository>();
 		this.repositories.put("simple", new SimpleRepository());
 		
-		propfind = new DAVPropFind();
-		lock     = new DAVLock();
-		put      = new DAVPut();
-		get      = new DAVGet();
-		mkcol    = new DAVMkCol();
-		delete   = new DAVDelete();
-		options  = new DAVOptions();
-		copy     = new DAVCopy();
+		propfind  = new DAVPropFind();
+		lock      = new DAVLock();
+		put       = new DAVPut();
+		get       = new DAVGet();
+		mkcol     = new DAVMkCol();
+		delete    = new DAVDelete();
+		options   = new DAVOptions();
+		copy      = new DAVCopy();
+		proppatch = new DAVPropPatch();
 		
 	}
 	

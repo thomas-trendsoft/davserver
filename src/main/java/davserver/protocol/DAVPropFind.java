@@ -284,7 +284,6 @@ public class DAVPropFind {
 				// read requested properties
 				reflist = readPropFindReq(body.getDocumentElement(),r);
 			} catch (SAXParseException pe) {
-				System.out.println("bad xml");
 				DAVUtil.handleError(new DAVException(400,pe.getMessage()),resp);
 				return;
 			} catch (UnsupportedOperationException e) {
@@ -305,8 +304,8 @@ public class DAVPropFind {
 				return;
 			}
 		} else {
-			DAVUtil.handleError(new DAVException(415,"All propfind not supported now"),resp);
-			return;
+			reflist = new LinkedList<PropertyRef>();
+			reflist.add(new PropertyRef(PropertyRef.ALLPROP));
 		}
 		
 		// Create response
