@@ -16,8 +16,14 @@ public class SimpleCollection extends Collection {
 	
 	private HashMap<String,Resource> childs;
 	
+	private Date lm;
+	
+	private Date created;
+	
 	public SimpleCollection(String name) {
 		super(name);
+		lm = new Date();
+		created = new Date();
 		properties = new HashMap<String,Property>();
 		properties.put("getlastmodified", new Property(DAVServer.Namespace,"getlastmodified",new Date(0)));
 		properties.put("creationdate",new Property(DAVServer.Namespace,"creationdate",new Date(0)));
@@ -39,6 +45,7 @@ public class SimpleCollection extends Collection {
 	
 	public void addChild(String name,Resource r) {
 		childs.put(name, r);
+		lm = new Date();
 	}
 	
 	public String toString(String pre) {
@@ -68,11 +75,22 @@ public class SimpleCollection extends Collection {
 	public void setProperty(Property p) {
 		if (p != null)
 			this.properties.put(p.getName(), p);
+		lm = new Date();
 	}
 
 	@Override
 	public Iterator<Property> getPropertyIterator() {
 		return properties.values().iterator();
+	}
+
+	@Override
+	public Date getCreationDate() {
+		return created;
+	}
+
+	@Override
+	public Date getLastmodified() {
+		return lm;
 	}
 
 }

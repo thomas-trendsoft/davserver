@@ -2,6 +2,7 @@ package davserver;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +23,11 @@ import davserver.utils.XMLParser;
  *
  */
 public class DAVUtil {
+	
+	/**
+	 * ISO 8601 date formating
+	 */
+	public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	
 	/**
 	 * Helping method to create ETags 

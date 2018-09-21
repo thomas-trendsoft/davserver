@@ -16,18 +16,53 @@ public class PropertyRef {
 	/**
 	 * Flag for the allprop reference
 	 */
-	public static int ALLPROP = 0;
+	public static final int ALLPROP = 0;
 	
 	/**
 	 * Flag for the prop reference
 	 */
-	public static int PROP = 1;
+	public static final int PROP = 1;
 	
 	/**
 	 * Flag for the propname reference
 	 */
-	public static int PROPNAMES = 2;
+	public static final int PROPNAMES = 2;
 	
+	/**
+	 * Constant for Content length
+	 */
+	public static final int DAV_CONTENTLENGTH = 10;
+	
+	/**
+	 * Constant for eTag
+	 */
+	public static final int DAV_ETAG = 11;
+	
+	/**
+	 * Constant for Content type
+	 */
+	public static final int DAV_CONTENTTYPE = 12;
+	
+	/**
+	 * Constant for creation date
+	 */
+	public static final int DAV_CREATIONDATE = 13;
+	
+	/**
+	 * Constant for display name
+	 */
+	public static final int DAV_DISPLAYNAME = 14;
+	
+	/**
+	 * Constant for last modifier
+	 */	
+	public static final int DAV_LASTMODIFIER = 15;
+	
+	/**
+	 * Constant for lock discovery
+	 */
+	public static final int DAV_LOCKDISCOVERY = 16;
+
 	/**
 	 * Reference type identifier
 	 */

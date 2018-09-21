@@ -21,9 +21,18 @@ public class SimpleResource extends Resource {
 	private HashMap<String,Property> properties;
 	
 	private String content;
+
+	private Date lm;
+	
+	private Date created;
+	
 	
 	public SimpleResource(String name) {
 		super(name);
+
+		lm = new Date();
+		created = new Date();
+
 		properties = new HashMap<String,Property>();
 		properties.put("getlastmodified", new Property(DAVServer.Namespace,"getlastmodified",new Date(0)));
 		properties.put("creationdate",new Property(DAVServer.Namespace,"creationdate",new Date(0)));
@@ -37,6 +46,7 @@ public class SimpleResource extends Resource {
 	
 	public void setContent(String str) {
 		this.content = str;
+		this.lm      = new Date();
 	}
 	
 	public InputStream getContent() throws IOException {
@@ -73,6 +83,17 @@ public class SimpleResource extends Resource {
 	public void setProperty(Property p) {
 		if (p != null)
 			this.properties.put(p.getName(), p);
+		lm = new Date();
+	}
+
+	@Override
+	public Date getCreationDate() {
+		return created;
+	}
+
+	@Override
+	public Date getLastmodified() {
+		return lm;
 	}
 
 

@@ -1,6 +1,7 @@
 package davserver.protocol;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -48,8 +49,7 @@ public class DAVPropFind {
 	public DAVPropFind() {
 		this.debug = true;
 	}
-	
-	
+		
 	/**
 	 * Lists all Properties to an multistatus response 
 	 * 
@@ -90,11 +90,9 @@ public class DAVPropFind {
 								p = new ResourceType(DAVServer.Namespace,"collection");
 							else 
 								p = new ResourceType(null,null);
-						} else if (spr.getName().compareTo("getcontentlength")==0) {
-							p = new Property(DAVServer.Namespace, "getcontentlength", r.getContentLength());
-						} else {
+						} else if ((p = Property.getDAVProperty(spr, r)) == null) {
 							System.out.println("UNKNOWN dav property: " + spr.getName());
-						}
+						} 
 					}
 					if (p == null) {
 						System.out.println("property not found: " + spr.getNs() + ":" + spr.getName());
@@ -133,12 +131,16 @@ public class DAVPropFind {
 					done.add(p.getNamespace() + ":" + p.getName());
 				}
 				
-				if (!done.contains(DAVServer.Namespace + ":getcontentlength")) {
-					p = new Property(DAVServer.Namespace, "getcontentlength", r.getContentLength());
-					Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
-					propstat.appendChild(prop);
-					prop.appendChild(p.toXML(owner));
-					done.add(p.getNamespace() + ":" + p.getName());
+				for (String dpk : Property.getDAVProperties().keySet()) {
+					if (!done.contains(dpk)) {
+						p = Property.getDAVProperty(Property.getDAVProperties().get(dpk), r);
+						if (p != null) {
+							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
+							propstat.appendChild(prop);
+							prop.appendChild(p.toXML(owner));
+							done.add(dpk);							
+						}
+					}					
 				}
 			}
 		}

@@ -2,6 +2,7 @@ package davserver.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.Iterator;
 
 import davserver.DAVUrl;
@@ -73,6 +74,20 @@ public abstract class Resource {
 	 * @return Byte count of the content stream
 	 */
 	public abstract int getContentLength();
+	
+	/**
+	 * Creation date of resource
+	 * 
+	 * @return
+	 */
+	public abstract Date getCreationDate();
+	
+	/**
+	 * Last modified date of resource
+	 * 
+	 * @return
+	 */
+	public abstract Date getLastmodified();
 	
 	/**
 	 * Get the resource data as input stream
