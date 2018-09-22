@@ -34,14 +34,12 @@ public class SimpleResource extends Resource {
 		created = new Date();
 
 		properties = new HashMap<String,Property>();
-		properties.put("getlastmodified", new Property(DAVServer.Namespace,"getlastmodified",new Date(0)));
-		properties.put("creationdate",new Property(DAVServer.Namespace,"creationdate",new Date(0)));
 	}
-
+	
 	@Override
 	public Property getProperty(PropertyRef ref) {
 		System.out.println("get property: " + ref.getName());
-		return properties.get(ref.getName());
+		return properties.get(ref.getNs() + ref.getName());
 	}
 	
 	public void setContent(String str) {
@@ -82,7 +80,7 @@ public class SimpleResource extends Resource {
 	@Override
 	public void setProperty(Property p) {
 		if (p != null)
-			this.properties.put(p.getName(), p);
+			this.properties.put(p.getNamespace() + p.getName(), p);
 		lm = new Date();
 	}
 
@@ -96,5 +94,9 @@ public class SimpleResource extends Resource {
 		return lm;
 	}
 
+	@Override
+	public void remProperty(PropertyRef ref) {
+		properties.remove(ref.getNs() + ref.getName());
+	}
 
 }

@@ -15,6 +15,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.protocol.HttpContext;
 
+import davserver.protocol.DAVBind;
 import davserver.protocol.DAVCopy;
 import davserver.protocol.DAVDelete;
 import davserver.protocol.DAVGet;
@@ -91,6 +92,11 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	private DAVCopy copy;
 	
 	/**
+	 * BIND Implementation
+	 */
+	private DAVBind bind;
+	
+	/**
 	 * Defaultkonstruktor 
 	 */
 	public DAVServiceMapper() {
@@ -107,6 +113,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		options   = new DAVOptions();
 		copy      = new DAVCopy();
 		proppatch = new DAVPropPatch();
+		bind      = new DAVBind();
 		
 	}
 	
@@ -180,6 +187,8 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 			mkcol.handleMkCol((HttpEntityEnclosingRequest)req,response, repos,durl);
 		} else if (method.compareTo("PUT")==0) {
 			put.handlePut((HttpEntityEnclosingRequest)req,response,repos,durl);
+		} else if (method.compareTo("BIND")==0) {
+			bind.handleBind(req, response, repos, durl);
 		} else if (method.compareTo("LOCK")==0) {
 			lock.handleLock((HttpEntityEnclosingRequest)req,response,repos,durl);
 		} else {

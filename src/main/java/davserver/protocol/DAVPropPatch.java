@@ -17,6 +17,7 @@ import davserver.DAVUrl;
 import davserver.DAVUtil;
 import davserver.repository.IRepository;
 import davserver.repository.Property;
+import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
@@ -110,25 +111,43 @@ public class DAVPropPatch {
 				Node child = root.getFirstChild();
 				while (child != null) {
 					if (child instanceof Element) {
-						if (child.getNamespaceURI().compareTo(DAVServer.Namespace)==0 && child.getLocalName().compareTo("set")==0) {
-							// search prop elements
-							Node pchild = child.getFirstChild();
-							while (pchild != null) {
-								if (pchild instanceof Element && pchild.getNamespaceURI().compareTo(DAVServer.Namespace)==0 && pchild.getLocalName().compareTo("prop")==0) {
-									Node vchild = pchild.getFirstChild();
-									while (vchild != null) {
-										// first element as value
-										if (vchild instanceof Element) {
-											Property p = new Property(vchild.getNamespaceURI(),vchild.getLocalName(),vchild.getTextContent());
-											target.setProperty(p);
+						if (child.getNamespaceURI().compareTo(DAVServer.Namespace)==0) {
+							if (child.getLocalName().compareTo("set")==0) {
+								// search prop elements
+								Node pchild = child.getFirstChild();
+								while (pchild != null) {
+									if (pchild instanceof Element && pchild.getNamespaceURI().compareTo(DAVServer.Namespace)==0 && pchild.getLocalName().compareTo("prop")==0) {
+										Node vchild = pchild.getFirstChild();
+										while (vchild != null) {
+											// first element as value
+											if (vchild instanceof Element) {
+												Property p = new Property(vchild.getNamespaceURI(),vchild.getLocalName(),vchild.getTextContent());
+												target.setProperty(p);
+											}
+											vchild = vchild.getNextSibling();
 										}
-										vchild = vchild.getNextSibling();
 									}
+									pchild = pchild.getNextSibling();
+								} // prop element
+							} else if (child.getLocalName().compareTo("remove")==0) {
+								Node pchild = child.getFirstChild();
+								while (pchild != null) {
+									if (pchild instanceof Element && pchild.getNamespaceURI().compareTo(DAVServer.Namespace)==0 && pchild.getLocalName().compareTo("prop")==0) {
+										Node vchild = pchild.getFirstChild();
+										while (vchild != null) {
+											// first element as value
+											if (vchild instanceof Element) {
+												PropertyRef pr = new PropertyRef((Element)vchild);
+												target.remProperty(pr);
+											}
+											vchild = vchild.getNextSibling();
+										}
+									}
+									pchild = pchild.getNextSibling();
 								}
-								pchild = pchild.getNextSibling();
-							} // prop element
-						} 
-					} // set element
+							}
+						}  
+					} 
 					child = child.getNextSibling();
 				}
 			} else {

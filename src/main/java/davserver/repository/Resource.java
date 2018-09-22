@@ -41,7 +41,12 @@ public abstract class Resource {
 	public abstract Property getProperty(PropertyRef ref);
 	
 	/**
-	 * Set a property for the resource
+	 * Removes an property of the resource
+	 */
+	public abstract void remProperty(PropertyRef ref);
+	
+	/**
+	 * Set a property for the resource 
 	 * 
 	 * @param p
 	 */

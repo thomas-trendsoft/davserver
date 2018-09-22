@@ -222,7 +222,8 @@ public class DAVPropFind {
 						PropertyRef pn = new PropertyRef(PropertyRef.PROPNAMES);
 						ret.add(pn);
 					} else {
-						throw new DAVException(415,"Unsupported dav property: " + e.getNodeName());
+						PropertyRef pr = new PropertyRef(e);
+						ret.add(pr);
 					}
 				} else {
 					throw new DAVException(415,"Unsupported property request: " + e.getNamespaceURI() + ":" + e.getNodeName());
@@ -286,7 +287,7 @@ public class DAVPropFind {
 		}
 		
 		
-		if (depthval > 1 || depthval < 0) {
+		if (depthval < 0) {
 			DAVUtil.handleError(new DAVException(400,"wrong depth value: " + depthval),resp);
 			return;
 		}

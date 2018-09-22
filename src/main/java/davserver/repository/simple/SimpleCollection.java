@@ -25,9 +25,12 @@ public class SimpleCollection extends Collection {
 		lm = new Date();
 		created = new Date();
 		properties = new HashMap<String,Property>();
-		properties.put("getlastmodified", new Property(DAVServer.Namespace,"getlastmodified",new Date(0)));
-		properties.put("creationdate",new Property(DAVServer.Namespace,"creationdate",new Date(0)));
 		childs = new HashMap<String,Resource>();
+	}
+	
+	@Override
+	public void remProperty(PropertyRef ref) {
+		properties.remove(ref.getNs() + ref.getName());
 	}
 	
 	public HashMap<String,Resource> getChilds() {
@@ -36,7 +39,7 @@ public class SimpleCollection extends Collection {
 
 	@Override
 	public Property getProperty(PropertyRef ref) {
-		return properties.get(ref.getName());
+		return properties.get(ref.getNs() + ref.getName());
 	}
 	
 	public Resource getChild(String name) {
@@ -74,7 +77,7 @@ public class SimpleCollection extends Collection {
 	@Override
 	public void setProperty(Property p) {
 		if (p != null)
-			this.properties.put(p.getName(), p);
+			this.properties.put(p.getNamespace() + p.getName(), p);
 		lm = new Date();
 	}
 

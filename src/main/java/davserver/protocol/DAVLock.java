@@ -45,9 +45,11 @@ public class DAVLock {
 	public void handleLock(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
 		// check if locks are supported
 		if (!repos.supportLocks()) {
+			System.out.println("no lock support");
 			DAVUtil.handleError(new DAVException(415,"Locks are not supported inside this repository"),resp);
 			return;
 		}
+		
 		// check lock info body
 		if (req.getEntity().getContentLength() > 0) {
 			try {

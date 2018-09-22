@@ -66,7 +66,7 @@ public class PropertyRef {
 	/**
 	 * Constant for last modifier
 	 */	
-	public static final int DAV_LASTMODIFIER = 105;
+	public static final int DAV_LASTMODIFIED = 105;
 	
 	/**
 	 * Constant for lock discovery
