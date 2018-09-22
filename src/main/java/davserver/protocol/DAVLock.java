@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.w3c.dom.Document;
@@ -43,12 +44,28 @@ public class DAVLock {
 	 * @param url DAV URL
 	 */
 	public void handleLock(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
+		int depth;
+		
 		// check if locks are supported
 		if (!repos.supportLocks()) {
 			System.out.println("no lock support");
 			DAVUtil.handleError(new DAVException(415,"Locks are not supported inside this repository"),resp);
 			return;
 		}
+		
+		// check depth header param
+		Header d = req.getFirstHeader("Depth");
+		if (d == null || d.getValue().compareTo("infinity")==0) {
+			depth = Integer.MAX_VALUE;
+		} else {
+			try {
+				depth = Integer.parseInt(d.getValue());
+			} catch (NumberFormatException nfe) {
+				DAVUtil.handleError(new DAVException(400,"bad request"), resp);
+				return;
+			}
+		}
+		
 		
 		// check lock info body
 		if (req.getEntity().getContentLength() > 0) {

@@ -95,5 +95,10 @@ public class DAVUrl {
 	public String getResref() {
 		return resref;
 	}
+	
+	@Override
+	public String toString() {
+		return prefix + "/" + repository + resref;
+	}
 
 }

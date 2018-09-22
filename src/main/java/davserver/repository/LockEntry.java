@@ -21,6 +21,11 @@ public class LockEntry {
 	private HashSet<String> owner;
 	
 	/**
+	 * Flag if shared lock
+	 */
+	private boolean shared;
+	
+	/**
 	 * Defaultkonstruktor 
 	 * 
 	 * @param ref
@@ -46,6 +51,14 @@ public class LockEntry {
 	 */
 	public HashSet<String> getOwner() {
 		return owner;
+	}
+
+	public boolean isShared() {
+		return shared;
+	}
+
+	public void setShared(boolean shared) {
+		this.shared = shared;
 	}
 	
 }

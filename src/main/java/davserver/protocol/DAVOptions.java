@@ -50,9 +50,9 @@ public class DAVOptions {
 		
 		// give server or resource type info
 		if (r == null) {
-			resp.addHeader("Allow","GET, POST, OPTIONS, HEAD, MKCOL, PUT, PROPFIND, PROPPATCH, DELETE, MOVE, COPY");			
+			resp.addHeader("Allow","GET, POST, OPTIONS, HEAD, MKCOL, PUT, PROPFIND, PROPPATCH, DELETE, MOVE, COPY" + (repos.supportLocks() ? ", LOCK, UNLOCK" : ""));			
 		} else {
-			resp.addHeader("Access-Control-Allow-Methods","PUT POST GET OPTIONS");
+			resp.addHeader("Access-Control-Allow-Methods","PUT, POST, GET, OPTIONS" + (repos.supportLocks() ? ", LOCK, UNLOCK" : ""));
 		} 
 	}
 	

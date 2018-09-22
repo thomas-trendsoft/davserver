@@ -29,7 +29,7 @@ public class SimpleRepository implements IRepository {
 	}
 	
 	public boolean supportLocks() {
-		return false;
+		return true;
 	}
 	
 	public Collection createCollection(String uri) throws ResourceExistsException,NotAllowedException,ConflictException {

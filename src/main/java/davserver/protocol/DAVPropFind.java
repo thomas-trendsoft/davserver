@@ -56,6 +56,7 @@ public class DAVPropFind {
 	 * @param r
 	 * @param refs
 	 * @param depth
+	 * @returns a list of not found properties
 	 */
 	public void createPropFindResp(Element multistatus,DAVUrl rurl,Resource r,List<PropertyRef> refs,int depth) {
 		HashSet<String> done     = new HashSet<String>();
@@ -148,6 +149,31 @@ public class DAVPropFind {
 			} 
 		}
 		
+		// append http ok stat
+		Element hnode = owner.createElementNS(DAVServer.Namespace, "status");
+		hnode.setTextContent("HTTP/1.1 200 OK");
+		propstat.appendChild(hnode);
+		
+		// append not found status
+		if (!notfound.isEmpty()) {
+			//Element nfresp = owner.createElementNS(DAVServer.Namespace, "response");
+			Element nfps   = owner.createElementNS(DAVServer.Namespace, "propstat");
+			Element pfn = owner.createElementNS(DAVServer.Namespace, "prop");
+			//multistatus.appendChild(nfresp);
+			rres.appendChild(nfps);
+			nfps.appendChild(pfn);
+			for (PropertyRef pf : notfound) {
+				Element pe = owner.createElementNS(pf.getNs(),pf.getName());
+				pfn.appendChild(pe);
+			}
+			Element nfref = owner.createElementNS(DAVServer.Namespace, "href");
+			nfref.setTextContent(rurl.toString());
+			nfps.appendChild(nfref);			
+			Element nfnode = owner.createElementNS(DAVServer.Namespace, "status");
+			nfnode.setTextContent("HTTP/1.1 404 Not Found");
+			nfps.appendChild(nfnode);			
+		}
+		
 		// on collection with depth request append child resources
 		if (depth > 0 && r instanceof Collection) {
 			System.out.println("append child resources");
@@ -167,7 +193,6 @@ public class DAVPropFind {
 				createPropFindResp(multistatus, curl, cr, refs, 0);
 			}
 		}
-		
 	}
 	
 	/**
@@ -336,6 +361,7 @@ public class DAVPropFind {
 			
 			// Query requested properties
 			createPropFindResp(rroot,durl, r, reflist, depthval);
+			
 			xmlDoc = XMLParser.singleton().serializeDoc(rdoc);
 			
 		} catch (Exception e) {
