@@ -29,34 +29,44 @@ public class PropertyRef {
 	public static final int PROPNAMES = 2;
 	
 	/**
+	 * Flag to live prop set ref
+	 */
+	public static final int SUPPORTEDLIVEPROPSET = 3;
+	
+	/**
+	 * Flag to supported report set
+	 */
+	public static final int SUPPORTEDREPORTSET = 4;
+	
+	/**
 	 * Constant for Content length
 	 */
-	public static final int DAV_CONTENTLENGTH = 10;
+	public static final int DAV_CONTENTLENGTH = 100;
 	
 	/**
 	 * Constant for eTag
 	 */
-	public static final int DAV_ETAG = 11;
+	public static final int DAV_ETAG = 101;
 	
 	/**
 	 * Constant for Content type
 	 */
-	public static final int DAV_CONTENTTYPE = 12;
+	public static final int DAV_CONTENTTYPE = 102;
 	
 	/**
 	 * Constant for creation date
 	 */
-	public static final int DAV_CREATIONDATE = 13;
+	public static final int DAV_CREATIONDATE = 103;
 	
 	/**
 	 * Constant for display name
 	 */
-	public static final int DAV_DISPLAYNAME = 14;
+	public static final int DAV_DISPLAYNAME = 104;
 	
 	/**
 	 * Constant for last modifier
 	 */	
-	public static final int DAV_LASTMODIFIER = 15;
+	public static final int DAV_LASTMODIFIER = 105;
 	
 	/**
 	 * Constant for lock discovery

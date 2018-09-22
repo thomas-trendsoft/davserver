@@ -19,8 +19,8 @@ public class ResourceType extends Property {
 	}
 	
 	@Override
-	public Element toXML(Document doc) {
-		Element elem = super.toXML(doc);
+	public Element toXML(Document doc,boolean content) {
+		Element elem = super.toXML(doc,content);
 		Element type = null;
 		
 		if (typeNS == null) {

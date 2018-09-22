@@ -1,7 +1,6 @@
 package davserver.protocol;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -59,8 +58,8 @@ public class DAVPropFind {
 	 * @param depth
 	 */
 	public void createPropFindResp(Element multistatus,DAVUrl rurl,Resource r,List<PropertyRef> refs,int depth) {
-		HashSet<String> done = new HashSet<String>();
-		Document       owner = multistatus.getOwnerDocument();
+		HashSet<String> done     = new HashSet<String>();
+		Document        owner    = multistatus.getOwnerDocument();
 		// response root
 		Element rres = owner.createElementNS(DAVServer.Namespace, "response");
 		multistatus.appendChild(rres);
@@ -101,19 +100,20 @@ public class DAVPropFind {
 						if (!done.contains(p.getNamespace() + ":" + p.getName())) {
 							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 							propstat.appendChild(prop);
-							prop.appendChild(p.toXML(owner));
+							prop.appendChild(p.toXML(owner,true));
 							done.add(p.getNamespace() + ":" + p.getName());
 						}
 					}
 				}
-			} else if (pr.getType() == PropertyRef.ALLPROP) {
+			} else if (pr.getType() == PropertyRef.ALLPROP || pr.getType() == PropertyRef.PROPNAMES) {
+				boolean content = pr.getType() != PropertyRef.PROPNAMES;
 				Iterator<Property> piter = r.getPropertyIterator();
 				while (piter.hasNext()) {
 					Property p = piter.next();
 					if (!done.contains(p.getNamespace() + ":" + p.getName())) {
 						Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 						propstat.appendChild(prop);
-						prop.appendChild(p.toXML(owner));
+						prop.appendChild(p.toXML(owner,content));
 						done.add(p.getNamespace() + ":" + p.getName());
 					}
  				}
@@ -127,7 +127,7 @@ public class DAVPropFind {
 						p = new ResourceType(null,null);					
 					Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 					propstat.appendChild(prop);
-					prop.appendChild(p.toXML(owner));
+					prop.appendChild(p.toXML(owner,content));
 					done.add(p.getNamespace() + ":" + p.getName());
 				}
 				
@@ -140,12 +140,12 @@ public class DAVPropFind {
 							System.out.println("add:");
 							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 							propstat.appendChild(prop);
-							prop.appendChild(p.toXML(owner));
+							prop.appendChild(p.toXML(owner,content));
 							done.add(dpk);							
 						}
 					}					
 				}
-			}
+			} 
 		}
 		
 		// on collection with depth request append child resources
@@ -208,6 +208,19 @@ public class DAVPropFind {
 					} else if (e.getLocalName().compareTo("allprop")==0) {
 						PropertyRef all = new PropertyRef(PropertyRef.ALLPROP);
 						ret.add(all);
+					} else if (e.getLocalName().compareTo("include")==0) {
+						PropertyRef pr;
+						Node sr = e.getFirstChild();
+						while (sr != null) {
+							if (sr instanceof Element) {
+								pr = new PropertyRef((Element)sr);
+								ret.add(pr);
+							}
+							sr = sr.getNextSibling();
+						}
+					} else if (e.getLocalName().compareTo("propname")==0) {
+						PropertyRef pn = new PropertyRef(PropertyRef.PROPNAMES);
+						ret.add(pn);
 					} else {
 						throw new DAVException(415,"Unsupported dav property: " + e.getNodeName());
 					}
@@ -261,17 +274,17 @@ public class DAVPropFind {
 		
 		// check for depth header value (infinity not supported as default now)
 		depth = req.getFirstHeader("Depth");
-		if (depth == null) {
-			DAVUtil.handleError(new DAVException(400,"no depth header"),resp);
-			return;
-		} 
-		
-		try {
-			depthval = Integer.parseInt(depth.getValue());			
-		} catch (NumberFormatException nfe) {
-			DAVUtil.handleError(new DAVException(400,"no depth number value"),resp);
-			return;
+		if (depth == null || depth.getValue().compareTo("infinity")==0) {
+			depthval = Integer.MAX_VALUE;
+		} else {
+			try {
+				depthval = Integer.parseInt(depth.getValue());			
+			} catch (NumberFormatException nfe) {
+				DAVUtil.handleError(new DAVException(400,"no depth number value"),resp);
+				return;
+			}			
 		}
+		
 		
 		if (depthval > 1 || depthval < 0) {
 			DAVUtil.handleError(new DAVException(400,"wrong depth value: " + depthval),resp);

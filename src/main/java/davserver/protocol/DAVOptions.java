@@ -50,7 +50,7 @@ public class DAVOptions {
 		
 		// give server or resource type info
 		if (r == null) {
-			resp.addHeader("Allow","GET, POST, OPTIONS, HEAD, MKCOL, PUT, PROPFIND, PROPPATCH, DELETE, MOVE, COPY, LOCK, UNLOCK");			
+			resp.addHeader("Allow","GET, POST, OPTIONS, HEAD, MKCOL, PUT, PROPFIND, PROPPATCH, DELETE, MOVE, COPY");			
 		} else {
 			resp.addHeader("Access-Control-Allow-Methods","PUT POST GET OPTIONS");
 		} 

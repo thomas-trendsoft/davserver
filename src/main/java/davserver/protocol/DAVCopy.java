@@ -30,13 +30,7 @@ import davserver.repository.error.ResourceExistsException;
  */
 public class DAVCopy {
 	
-	/**
-	 *  DELETE for move
-	 */
-	private DAVDelete delete;
-	
 	public DAVCopy() {
-		delete = new DAVDelete();
 	}
 	
 	/**

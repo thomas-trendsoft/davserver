@@ -109,9 +109,9 @@ public class Property {
 	 * @param doc
 	 * @return
 	 */
-	public Element toXML(Document doc) {
+	public Element toXML(Document doc,boolean content) {
 		Element elem = doc.createElementNS(namespace, name);
-		if (value != null) {
+		if (value != null && content) {
 			elem.setTextContent(String.valueOf(value));
 		}
 		return elem;
