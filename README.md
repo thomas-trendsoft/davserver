@@ -17,5 +17,9 @@ For testing surpose i will try to get this framework running against the litmus 
 ## Litmus Progress
 
 -> running `basic': done (with warnings)
+
 -> running 'copymove': done (with warnings)
--> running 'props': FAILS
+
+-> running 'props': done (with warnings)
+
+-> running 'locks': FAILS
