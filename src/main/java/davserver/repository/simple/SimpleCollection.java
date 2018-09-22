@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import davserver.DAVServer;
 import davserver.repository.Collection;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;

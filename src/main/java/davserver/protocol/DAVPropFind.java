@@ -156,10 +156,8 @@ public class DAVPropFind {
 		
 		// append not found status
 		if (!notfound.isEmpty()) {
-			//Element nfresp = owner.createElementNS(DAVServer.Namespace, "response");
 			Element nfps   = owner.createElementNS(DAVServer.Namespace, "propstat");
 			Element pfn = owner.createElementNS(DAVServer.Namespace, "prop");
-			//multistatus.appendChild(nfresp);
 			rres.appendChild(nfps);
 			nfps.appendChild(pfn);
 			for (PropertyRef pf : notfound) {

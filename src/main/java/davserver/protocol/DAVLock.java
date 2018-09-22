@@ -66,7 +66,6 @@ public class DAVLock {
 			}
 		}
 		
-		
 		// check lock info body
 		if (req.getEntity().getContentLength() > 0) {
 			try {

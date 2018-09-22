@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
 
-import davserver.DAVServer;
 import davserver.DAVUtil;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
