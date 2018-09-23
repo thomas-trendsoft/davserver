@@ -121,7 +121,7 @@ public class DAVPropPatch {
 										while (vchild != null) {
 											// first element as value
 											if (vchild instanceof Element) {
-												Property p = new Property(vchild.getNamespaceURI(),vchild.getLocalName(),vchild.getTextContent());
+												Property p = new Property((Element)vchild);
 												target.setProperty(p);
 											}
 											vchild = vchild.getNextSibling();

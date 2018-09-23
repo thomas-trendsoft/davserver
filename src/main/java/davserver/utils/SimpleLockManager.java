@@ -18,14 +18,14 @@ public class SimpleLockManager implements ILockManager {
 		return locks.get(ref);
 	}
 	
-	public synchronized LockEntry registerLock(String ref) throws LockedException {
+	public synchronized LockEntry registerLock(LockEntry request) throws LockedException {
 		
-		if (checkLocked(ref) != null) {
-			throw new LockedException(ref + " is locked");
+		if (checkLocked(request.getRef()) != null) {
+			throw new LockedException(request.getRef() + " is locked");
 		}
 		
-		LockEntry le = new LockEntry(ref);
-		locks.put(ref, le);
+		LockEntry le = new LockEntry(request.getRef());
+		locks.put(request.getRef(), le);
 		return le;
 	}
 

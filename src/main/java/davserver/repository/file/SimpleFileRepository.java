@@ -1,6 +1,7 @@
 package davserver.repository.file;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -13,6 +14,7 @@ import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.repository.error.ResourceExistsException;
+import davserver.utils.SimpleLockManager;
 
 public class SimpleFileRepository implements IRepository {
 
@@ -22,12 +24,21 @@ public class SimpleFileRepository implements IRepository {
 	private File root;
 	
 	/**
+	 * Lock Manager
+	 */
+	private SimpleLockManager lockmanager;
+	
+	/**
 	 * Defaultkonstruktor 
 	 * 
 	 * @param path
 	 */
-	public SimpleFileRepository(String path) {
+	public SimpleFileRepository(String path) throws FileNotFoundException {
 		root = new File(path);
+		if (!root.exists() || !root.isDirectory()) {
+			throw new FileNotFoundException();
+		} 
+		lockmanager = new SimpleLockManager();
 	}
 	
 	@Override
@@ -58,14 +69,12 @@ public class SimpleFileRepository implements IRepository {
 
 	@Override
 	public boolean supportLocks() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public ILockManager getLockManager() {
-		// TODO Auto-generated method stub
-		return null;
+		return lockmanager;
 	}
 
 }

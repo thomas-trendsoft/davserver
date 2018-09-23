@@ -51,7 +51,7 @@ public class SimpleResource extends Resource {
 	}
 
 	@Override
-	public int getContentLength() {
+	public long getContentLength() {
 		try {
 			return content.getBytes("utf-8").length;
 		} catch (UnsupportedEncodingException e) {

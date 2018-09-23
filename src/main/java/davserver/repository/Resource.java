@@ -78,7 +78,7 @@ public abstract class Resource {
 	 * 
 	 * @return Byte count of the content stream
 	 */
-	public abstract int getContentLength();
+	public abstract long getContentLength();
 	
 	/**
 	 * Creation date of resource

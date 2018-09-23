@@ -25,7 +25,7 @@ public interface ILockManager {
 	 * @return lock entry 
 	 * @throws LockedException
 	 */
-	LockEntry registerLock(String ref) throws LockedException;
+	LockEntry registerLock(LockEntry request) throws LockedException;
 
 	
 }

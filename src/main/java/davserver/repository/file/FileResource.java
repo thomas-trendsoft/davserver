@@ -1,5 +1,6 @@
 package davserver.repository.file;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -11,9 +12,14 @@ import davserver.repository.Resource;
 
 public class FileResource extends Resource {
 
-	public FileResource(String name) {
-		super(name);
-		// TODO Auto-generated constructor stub
+	/**
+	 * Reference to local file
+	 */
+	private File file;
+	
+	public FileResource(File file) {
+		super(file.getName());
+		this.file = file;
 	}
 
 	@Override
@@ -24,14 +30,12 @@ public class FileResource extends Resource {
 
 	@Override
 	public void remProperty(PropertyRef ref) {
-		// TODO Auto-generated method stub
-
+		// can't really remove properties i think
 	}
 
 	@Override
 	public void setProperty(Property p) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -47,15 +51,14 @@ public class FileResource extends Resource {
 	}
 
 	@Override
-	public int getContentLength() {
-		// TODO Auto-generated method stub
-		return 0;
+	public long getContentLength() {
+		return file.length();
 	}
 
 	@Override
 	public Date getCreationDate() {
-		// TODO Auto-generated method stub
-		return null;
+		// check java nio
+		return new Date(0);
 	}
 
 	@Override

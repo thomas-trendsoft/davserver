@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import davserver.DAVServer;
 import davserver.DAVUtil;
@@ -53,6 +54,17 @@ public class Property {
 		this.namespace = ns;
 		this.name = name;
 		this.value = val;
+	}
+	
+	/**
+	 * XML Constructor 
+	 * 
+	 * @param root
+	 */
+	public Property(Element root) {
+		this.name = root.getLocalName();
+		this.namespace = root.getNamespaceURI();
+		this.value = root.getFirstChild();
 	}
 
 	/**
@@ -112,7 +124,12 @@ public class Property {
 	public Element toXML(Document doc,boolean content) {
 		Element elem = doc.createElementNS(namespace, name);
 		if (value != null && content) {
-			elem.setTextContent(String.valueOf(value));
+			if (value instanceof Node) {
+				Node cn = doc.adoptNode((Node)value);
+				elem.appendChild(cn);
+			} else {
+				elem.setTextContent(String.valueOf(value));				
+			}
 		}
 		return elem;
 	}

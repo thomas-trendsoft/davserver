@@ -37,7 +37,7 @@ public abstract class Collection extends Resource {
 	/**
 	 * Query content length of the get representation (to be done)
 	 */
-	public int getContentLength() {
+	public long getContentLength() {
 		return 0;
 	}
 	

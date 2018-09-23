@@ -13,7 +13,13 @@ import org.xml.sax.SAXException;
 import davserver.DAVException;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.repository.ILockManager;
 import davserver.repository.IRepository;
+import davserver.repository.LockEntry;
+import davserver.repository.Resource;
+import davserver.repository.error.LockedException;
+import davserver.repository.error.NotAllowedException;
+import davserver.repository.error.NotFoundException;
 import davserver.utils.XMLParser;
 
 /**
@@ -44,7 +50,8 @@ public class DAVLock {
 	 * @param url DAV URL
 	 */
 	public void handleLock(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
-		int depth;
+		int          depth;
+		ILockManager lm;
 		
 		// check if locks are supported
 		if (!repos.supportLocks()) {
@@ -52,6 +59,8 @@ public class DAVLock {
 			DAVUtil.handleError(new DAVException(415,"Locks are not supported inside this repository"),resp);
 			return;
 		}
+		
+		lm = repos.getLockManager();
 		
 		// check depth header param
 		Header d = req.getFirstHeader("Depth");
@@ -65,14 +74,16 @@ public class DAVLock {
 				return;
 			}
 		}
-		
+				
 		// check lock info body
+		LockEntry le = null;
 		if (req.getEntity().getContentLength() > 0) {
 			try {
 				Document body = XMLParser.singleton().parseStream(req.getEntity().getContent());
 				System.out.println("got a lock body: " + body);
 				if (debug) { DAVUtil.debug(body); }
 				// read requested lock properties
+				le = LockEntry.parse(url.getResref(),body);
 			} catch (UnsupportedOperationException e) {
 				resp.setStatusCode(400);
 				e.printStackTrace();
@@ -91,5 +102,28 @@ public class DAVLock {
 			return;
 		}
 
+		// check parsed response
+		if (le == null) {
+			DAVUtil.handleError(new DAVException(400,"bad request"), resp);
+			return;
+		}
+		
+		LockEntry lock = null;
+		try {
+			lock = lm.registerLock(le);
+		} catch (LockedException e1) {
+			DAVUtil.handleError(new DAVException(409,"is already locked"), resp);
+			return;
+		}
+
+		// create response
+		try {
+			Document rdoc = XMLParser.singleton().createDocument();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			DAVUtil.handleError(new DAVException(500,e.getMessage()), resp);
+			return;
+		}
 	}
 }
