@@ -15,6 +15,7 @@ public class SimpleLockManager implements ILockManager {
 	}
 	
 	public LockEntry checkLocked(String ref) {
+		System.out.println("check lock: " + ref);
 		return locks.get(ref);
 	}
 	
@@ -24,8 +25,14 @@ public class SimpleLockManager implements ILockManager {
 			throw new LockedException(request.getRef() + " is locked");
 		}
 		
-		LockEntry le = new LockEntry(request.getRef());
+		LockEntry le = new LockEntry(request.getRef(),request.getDepth(),request.getToken());
+		le.setShared(request.isShared());
+		le.setType(request.getType());
+		le.getOwner().addAll(request.getOwner());
+	
+		System.out.println("register lock: " + request.getRef());
 		locks.put(request.getRef(), le);
+		
 		return le;
 	}
 

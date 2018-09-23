@@ -1,5 +1,6 @@
 package davserver.repository;
 
+import java.util.Date;
 import java.util.HashSet;
 
 import org.w3c.dom.Document;
@@ -7,6 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import davserver.DAVServer;
+import davserver.protocol.xml.DAVXMLObject;
 
 /**
  * LockEntry for a resource 
@@ -14,17 +16,22 @@ import davserver.DAVServer;
  * @author tkrieger
  *
  */
-public class LockEntry {
+public class LockEntry extends DAVXMLObject {
 	
 	/**
 	 * Integer flag to normal write lock 
 	 */
-	public static final int WRITE_LOCK = 0;
+	public static final String WRITE_LOCK = "write";
 	
 	/**
 	 * Resource reference
 	 */
 	private String ref;
+	
+	/**
+	 * Lock token
+	 */
+	protected String token;
 	
 	/**
 	 * Lock owner list
@@ -37,9 +44,14 @@ public class LockEntry {
 	private boolean shared;
 	
 	/**
+	 * depth value
+	 */
+	private int depth;
+	
+	/**
 	 * Lock type
 	 */
-	private int type;
+	private String type;
 	
 	/**
 	 * Timeout value (date from seconds)
@@ -51,10 +63,13 @@ public class LockEntry {
 	 * 
 	 * @param ref
 	 */
-	public LockEntry(String ref) {
+	public LockEntry(String ref,int d,String token) {
 		this.ref   = ref;
 		this.owner = new HashSet<String>();
 		this.type  = WRITE_LOCK;
+		this.token = token;
+		
+		this.timeout = (new Date().getTime() + 40000);
 	}
 	
 	/**
@@ -63,10 +78,10 @@ public class LockEntry {
 	 * @param doc
 	 * @return
 	 */
-	public static LockEntry parse(String href,Document doc) {
+	public static LockEntry parse(String href,Document doc,int d,String token) {
 		Element root  = doc.getDocumentElement();
 		Node    child = root.getFirstChild();
-		LockEntry  le = new LockEntry(href);
+		LockEntry  le = new LockEntry(href,d,token);
 		
 		// check root scope
 		if (root.getLocalName().compareTo("lockinfo") != 0 || root.getNamespaceURI().compareTo(DAVServer.Namespace)!=0) {
@@ -108,15 +123,7 @@ public class LockEntry {
 				}
 				// owner list
 				if (child.getLocalName().compareTo("owner")==0) {
-					Node schild = child.getFirstChild();
-					while (schild != null) {
-						if (schild instanceof Element && DAVServer.Namespace.compareTo(schild.getNamespaceURI())==0) {
-							if (schild.getLocalName().compareTo("href")==0) {
-								le.getOwner().add(schild.getTextContent());
-							}
-						}
-						schild = schild.getNextSibling();
-					}					
+					le.getOwner().add(child.getTextContent());
 				}
 			}
 			child = child.getNextSibling();
@@ -151,11 +158,11 @@ public class LockEntry {
 		this.shared = shared;
 	}
 
-	public int getType() {
+	public String getType() {
 		return type;
 	}
 
-	public void setType(int type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 
@@ -165,6 +172,72 @@ public class LockEntry {
 
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public int getDepth() {
+		return depth;
+	}
+
+	@Override
+	public void appendXML(Element root) {
+		Element lr = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "lockdiscovery");
+		Element al = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "activelock");
+		Element ls = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "lockscope");
+		
+		// lock type
+		Element lt  = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "locktype");
+		Element lte = root.getOwnerDocument().createElementNS(DAVServer.Namespace, this.getType());
+		lt.appendChild(lte);
+		
+		// lock scope
+		if (this.shared) {
+			Element sl = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "shared");
+			ls.appendChild(sl);
+		} else {
+			Element sl = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "exclusive");
+			ls.appendChild(sl);
+		}
+		
+		// lock depth
+		Element dv = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "depth");
+		if (depth == 0) {
+			dv.setTextContent(String.valueOf(depth));
+		} else {
+			dv.setTextContent("infinity");
+		}
+		
+		// lock timeout
+		Date   now = new Date();
+		Element to = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "timeout"); 
+		long    tv = timeout - now.getTime();
+		
+		to.setTextContent("Seconds-" + String.valueOf(tv));
+		
+		// resource ref
+		Element lroot = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "lockroot");
+		lroot.setTextContent(ref);
+		
+		Element ol = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "owner");
+		for (String o : owner) {
+			Element or = root.getOwnerDocument().createElementNS(DAVServer.Namespace,"href");
+			or.setTextContent(o);
+			ol.appendChild(or);
+		}
+
+		al.appendChild(dv);
+		al.appendChild(to);
+		al.appendChild(lroot);
+		al.appendChild(ol);
+		al.appendChild(ls);
+		al.appendChild(lt);
+		lr.appendChild(al);
+		
+		root.appendChild(lr);
+		
 	}
 	
 }

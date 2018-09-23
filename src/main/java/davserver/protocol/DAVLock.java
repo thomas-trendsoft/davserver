@@ -1,25 +1,33 @@
 package davserver.protocol;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import davserver.DAVException;
+import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.xml.ListElement;
 import davserver.repository.ILockManager;
 import davserver.repository.IRepository;
 import davserver.repository.LockEntry;
 import davserver.repository.Resource;
+import davserver.repository.error.ConflictException;
 import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
+import davserver.repository.error.ResourceExistsException;
 import davserver.utils.XMLParser;
 
 /**
@@ -39,6 +47,69 @@ public class DAVLock {
 		this.debug = true;
 	}
 	
+	/**
+	 * Simple lock token creation
+	 * 
+	 * @param url
+	 * @return
+	 */
+	private String createLockToken(DAVUrl url) {
+		try {
+			return UUID.randomUUID().toString() + ":" + DAVUtil.createHash(url.getResref());
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return UUID.randomUUID().toString() + ":" + UUID.randomUUID().toString();
+		}
+	}
+	
+	/**
+	 * Get or create the resource for the lock request 
+	 * 
+	 * @param repos
+	 * @param ref
+	 * @param resp
+	 * @return
+	 */
+	private Resource getLockResource(IRepository repos,String ref,HttpResponse resp) {
+		
+		// check if target exists
+		Resource target = null;
+		try {
+			target = repos.locate(ref);			
+		} catch (NotAllowedException e) {
+			DAVUtil.handleError(new DAVException(403,"not allowed"), resp);
+			return null;
+		} catch (NotFoundException e) {
+		}
+		
+		// found some results
+		if (target != null) {
+			return target;
+		}
+		
+		// create empty resource if not exists
+		try {
+			target = repos.createResource(ref, new ByteArrayInputStream(new byte[0]));
+			resp.setStatusCode(201);
+		} catch (NotAllowedException e2) {
+			DAVUtil.handleError(new DAVException(403,"not allowed"), resp);
+			return null;
+		} catch (ConflictException e2) {
+			DAVUtil.handleError(new DAVException(409,"conflict on create"), resp);
+			return null;
+		} catch (ResourceExistsException e2) {
+			DAVUtil.handleError(new DAVException(409,"conflict on create"), resp);
+			return null;
+		} catch (NotFoundException e2) {
+			DAVUtil.handleError(new DAVException(409,"conflict on create"), resp);
+			return null;
+		} catch (IOException e2) {
+			DAVUtil.handleError(new DAVException(500,e2.getMessage()), resp);
+			return null;
+		}	
+		
+		return target;
+	}
 
 	/**
 	 * Handle HTTP LOCK Method
@@ -76,14 +147,15 @@ public class DAVLock {
 		}
 				
 		// check lock info body
-		LockEntry le = null;
+		LockEntry le    = null;
+		String    token = createLockToken(url); 
 		if (req.getEntity().getContentLength() > 0) {
 			try {
 				Document body = XMLParser.singleton().parseStream(req.getEntity().getContent());
 				System.out.println("got a lock body: " + body);
 				if (debug) { DAVUtil.debug(body); }
 				// read requested lock properties
-				le = LockEntry.parse(url.getResref(),body);
+				le = LockEntry.parse(url.getResref(),body,depth,token);
 			} catch (UnsupportedOperationException e) {
 				resp.setStatusCode(400);
 				e.printStackTrace();
@@ -101,14 +173,20 @@ public class DAVLock {
 			DAVUtil.handleError(new DAVException(400,"No lock request body"),resp);
 			return;
 		}
-
+		
 		// check parsed response
 		if (le == null) {
 			DAVUtil.handleError(new DAVException(400,"bad request"), resp);
 			return;
 		}
-		
-		LockEntry lock = null;
+
+		// get or create resource
+		Resource target = getLockResource(repos, url.getResref(), resp);
+		if (target == null)
+			return;
+
+		// create lock entry
+		LockEntry lock  = null;
 		try {
 			lock = lm.registerLock(le);
 		} catch (LockedException e1) {
@@ -118,8 +196,16 @@ public class DAVLock {
 
 		// create response
 		try {
-			Document rdoc = XMLParser.singleton().createDocument();
+			ListElement  mr    = new ListElement("prop", DAVServer.Namespace);
 			
+			mr.addChild(lock);
+			
+			String xmlDoc = XMLParser.singleton().serializeDoc(mr.createDocument());
+			
+			if (debug) { System.out.println(xmlDoc); }
+			
+			resp.setEntity(new StringEntity(xmlDoc,"utf-8"));
+			System.out.println("lock done");
 		} catch (Exception e) {
 			e.printStackTrace();
 			DAVUtil.handleError(new DAVException(500,e.getMessage()), resp);
