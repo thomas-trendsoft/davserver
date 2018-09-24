@@ -9,6 +9,7 @@ import org.w3c.dom.Node;
 
 import davserver.DAVServer;
 import davserver.DAVUtil;
+import davserver.protocol.xml.DAVXMLObject;
 
 /**
  * Resource property 
@@ -16,7 +17,7 @@ import davserver.DAVUtil;
  * @author tkrieger
  *
  */
-public class Property {
+public class Property extends DAVXMLObject {
 	
 	/**
 	 * Default DAV Properties
@@ -121,18 +122,28 @@ public class Property {
 	 * @param doc
 	 * @return
 	 */
-	public Element toXML(Document doc,boolean content) {
-		Element elem = doc.createElementNS(namespace, name);
+	public Element appendXML(Element doc,boolean content) {
+		Element elem = doc.getOwnerDocument().createElementNS(namespace, name);
 		if (value != null && content) {
 			if (value instanceof Node) {
-				Node cn = doc.adoptNode((Node)value);
+				Node cn = doc.getOwnerDocument().adoptNode((Node)value);
 				elem.appendChild(cn);
 			} else {
 				elem.setTextContent(String.valueOf(value));				
 			}
 		}
+		doc.appendChild(elem);
 		return elem;
 	}
+	
+	/**
+	 * DAV Property interface
+	 */
+	@Override
+	public Element appendXML(Element root) {
+		return appendXML(root,true);
+	}
+
 
 	/**
 	 * live flag 
@@ -157,6 +168,7 @@ public class Property {
 			davProperties.put(DAVServer.Namespace + "creationdate",new PropertyRef(PropertyRef.DAV_CREATIONDATE));
 			davProperties.put(DAVServer.Namespace + "getlastmodified",new PropertyRef(PropertyRef.DAV_LASTMODIFIED));
 			davProperties.put(DAVServer.Namespace + "displayname",new PropertyRef(PropertyRef.DAV_DISPLAYNAME));
+			davProperties.put(DAVServer.Namespace + "lockdiscovery",new PropertyRef(PropertyRef.DAV_LOCKDISCOVERY));
 		}
 		return davProperties;
 	}
@@ -168,7 +180,7 @@ public class Property {
 	 * @param r
 	 * @return
 	 */
-	public static Property getDAVProperty(String ref,Resource r) {
+	public static Property getDAVProperty(String ref,Resource r,IRepository repos) {
 		Property    p  = null;
 		Date        d  = null;
 		PropertyRef dp = Property.getDAVProperties().get(ref);
@@ -203,9 +215,18 @@ public class Property {
 		case PropertyRef.DAV_CONTENTTYPE:
 			p = new Property(DAVServer.Namespace, "getcontenttype", r.getContentType());
 			break;
+		case PropertyRef.DAV_LOCKDISCOVERY:
+			ILockManager lm = repos.getLockManager();
+			LockEntry    le = null;
+			if (!repos.supportLocks() || (le = lm.checkLocked(ref)) == null)  {
+				p = new Property(DAVServer.Namespace,"lockdiscovery",null);
+			} 
+			
+			break;
 		}
 		
 		return p;
 	}
+
 
 }

@@ -1,6 +1,5 @@
 package davserver.repository;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import davserver.DAVServer;
@@ -19,16 +18,16 @@ public class ResourceType extends Property {
 	}
 	
 	@Override
-	public Element toXML(Document doc,boolean content) {
-		Element elem = super.toXML(doc,content);
+	public Element appendXML(Element doc,boolean content) {
+		Element elem = super.appendXML(doc,content);
 		Element type = null;
 		
 		if (typeNS == null) {
 			if (typeName != null) {
-				type = doc.createElement(typeName);
+				type = doc.getOwnerDocument().createElement(typeName);
 			}
 		} else {
-			type = doc.createElementNS(typeNS, typeName);
+			type = doc.getOwnerDocument().createElementNS(typeNS, typeName);
 		}
 		
 		if (type != null) {

@@ -18,7 +18,7 @@ For testing surpose i will try to get this framework running against the litmus 
 
 -> running 'http': done
 
--> running `basic': done (with warnings)
+-> running `basic': done 
 
 -> running 'copymove': done (with warnings)
 

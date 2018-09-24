@@ -161,8 +161,11 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 
 		String method = req.getRequestLine().getMethod();
 
-		// 404 if no repository is found
-		if (repos == null) {
+		if (req.getRequestLine().getUri().indexOf("#") > 0) {
+			// disallow fragments on request url
+			DAVUtil.handleError(new DAVException(400,"fragment in request url"), response);
+		} else if (repos == null) {
+			// 404 if no repository is found
 			response.setStatusCode(404);	
 		} else if (method.startsWith("PROP")) {
 			if (method.compareTo("PROPFIND")==0) {

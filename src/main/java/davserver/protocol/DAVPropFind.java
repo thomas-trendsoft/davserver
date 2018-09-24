@@ -58,7 +58,7 @@ public class DAVPropFind {
 	 * @param depth
 	 * @returns a list of not found properties
 	 */
-	public void createPropFindResp(Element multistatus,DAVUrl rurl,Resource r,List<PropertyRef> refs,int depth) {
+	public void createPropFindResp(Element multistatus,DAVUrl rurl,Resource r,List<PropertyRef> refs,int depth,IRepository repos) {
 		HashSet<String> done     = new HashSet<String>();
 		Document        owner    = multistatus.getOwnerDocument();
 		// response root
@@ -90,7 +90,7 @@ public class DAVPropFind {
 								p = new ResourceType(DAVServer.Namespace,"collection");
 							else 
 								p = new ResourceType(null,null);
-						} else if ((p = Property.getDAVProperty(spr.getNs() + spr.getName(), r)) == null) {
+						} else if ((p = Property.getDAVProperty(spr.getNs() + spr.getName(), r,repos)) == null) {
 							System.out.println("UNKNOWN dav property: " + spr.getName());
 						} 
 					}
@@ -101,7 +101,7 @@ public class DAVPropFind {
 						if (!done.contains(p.getNamespace() + ":" + p.getName())) {
 							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 							propstat.appendChild(prop);
-							prop.appendChild(p.toXML(owner,true));
+							p.appendXML(prop);
 							done.add(p.getNamespace() + ":" + p.getName());
 						}
 					}
@@ -114,7 +114,7 @@ public class DAVPropFind {
 					if (!done.contains(p.getNamespace() + ":" + p.getName())) {
 						Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 						propstat.appendChild(prop);
-						prop.appendChild(p.toXML(owner,content));
+						p.appendXML(prop,content);
 						done.add(p.getNamespace() + ":" + p.getName());
 					}
  				}
@@ -128,7 +128,7 @@ public class DAVPropFind {
 						p = new ResourceType(null,null);					
 					Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 					propstat.appendChild(prop);
-					prop.appendChild(p.toXML(owner,content));
+					p.appendXML(prop,content);
 					done.add(p.getNamespace() + ":" + p.getName());
 				}
 				
@@ -136,12 +136,12 @@ public class DAVPropFind {
 					System.out.println("check: " + dpk);
 					if (!done.contains(dpk)) {
 						System.out.println("try add");
-						p = Property.getDAVProperty(dpk, r);
+						p = Property.getDAVProperty(dpk, r, repos);
 						if (p != null) {
 							System.out.println("add:");
 							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 							propstat.appendChild(prop);
-							prop.appendChild(p.toXML(owner,content));
+							p.appendXML(prop,content);
 							done.add(dpk);							
 						}
 					}					
@@ -188,7 +188,7 @@ public class DAVPropFind {
 					nu = base + cr.getName();
 				}
 				DAVUrl curl = new DAVUrl(nu, rurl.getPrefix());
-				createPropFindResp(multistatus, curl, cr, refs, 0);
+				createPropFindResp(multistatus, curl, cr, refs, 0, repos);
 			}
 		}
 	}
@@ -358,7 +358,7 @@ public class DAVPropFind {
 			rdoc.appendChild(rroot);
 			
 			// Query requested properties
-			createPropFindResp(rroot,durl, r, reflist, depthval);
+			createPropFindResp(rroot,durl, r, reflist, depthval, repos);
 			
 			xmlDoc = XMLParser.singleton().serializeDoc(rdoc);
 			

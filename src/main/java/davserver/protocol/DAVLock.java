@@ -2,7 +2,6 @@ package davserver.protocol;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -54,12 +53,7 @@ public class DAVLock {
 	 * @return
 	 */
 	private String createLockToken(DAVUrl url) {
-		try {
-			return UUID.randomUUID().toString() + ":" + DAVUtil.createHash(url.getResref());
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			return UUID.randomUUID().toString() + ":" + UUID.randomUUID().toString();
-		}
+		return "opaquelocktoken:" + UUID.randomUUID().toString();
 	}
 	
 	/**
@@ -203,6 +197,8 @@ public class DAVLock {
 			String xmlDoc = XMLParser.singleton().serializeDoc(mr.createDocument());
 			
 			if (debug) { System.out.println(xmlDoc); }
+			
+			resp.addHeader("Lock-Token","<" + lock.getToken() + ">");
 			
 			resp.setEntity(new StringEntity(xmlDoc,"utf-8"));
 			System.out.println("lock done");

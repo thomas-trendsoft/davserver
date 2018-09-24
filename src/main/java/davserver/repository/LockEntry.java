@@ -8,7 +8,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import davserver.DAVServer;
-import davserver.protocol.xml.DAVXMLObject;
 
 /**
  * LockEntry for a resource 
@@ -16,7 +15,7 @@ import davserver.protocol.xml.DAVXMLObject;
  * @author tkrieger
  *
  */
-public class LockEntry extends DAVXMLObject {
+public class LockEntry extends Property {
 	
 	/**
 	 * Integer flag to normal write lock 
@@ -64,6 +63,8 @@ public class LockEntry extends DAVXMLObject {
 	 * @param ref
 	 */
 	public LockEntry(String ref,int d,String token) {
+		super(DAVServer.Namespace,"lockdiscovery",null);
+		
 		this.ref   = ref;
 		this.owner = new HashSet<String>();
 		this.type  = WRITE_LOCK;
@@ -183,8 +184,8 @@ public class LockEntry extends DAVXMLObject {
 	}
 
 	@Override
-	public void appendXML(Element root) {
-		Element lr = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "lockdiscovery");
+	public Element appendXML(Element root) {
+		Element lr = super.appendXML(root);
 		Element al = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "activelock");
 		Element ls = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "lockscope");
 		
@@ -217,6 +218,12 @@ public class LockEntry extends DAVXMLObject {
 		
 		to.setTextContent("Seconds-" + String.valueOf(tv));
 		
+		// lock token
+		Element id  = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "locktoken");
+		Element idr = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "href");
+		id.appendChild(idr);
+		idr.setTextContent(token);
+		
 		// resource ref
 		Element lroot = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "lockroot");
 		lroot.setTextContent(ref);
@@ -228,6 +235,7 @@ public class LockEntry extends DAVXMLObject {
 			ol.appendChild(or);
 		}
 
+		al.appendChild(id);
 		al.appendChild(dv);
 		al.appendChild(to);
 		al.appendChild(lroot);
@@ -238,6 +246,7 @@ public class LockEntry extends DAVXMLObject {
 		
 		root.appendChild(lr);
 		
+		return lr;
 	}
 	
 }
