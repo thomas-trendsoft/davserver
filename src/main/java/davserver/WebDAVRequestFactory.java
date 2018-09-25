@@ -36,7 +36,7 @@ public class WebDAVRequestFactory implements HttpRequestFactory {
             "COPY",
             "MOVE",
             "BIND",
-            "UNLOCK"
+            "UNLOCK"	
     };
 
     private static final String[] RFC2616_SPECIAL_METHODS = {

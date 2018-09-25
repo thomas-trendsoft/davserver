@@ -125,6 +125,17 @@ public class DAVCopy {
 		int stat = 201;
 
 		try {
+			
+			// check preconditions
+			try {
+				if (move)
+					DAVRequest.checkLock(req, repos, url);
+			} catch (DAVException e) {
+				e.printStackTrace();
+				DAVUtil.handleError(e, resp);
+				return;
+			}
+
 			// check destination header
 			Header d  = req.getFirstHeader("Destination");
 			Header ow = req.getFirstHeader("Overwrite");
