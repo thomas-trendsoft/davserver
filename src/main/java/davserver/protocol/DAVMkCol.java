@@ -34,6 +34,15 @@ public class DAVMkCol {
 		System.out.println("handle mkcol");
 		Resource r = null;
 		
+		// check precondition
+		try {
+			DAVRequest.checkLock(req, repos, url);
+		} catch (DAVException e) {
+			e.printStackTrace();
+			DAVUtil.handleError(e, resp);
+			return;
+		}
+
 		// check if a body is given
 		if (req.getEntity().getContentLength() > 0) {
 			DAVUtil.handleError(new DAVException(415,"No supported body mkcol"), resp);

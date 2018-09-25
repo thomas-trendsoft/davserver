@@ -36,6 +36,15 @@ public class DAVDelete {
 		}
 		
 		try {
+			// check precondition
+			try {
+				DAVRequest.checkLock(req, repos, durl);
+			} catch (DAVException e) {
+				e.printStackTrace();
+				DAVUtil.handleError(e, resp);
+				return;
+			}
+			
 			repos.remove(durl.getResref());
 			resp.setStatusCode(204);
 		} catch (LockedException le) {

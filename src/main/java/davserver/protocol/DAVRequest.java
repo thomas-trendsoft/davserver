@@ -7,9 +7,13 @@ import org.apache.http.HttpRequest;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
+import davserver.protocol.header.IfCondition;
 import davserver.protocol.header.IfHeader;
 import davserver.repository.IRepository;
 import davserver.repository.LockEntry;
+import davserver.repository.Resource;
+import davserver.repository.error.NotAllowedException;
+import davserver.repository.error.NotFoundException;
 
 /**
  * Helper class for common request functions 
@@ -28,6 +32,17 @@ public class DAVRequest {
 	 * @throws DAVException
 	 */
 	public static void checkLock(HttpRequest req,IRepository repos,DAVUrl url) throws DAVException {
+		Resource r = null;
+		
+		// get resource 
+		try {
+			r = repos.locate(url.getResref());			
+		} catch (NotAllowedException e) {
+			
+		} catch (NotFoundException e) {
+			
+		}
+		
 		// check locks
 		if (repos.supportLocks()) {
 			LockEntry le = repos.getLockManager().checkLocked(url.getResref());
@@ -47,9 +62,9 @@ public class DAVRequest {
 						System.out.println(curl.getResref());
 						throw new DAVException(400,"bad if uri");
 					}
-					//if (le.getToken().compareTo(lh.getConditions()) !=0) {
-					//	throw new DAVException(405,"not allowed");
-					//}
+					if (!lh.evaluate(le.getToken(), (r != null ? r.getETag() : null))) {
+						throw new DAVException(412,"precondition failed");
+					}
 				} catch (ParseException e) {
 					e.printStackTrace();
 					throw new DAVException(400,"bad request");

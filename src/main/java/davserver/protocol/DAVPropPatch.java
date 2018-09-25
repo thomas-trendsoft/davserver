@@ -53,6 +53,15 @@ public class DAVPropPatch {
 	public void handlePropPatch(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) {
 		Resource target;
 		Document body;
+		
+		// check precondition
+		try {
+			DAVRequest.checkLock(req, repos, durl);
+		} catch (DAVException e) {
+			e.printStackTrace();
+			DAVUtil.handleError(e, resp);
+			return;
+		}
 
 		// check target resource
 		try {

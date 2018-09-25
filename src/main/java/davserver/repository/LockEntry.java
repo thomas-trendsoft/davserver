@@ -70,7 +70,11 @@ public class LockEntry extends Property {
 		this.type  = WRITE_LOCK;
 		this.token = token;
 		
-		this.timeout = (new Date().getTime() + 40000);
+		this.timeout = updatedTimeout();
+	}
+	
+	public static long updatedTimeout() {
+		return (new Date().getTime() + 40000);
 	}
 	
 	/**

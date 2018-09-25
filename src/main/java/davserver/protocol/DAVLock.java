@@ -2,6 +2,7 @@ package davserver.protocol;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,6 +18,7 @@ import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.header.IfHeader;
 import davserver.protocol.xml.ListElement;
 import davserver.repository.ILockManager;
 import davserver.repository.IRepository;
@@ -104,6 +106,31 @@ public class DAVLock {
 		
 		return target;
 	}
+	
+	private void responseLock(HttpResponse resp,LockEntry lock) {
+		// create response
+		try {
+			ListElement  mr    = new ListElement("prop", DAVServer.Namespace);
+			
+			mr.addChild(lock);
+			
+			String xmlDoc = XMLParser.singleton().serializeDoc(mr.createDocument());
+			
+			if (debug) { System.out.println(xmlDoc); }
+			
+			resp.addHeader("Lock-Token","<" + lock.getToken() + ">");
+			
+			resp.setEntity(new StringEntity(xmlDoc,"utf-8"));
+			resp.setHeader("Content-Type","application/xml;charset=utf-8");
+
+			System.out.println("lock done");
+		} catch (Exception e) {
+			e.printStackTrace();
+			DAVUtil.handleError(new DAVException(500,e.getMessage()), resp);
+			return;
+		}
+		
+	}
 
 	/**
 	 * Handle HTTP LOCK Method
@@ -163,9 +190,37 @@ public class DAVLock {
 				e.printStackTrace();
 				resp.setStatusCode(500);
 			} 
-		} else {
-			DAVUtil.handleError(new DAVException(400,"No lock request body"),resp);
-			return;
+		} 
+		
+		// check for refresh header
+		Header lheader = req.getFirstHeader("If");
+		if (le == null && lheader != null) {
+			System.out.println("check refresh");
+			try {
+				LockEntry lock = lm.checkLocked(url.getResref());
+				IfHeader  rif  = IfHeader.parseIfHeader(lheader.getValue());
+				
+				if (lock == null) {
+					System.out.println("no lock");
+					DAVUtil.handleError(new DAVException(400,"no lock"), resp);
+					return;
+				}
+				if (!rif.evaluate(lock.getToken(), null)) {
+					System.out.println("wrong lock token");
+					DAVUtil.handleError(new DAVException(423,"wrong lock token"), resp);
+					return;
+				}
+				lock.setTimeout(LockEntry.updatedTimeout());
+				repos.getLockManager().updateLock(lock);
+				// response the lock
+				responseLock(resp, lock);
+				System.out.println("ret lock refresh");
+				return;
+			} catch (ParseException e) {
+				DAVUtil.handleError(new DAVException(400,"bad request if"), resp);
+				return;
+			}
+			
 		}
 		
 		// check parsed response
@@ -192,7 +247,7 @@ public class DAVLock {
 				// check if includes owner
 				for (String o : le.getOwner()) {
 					if (!lock.getOwner().contains(o)) {
-						DAVUtil.handleError(new DAVException(409,"is already locked"), resp);
+						DAVUtil.handleError(new DAVException(423,"is already locked"), resp);
 						return;					
 					}
 				}
@@ -201,28 +256,10 @@ public class DAVLock {
 				lm.updateLock(le);
 			}
 		}
+		
+		// response the lock
+		responseLock(resp, lock);
 
-		// create response
-		try {
-			ListElement  mr    = new ListElement("prop", DAVServer.Namespace);
-			
-			mr.addChild(lock);
-			
-			String xmlDoc = XMLParser.singleton().serializeDoc(mr.createDocument());
-			
-			if (debug) { System.out.println(xmlDoc); }
-			
-			resp.addHeader("Lock-Token","<" + lock.getToken() + ">");
-			
-			resp.setEntity(new StringEntity(xmlDoc,"utf-8"));
-			resp.setHeader("Content-Type","application/xml;charset=utf-8");
-
-			System.out.println("lock done");
-		} catch (Exception e) {
-			e.printStackTrace();
-			DAVUtil.handleError(new DAVException(500,e.getMessage()), resp);
-			return;
-		}
 	}
 	
 	public void handleUnlock(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {

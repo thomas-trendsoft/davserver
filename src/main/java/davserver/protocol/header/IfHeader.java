@@ -42,8 +42,32 @@ public class IfHeader {
 		return conditions;
 	}
 
+	/**
+	 * Get resource (resource tag list) null if only list
+	 * 
+	 * @return
+	 */
 	public URI getResource() {
 		return resource;
+	}
+	
+	/**
+	 * Evaluate the if expression 
+	 * 
+	 * @param lock
+	 * @param etag
+	 * @return
+	 */
+	public boolean evaluate(String lock,String etag) {
+		for (IfCondition c : getConditions()) {
+			if (c.entity && c.state.compareTo(etag) != 0) {
+				return false;
+			} else if (c.state.compareTo(lock) != 0) {
+				return false;
+			}
+			
+		}
+		return true;
 	}
 
 	/**
@@ -74,22 +98,18 @@ public class IfHeader {
 		
 		ret = new IfHeader(res);
 		String list = value.substring(off).trim();
-		System.out.println(list);
 		if (list.startsWith("(")) {
 			off = list.indexOf(")");
-			String plist = list.substring(1,off-1);
+			String plist = list.substring(0 ,off+1);
+			System.out.println(plist);
 			Matcher m = PCondition.matcher(plist);
 			while (m.find()) {
-				System.out.println("found condition");
-				//System.out.println(m.group("state"));
-				//String state = m.group("state");
-				//IfCondition c = new IfCondition();
-				//c.not   = (m.group("not") != null);
-				//c.state = state.substring(1,state.length()-1);
-				//c.entity = state.startsWith("[");
-				
-				//System.out.println("check slot: " + c.not + ":" + c.state);
-				//ret.getConditions().add(c);
+				String state = m.group("state");
+				IfCondition c = new IfCondition();
+				c.not   = (m.group("not") != null);
+				c.state = state.substring(1,state.length()-1);
+				c.entity = state.startsWith("[");
+				ret.getConditions().add(c);
 			}			
 		} else {
 			throw new ParseException("no list",off);
