@@ -22,6 +22,7 @@ public class DAVServer {
 
         DefaultHttpRequestParserFactory     rf = new DefaultHttpRequestParserFactory(BasicLineParser.INSTANCE, new WebDAVRequestFactory());
         DefaultNHttpServerConnectionFactory cf = new DefaultNHttpServerConnectionFactory(null,null,rf,null,null,null);
+        
         final HttpServer server = ServerBootstrap.bootstrap()
                 .setListenerPort(8080)
                 .setServerInfo("DAVServer/1.1")

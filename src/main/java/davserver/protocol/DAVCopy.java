@@ -149,12 +149,13 @@ public class DAVCopy {
 				LockEntry   sle = lm.checkLocked(url.getResref());
 				LockEntry   tle = lm.checkLocked(turl.getResref());
 				System.out.println(tle + ":" + sle);
-				if ((sle != null && move) || tle != null) {
-					DAVUtil.handleError(new DAVException(405,"not allowed"), resp);
-					return;
-				}
+				//if ((sle != null && move) || tle != null) {
+				//	DAVUtil.handleError(new DAVException(405,"not allowed"), resp);
+				//	return;
+				//}
 			}
 			
+			// check source resource
 			Resource src = repos.locate(url.getResref());
 			if (src == null) {
 				DAVUtil.handleError(new DAVException(404,"source not found"), resp);

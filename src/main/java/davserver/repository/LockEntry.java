@@ -216,7 +216,7 @@ public class LockEntry extends Property {
 		Element to = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "timeout"); 
 		long    tv = timeout - now.getTime();
 		
-		to.setTextContent("Seconds-" + String.valueOf(tv));
+		to.setTextContent("Second-" + String.valueOf(tv));
 		
 		// lock token
 		Element id  = root.getOwnerDocument().createElementNS(DAVServer.Namespace, "locktoken");
@@ -238,9 +238,9 @@ public class LockEntry extends Property {
 		al.appendChild(id);
 		al.appendChild(dv);
 		al.appendChild(to);
-		al.appendChild(lroot);
 		al.appendChild(ol);
 		al.appendChild(ls);
+		al.appendChild(lroot);
 		al.appendChild(lt);
 		lr.appendChild(al);
 		

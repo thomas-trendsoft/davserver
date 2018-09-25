@@ -1,8 +1,9 @@
-package davserver.repository;
+package davserver.protocol.xml;
 
 import org.w3c.dom.Element;
 
 import davserver.DAVServer;
+import davserver.repository.Property;
 
 public class ResourceType extends Property {
 

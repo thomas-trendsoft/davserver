@@ -3,7 +3,6 @@ package davserver.repository;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -169,6 +168,7 @@ public class Property extends DAVXMLObject {
 			davProperties.put(DAVServer.Namespace + "getlastmodified",new PropertyRef(PropertyRef.DAV_LASTMODIFIED));
 			davProperties.put(DAVServer.Namespace + "displayname",new PropertyRef(PropertyRef.DAV_DISPLAYNAME));
 			davProperties.put(DAVServer.Namespace + "lockdiscovery",new PropertyRef(PropertyRef.DAV_LOCKDISCOVERY));
+			davProperties.put(DAVServer.Namespace + "supportedlock",new PropertyRef(PropertyRef.DAV_SUPPORTEDLOCK));
 		}
 		return davProperties;
 	}
@@ -217,11 +217,16 @@ public class Property extends DAVXMLObject {
 			break;
 		case PropertyRef.DAV_LOCKDISCOVERY:
 			ILockManager lm = repos.getLockManager();
-			LockEntry    le = null;
-			if (!repos.supportLocks() || (le = lm.checkLocked(ref)) == null)  {
+			if (!repos.supportLocks() || (p = lm.checkLocked(ref)) == null)  {
 				p = new Property(DAVServer.Namespace,"lockdiscovery",null);
 			} 
-			
+			break;
+		case PropertyRef.DAV_SUPPORTEDLOCK:
+			if (!repos.supportLocks()) {
+				p = repos.getLockManager().getSupportedLocks();				
+			} else {
+				p = new Property(DAVServer.Namespace,"supportedlock",null);
+			}
 			break;
 		}
 		

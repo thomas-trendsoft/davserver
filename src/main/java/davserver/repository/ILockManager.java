@@ -1,5 +1,6 @@
 package davserver.repository;
 
+import davserver.protocol.xml.SupportedLocks;
 import davserver.repository.error.LockedException;
 
 /**
@@ -27,5 +28,16 @@ public interface ILockManager {
 	 */
 	LockEntry registerLock(LockEntry request) throws LockedException;
 
+	/**
+	 * update locks if not in memory only
+	 */
+	void updateLock(LockEntry lock);
+	
+	/**
+	 * Get the supported lock types
+	 * 
+	 * @return
+	 */
+	SupportedLocks getSupportedLocks();
 	
 }

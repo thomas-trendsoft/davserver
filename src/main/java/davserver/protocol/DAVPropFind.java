@@ -22,12 +22,12 @@ import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.xml.ResourceType;
 import davserver.repository.Collection;
 import davserver.repository.IRepository;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
-import davserver.repository.ResourceType;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.utils.XMLParser;
@@ -371,6 +371,8 @@ public class DAVPropFind {
 		// MultiStatus Response
 		resp.setStatusCode(207);
 		resp.setEntity(new StringEntity(xmlDoc, "utf-8"));
+		resp.setHeader("Content-Type","application/xml;charset=utf-8");
+
 		System.out.println("RET PROPS:" + xmlDoc);
 	}
 

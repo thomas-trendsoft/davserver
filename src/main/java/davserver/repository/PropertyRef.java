@@ -71,7 +71,12 @@ public class PropertyRef {
 	/**
 	 * Constant for lock discovery
 	 */
-	public static final int DAV_LOCKDISCOVERY = 16;
+	public static final int DAV_LOCKDISCOVERY = 106;
+	
+	/**
+	 * Constant for supported locks
+	 */
+	public static final int DAV_SUPPORTEDLOCK = 107;
 
 	/**
 	 * Reference type identifier

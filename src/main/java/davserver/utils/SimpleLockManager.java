@@ -1,22 +1,58 @@
 package davserver.utils;
 
+import java.util.Date;
 import java.util.HashMap;
 
+import davserver.protocol.xml.SupportedLocks;
 import davserver.repository.ILockManager;
 import davserver.repository.LockEntry;
 import davserver.repository.error.LockedException;
 
+/**
+ * Simple Lock Manager implementation 
+ * 
+ * @author tkrieger
+ *
+ */
 public class SimpleLockManager implements ILockManager {
 	
+	/**
+	 * Memory lock store
+	 */
 	private HashMap<String,LockEntry> locks;
 	
+	/**
+	 * Supported Lock default property
+	 */
+	private SupportedLocks support;
+	
+	/**
+	 * Defaultkonstruktor 
+	 */
 	public SimpleLockManager() {
-		locks = new HashMap<String,LockEntry>();
+		locks   = new HashMap<String,LockEntry>();
+		support = new SupportedLocks();
 	}
 	
+	/**
+	 * Check resource ref for lock entry
+	 */
 	public LockEntry checkLocked(String ref) {
 		System.out.println("check lock: " + ref);
-		return locks.get(ref);
+		LockEntry le = locks.get(ref);
+		if (le != null) {
+			// check timeout
+			Date now = new Date();
+			if (le.getTimeout() <= now.getTime()) {
+				locks.remove(ref);
+				return null;
+			}
+		}
+		return le;
+	}
+	
+	public void updateLock(LockEntry le) {
+		locks.put(le.getRef(), le);
 	}
 	
 	public synchronized LockEntry registerLock(LockEntry request) throws LockedException {
@@ -34,6 +70,11 @@ public class SimpleLockManager implements ILockManager {
 		locks.put(request.getRef(), le);
 		
 		return le;
+	}
+
+	@Override
+	public SupportedLocks getSupportedLocks() {
+		return support;
 	}
 
 }

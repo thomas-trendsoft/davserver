@@ -96,7 +96,9 @@ public class XMLParser {
 	public String serializeDoc(Document doc) throws TransformerException {
 		Transformer transformer = TransformerFactory.newInstance().newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-
+	    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+	    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+	    
 		//initialize StreamResult with File object to save to file
 		StreamResult result = new StreamResult(new StringWriter());
 		DOMSource    source = new DOMSource(doc);

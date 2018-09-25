@@ -184,8 +184,22 @@ public class DAVLock {
 		try {
 			lock = lm.registerLock(le);
 		} catch (LockedException e1) {
-			DAVUtil.handleError(new DAVException(409,"is already locked"), resp);
-			return;
+			lock = lm.checkLocked(url.getResref());
+			System.out.println(lock.isShared() + ":" + le.isShared());
+			// TODO Check when to update and when to conflict (litmus no lock-token only owner as "auth"?)
+			// includes exclusive share?
+			if (!lock.isShared() || !le.isShared()) {
+				// check if includes owner
+				for (String o : le.getOwner()) {
+					if (!lock.getOwner().contains(o)) {
+						DAVUtil.handleError(new DAVException(409,"is already locked"), resp);
+						return;					
+					}
+				}
+			} else if (lock.isShared() && le.isShared()) {
+				le.getOwner().addAll(lock.getOwner());
+				lm.updateLock(le);
+			}
 		}
 
 		// create response
@@ -201,11 +215,17 @@ public class DAVLock {
 			resp.addHeader("Lock-Token","<" + lock.getToken() + ">");
 			
 			resp.setEntity(new StringEntity(xmlDoc,"utf-8"));
+			resp.setHeader("Content-Type","application/xml;charset=utf-8");
+
 			System.out.println("lock done");
 		} catch (Exception e) {
 			e.printStackTrace();
 			DAVUtil.handleError(new DAVException(500,e.getMessage()), resp);
 			return;
 		}
+	}
+	
+	public void handleUnlock(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
+		System.out.println("handle unlock");
 	}
 }

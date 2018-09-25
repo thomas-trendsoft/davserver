@@ -109,6 +109,7 @@ public class DAVUtil {
 			doc.appendChild(err);
 			err.setTextContent(e.getMessage());
 			resp.setEntity(new StringEntity(XMLParser.singleton().serializeDoc(doc), "utf-8"));
+			resp.setHeader("Content-Type","application/xml;charset=utf-8");
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
