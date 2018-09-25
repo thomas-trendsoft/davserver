@@ -55,6 +55,10 @@ public class SimpleLockManager implements ILockManager {
 		locks.put(le.getRef(), le);
 	}
 	
+	public void removeLock(LockEntry le) {
+		locks.remove(le.getRef());
+	}
+	
 	public synchronized LockEntry registerLock(LockEntry request) throws LockedException {
 		
 		if (checkLocked(request.getRef()) != null) {

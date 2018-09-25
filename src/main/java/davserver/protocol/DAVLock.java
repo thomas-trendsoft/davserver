@@ -9,6 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Document;
@@ -262,7 +263,51 @@ public class DAVLock {
 
 	}
 	
-	public void handleUnlock(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
+	public void handleUnlock(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
 		System.out.println("handle unlock");
+		
+		if (!repos.supportLocks()) {
+			throw new DAVException(425,"unsupported");
+		}
+		
+		LockEntry le = repos.getLockManager().checkLocked(url.getResref());
+		if (le == null) {
+			throw new DAVException(409,"no lock given");
+		}
+		
+		// check lock header against lock entry
+		try {
+			Resource   r = repos.locate(url.getResref());
+			Header   hif = req.getFirstHeader("If");
+			// check if header
+			if (hif == null) {
+				// check lock token header
+				Header hlt = req.getFirstHeader("Lock-Token");
+				if (hlt != null && hlt.getValue().length() > 3) {
+					String check = hlt.getValue().substring(1, hlt.getValue().length()-1);
+					System.out.println("lheader check: " + check + "  ==  " + le.getToken());
+					if (check.compareTo(le.getToken()) != 0) {
+						throw new DAVException(423,"wrong lock token submitted");											
+					}
+				} else {
+					throw new DAVException(423,"no lock token submitted");					
+				}
+			} else {
+				IfHeader lh = IfHeader.parseIfHeader(hif.getValue());
+
+				if (!lh.evaluate(le.getToken(), (r != null ? r.getETag() : null))) {
+					throw new DAVException(409,"precondition failed");
+				}				
+			}
+			repos.getLockManager().removeLock(le);
+		} catch (ParseException pe) {
+			throw new DAVException(400,"bad if header");
+		} catch (NotFoundException e) {
+			throw new DAVException(404,"not found");
+		} catch (NotAllowedException e) {
+			throw new DAVException(405,"not allowed");
+		}
+		
+		resp.setStatusCode(204);
 	}
 }

@@ -1,9 +1,7 @@
 package davserver.protocol;
 
 import java.io.IOException;
-import java.text.ParseException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 
@@ -11,7 +9,6 @@ import davserver.DAVException;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
 import davserver.repository.IRepository;
-import davserver.repository.LockEntry;
 import davserver.repository.error.ConflictException;
 import davserver.repository.error.RepositoryException;
 import davserver.repository.error.ResourceExistsException;

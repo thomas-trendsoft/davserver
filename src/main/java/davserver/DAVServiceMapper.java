@@ -26,6 +26,8 @@ import davserver.protocol.DAVPropFind;
 import davserver.protocol.DAVPropPatch;
 import davserver.protocol.DAVPut;
 import davserver.repository.IRepository;
+import davserver.repository.error.NotAllowedException;
+import davserver.repository.error.NotFoundException;
 import davserver.repository.simple.SimpleRepository;
 
 // TODO Make Error Handling with multiple messages easier or enable it at least
@@ -161,41 +163,51 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 
 		String method = req.getRequestLine().getMethod();
 
-		if (req.getRequestLine().getUri().indexOf("#") > 0) {
-			// disallow fragments on request url
-			DAVUtil.handleError(new DAVException(400,"fragment in request url"), response);
-		} else if (repos == null) {
-			// 404 if no repository is found
-			response.setStatusCode(404);	
-		} else if (method.startsWith("PROP")) {
-			if (method.compareTo("PROPFIND")==0) {
-				propfind.handlePropFind((HttpEntityEnclosingRequest)req, response, repos,durl);
-			} else if (method.compareTo("PROPPATCH")==0) {
-				proppatch.handlePropPatch((HttpEntityEnclosingRequest)req,response,repos,durl);
-			}
-		} else if (method.compareTo("GET")==0) {
-			get.handleGet(req,response, repos,durl,false);
-		} else if (method.compareTo("HEAD")==0) {
-			get.handleGet(req, response, repos, durl, true);
-		} else if (method.compareTo("OPTIONS")==0) {
-			System.out.println("options prepare: " + durl.getResref());
-			options.handleOptions(req, response, repos,durl);
-		} else if (method.compareTo("COPY")==0) {
-			copy.handleCopy(req,response,repos,durl,false);
-		} else if (method.compareTo("MOVE")==0) {
-			copy.handleCopy(req, response, repos, durl, true);
-		} else if (method.compareTo("DELETE")==0) {
-			delete.handleDelete(req, response, repos,durl);
-		} else if (method.compareTo("MKCOL")==0) {
-			mkcol.handleMkCol((HttpEntityEnclosingRequest)req,response, repos,durl);
-		} else if (method.compareTo("PUT")==0) {
-			put.handlePut((HttpEntityEnclosingRequest)req,response,repos,durl);
-		} else if (method.compareTo("BIND")==0) {
-			bind.handleBind(req, response, repos, durl);
-		} else if (method.compareTo("LOCK")==0) {
-			lock.handleLock((HttpEntityEnclosingRequest)req,response,repos,durl);
-		} else {
-			async.getResponse().setStatusCode(404);			
+		try {
+			if (req.getRequestLine().getUri().indexOf("#") > 0) {
+				// disallow fragments on request url
+				DAVUtil.handleError(new DAVException(400,"fragment in request url"), response);
+			} else if (repos == null) {
+				// 404 if no repository is found
+				response.setStatusCode(404);	
+			} else if (method.startsWith("PROP")) {
+				if (method.compareTo("PROPFIND")==0) {
+					propfind.handlePropFind((HttpEntityEnclosingRequest)req, response, repos,durl);
+				} else if (method.compareTo("PROPPATCH")==0) {
+					proppatch.handlePropPatch((HttpEntityEnclosingRequest)req,response,repos,durl);
+				}
+			} else if (method.compareTo("GET")==0) {
+				get.handleGet(req,response, repos,durl,false);
+			} else if (method.compareTo("HEAD")==0) {
+				get.handleGet(req, response, repos, durl, true);
+			} else if (method.compareTo("OPTIONS")==0) {
+				System.out.println("options prepare: " + durl.getResref());
+				options.handleOptions(req, response, repos,durl);
+			} else if (method.compareTo("COPY")==0) {
+				copy.handleCopy(req,response,repos,durl,false);
+			} else if (method.compareTo("MOVE")==0) {
+				copy.handleCopy(req, response, repos, durl, true);
+			} else if (method.compareTo("DELETE")==0) {
+				delete.handleDelete(req, response, repos,durl);
+			} else if (method.compareTo("MKCOL")==0) {
+				mkcol.handleMkCol((HttpEntityEnclosingRequest)req,response, repos,durl);
+			} else if (method.compareTo("PUT")==0) {
+				put.handlePut((HttpEntityEnclosingRequest)req,response,repos,durl);
+			} else if (method.compareTo("BIND")==0) {
+				bind.handleBind(req, response, repos, durl);
+			} else if (method.compareTo("LOCK")==0) {
+				lock.handleLock((HttpEntityEnclosingRequest)req,response,repos,durl);
+			} else if (method.compareTo("UNLOCK")==0) {
+				lock.handleUnlock(req, response, repos, durl);
+			} else {
+				async.getResponse().setStatusCode(404);			
+			}			
+		} catch (DAVException e) {
+			DAVUtil.handleError(e, response);
+		} catch (NotFoundException e) {
+			DAVUtil.handleError(new DAVException(404,"not found"),response);
+		} catch (NotAllowedException e) {
+			DAVUtil.handleError(new DAVException(403,"not allowed"),response);
 		}
 		
 		if (debug) debug(response);

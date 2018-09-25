@@ -13,9 +13,7 @@ import davserver.DAVException;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
 import davserver.repository.Collection;
-import davserver.repository.ILockManager;
 import davserver.repository.IRepository;
-import davserver.repository.LockEntry;
 import davserver.repository.Property;
 import davserver.repository.Resource;
 import davserver.repository.error.ConflictException;
@@ -126,15 +124,6 @@ public class DAVCopy {
 
 		try {
 			
-			// check preconditions
-			try {
-				if (move)
-					DAVRequest.checkLock(req, repos, url);
-			} catch (DAVException e) {
-				e.printStackTrace();
-				DAVUtil.handleError(e, resp);
-				return;
-			}
 
 			// check destination header
 			Header d  = req.getFirstHeader("Destination");
@@ -154,16 +143,16 @@ public class DAVCopy {
 			URI    turi = new URI(d.getValue());
 			DAVUrl turl = new DAVUrl(turi.getPath(),"");
 
-			// check locks 
-			if (repos.supportLocks()) {
-				ILockManager lm = repos.getLockManager();
-				LockEntry   sle = lm.checkLocked(url.getResref());
-				LockEntry   tle = lm.checkLocked(turl.getResref());
-				System.out.println(tle + ":" + sle);
-				//if ((sle != null && move) || tle != null) {
-				//	DAVUtil.handleError(new DAVException(405,"not allowed"), resp);
-				//	return;
-				//}
+			// check preconditions
+			try {
+				if (move)
+					DAVRequest.checkLock(req, repos, url);
+				else 
+					DAVRequest.checkLock(req, repos, turl);
+			} catch (DAVException e) {
+				e.printStackTrace();
+				DAVUtil.handleError(e, resp);
+				return;
 			}
 			
 			// check source resource

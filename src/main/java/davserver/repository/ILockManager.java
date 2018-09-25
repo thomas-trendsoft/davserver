@@ -34,6 +34,13 @@ public interface ILockManager {
 	void updateLock(LockEntry lock);
 	
 	/**
+	 * remove a lock from the store
+	 * 
+	 * @param lock
+	 */
+	void removeLock(LockEntry lock);
+	
+	/**
 	 * Get the supported lock types
 	 * 
 	 * @return

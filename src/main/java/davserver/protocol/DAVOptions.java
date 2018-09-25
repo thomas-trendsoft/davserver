@@ -5,7 +5,6 @@ import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
-import davserver.DAVUtil;
 import davserver.repository.IRepository;
 import davserver.repository.Resource;
 import davserver.repository.error.NotAllowedException;
@@ -27,22 +26,14 @@ public class DAVOptions {
 	 * @param repos Repository
 	 * @param durl DAV Url
 	 */
-	public void handleOptions(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) {
+	public void handleOptions(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException,NotAllowedException {
 		Resource r = null;
 		
 		System.out.println("handle options request: " + req.getRequestLine().getUri());
 		
 		// check if a given resource is addressed if not root
 		if (durl.getResref() != null && durl.getResref().length() > 1) {
-			try {
-				r = repos.locate(durl.getResref());
-			} catch (NotFoundException e) {
-				DAVUtil.handleError(new DAVException(404,"resource not found"), resp);
-				return;
-			} catch (NotAllowedException e) {
-				DAVUtil.handleError(new DAVException(403,"not allowed"), resp);
-				return;
-			}
+			r = repos.locate(durl.getResref());
 		}
 		
 		// add dav supported versions

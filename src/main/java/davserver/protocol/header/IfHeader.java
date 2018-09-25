@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import davserver.repository.Collection;
-
 /**
  * Implementation of IfHeader Handling
  * 
@@ -61,8 +59,10 @@ public class IfHeader {
 	public boolean evaluate(String lock,String etag) {
 		for (IfCondition c : getConditions()) {
 			if (c.entity && c.state.compareTo(etag) != 0) {
+				System.out.println("fail on etag:  " + c.state + ":" + etag);
 				return false;
-			} else if (c.state.compareTo(lock) != 0) {
+			} else if (!c.entity && c.state.compareTo(lock) != 0) {
+				System.out.println("fail on state:  " + c.state + ":" + lock);
 				return false;
 			}
 			

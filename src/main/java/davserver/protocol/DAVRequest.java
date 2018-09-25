@@ -7,7 +7,6 @@ import org.apache.http.HttpRequest;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
-import davserver.protocol.header.IfCondition;
 import davserver.protocol.header.IfHeader;
 import davserver.repository.IRepository;
 import davserver.repository.LockEntry;
@@ -54,13 +53,15 @@ public class DAVRequest {
 				} 
 				try {
 					IfHeader lh = IfHeader.parseIfHeader(hif.getValue());
-					if (lh.getResource() == null || lh.getConditions() == null) {
+					if (lh.getResource() == null && lh.getConditions() == null) {
 						throw new DAVException(400,"bad request");
 					}
-					DAVUrl curl = new DAVUrl(lh.getResource().getPath(), url.getPrefix());
-					if (url.getResref().compareTo(curl.getResref())!=0) {
-						System.out.println(curl.getResref());
-						throw new DAVException(400,"bad if uri");
+					if (lh.getResource() != null) {
+						DAVUrl curl = new DAVUrl(lh.getResource().getPath(), url.getPrefix());
+						if (url.getResref().compareTo(curl.getResref())!=0) {
+							System.out.println(curl.getResref());
+							throw new DAVException(400,"bad if uri");
+						}						
 					}
 					if (!lh.evaluate(le.getToken(), (r != null ? r.getETag() : null))) {
 						throw new DAVException(412,"precondition failed");

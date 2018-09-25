@@ -37,8 +37,9 @@ public class DAVGet {
 	 * @param response HTTP Response
 	 * @param repos Repository
 	 * @param head Flag for head request without body
+	 * @throws DAVException 
 	 */
-	public void handleGet(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,boolean head) {
+	public void handleGet(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,boolean head) throws DAVException,NotFoundException,NotAllowedException {
 		System.out.println("handle get");
 		
 		// check url and repos
@@ -52,8 +53,7 @@ public class DAVGet {
 			if (r != null) {
 				resp.addHeader("ETag",r.getETag());
 				if (r instanceof Collection) {
-					DAVUtil.handleError(new DAVException(415,"not implemented"), resp);
-					return;
+					throw new DAVException(415,"not implemented");
 				} else if (!head) {
 					InputStream data;
 					if ((data = r.getContent()) != null) {
@@ -61,18 +61,10 @@ public class DAVGet {
 					}
 				}
 			} else {
-				DAVUtil.handleError(new DAVException(404,"not found"), resp);
-				return;
+				throw new DAVException(404,"not found");
 			} 
-		} catch (NotAllowedException nae) {
-			DAVUtil.handleError(new DAVException(403,"not allowed"), resp);
-			return;
-		} catch (NotFoundException e) {
-			DAVUtil.handleError(new DAVException(404,"not found"), resp);
-			return;
 		} catch (IOException e) {
-			DAVUtil.handleError(new DAVException(500,e.getMessage()), resp);
-			return;			
+			throw new DAVException(500,e.getMessage());
 		}
 	}
 	

@@ -5,7 +5,6 @@ import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
-import davserver.DAVUtil;
 import davserver.repository.IRepository;
 import davserver.repository.Resource;
 import davserver.repository.error.ConflictException;
@@ -30,29 +29,21 @@ public class DAVMkCol {
 	 * @param repos Repository
 	 * @param url DAV Url
 	 */
-	public void handleMkCol(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
+	public void handleMkCol(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException,NotAllowedException {
 		System.out.println("handle mkcol");
 		Resource r = null;
 		
 		// check precondition
-		try {
-			DAVRequest.checkLock(req, repos, url);
-		} catch (DAVException e) {
-			e.printStackTrace();
-			DAVUtil.handleError(e, resp);
-			return;
-		}
+		DAVRequest.checkLock(req, repos, url);
 
 		// check if a body is given
 		if (req.getEntity().getContentLength() > 0) {
-			DAVUtil.handleError(new DAVException(415,"No supported body mkcol"), resp);
-			return;
+			throw new DAVException(415,"No supported body mkcol");
 		}
 		
 		// Check if a resource exits add the location
 		if (url.getResref() == null) {
-			DAVUtil.handleError(new DAVException(400,"bad request"), resp);
-			return;
+			throw new DAVException(400,"bad request");
 		}
 		
 		// locate resource to check is not existing
@@ -60,10 +51,7 @@ public class DAVMkCol {
 			r = repos.locate(url.getResref());
 		} catch (NotFoundException e) {
 			r = null;
-		} catch (NotAllowedException e) {
-			DAVUtil.handleError(new DAVException(403,"not allowed"), resp);
-			return;
-		}
+		} 
 		
 		if (r != null) {
 			resp.setStatusCode(405);
@@ -76,14 +64,11 @@ public class DAVMkCol {
 			resp.setStatusCode(201);
 			System.out.println(repos.toString());
 		} catch (ConflictException ce) {
-			DAVUtil.handleError(new DAVException(409, ce.getMessage()),resp);
-			return;
+			throw new DAVException(409, ce.getMessage());
 		} catch (ResourceExistsException ee) {
-			DAVUtil.handleError(new DAVException(405, ee.getMessage()),resp);
-			return;			
+			throw new DAVException(405, ee.getMessage());
 		} catch (RepositoryException re) {
-			DAVUtil.handleError(new DAVException(500,re.getMessage()),resp);
-			return;
+			throw new DAVException(500,re.getMessage());
 		}
 		
 	}

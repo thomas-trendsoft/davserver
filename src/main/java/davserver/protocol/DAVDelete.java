@@ -5,7 +5,6 @@ import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
-import davserver.DAVUtil;
 import davserver.repository.IRepository;
 import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
@@ -27,36 +26,22 @@ public class DAVDelete {
 	 * @param repos Repository
 	 * @param durl DAV Url
 	 */
-	public void handleDelete(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) {
+	public void handleDelete(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException,NotFoundException,NotAllowedException {
 		System.out.println("handle delete");
 
 		if (durl == null || durl.getResref() == null) {
-			DAVUtil.handleError(new DAVException(404,"not found"), resp);
-			return;
+			throw new DAVException(404,"not found");
 		}
 		
 		try {
 			// check precondition
-			try {
-				DAVRequest.checkLock(req, repos, durl);
-			} catch (DAVException e) {
-				e.printStackTrace();
-				DAVUtil.handleError(e, resp);
-				return;
-			}
+			DAVRequest.checkLock(req, repos, durl);
 			
 			repos.remove(durl.getResref());
 			resp.setStatusCode(204);
 		} catch (LockedException le) {
-			DAVUtil.handleError(new DAVException(423,le.getMessage()),resp);
-			return;
-		} catch (NotFoundException e) {
-			DAVUtil.handleError(new DAVException(404,e.getMessage()),resp);
-			return;
-		} catch (NotAllowedException e) {
-			DAVUtil.handleError(new DAVException(403,e.getMessage()),resp);
-			return;			
-		}
+			throw new DAVException(423,le.getMessage());
+		} 
 		
 	}
 
