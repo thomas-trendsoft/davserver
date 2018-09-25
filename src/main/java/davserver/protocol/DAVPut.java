@@ -30,43 +30,33 @@ public class DAVPut {
 	 * @param repos Repository
 	 * @param r Resource
 	 * @param url DAV URL
+	 * @throws DAVException 
 	 */
-	public void handlePut(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
+	public void handlePut(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
 		System.out.println("handle put request");
 		
 		if (url.getResref() == null) {
-			DAVUtil.handleError(new DAVException(400,"bad request"), resp);
-			return;
+			throw new DAVException(400,"bad request");
 		}
 		
 		try {
 			// check preconditions
-			try {
-				DAVRequest.checkLock(req, repos, url);
-			} catch (DAVException e) {
-				e.printStackTrace();
-				DAVUtil.handleError(e, resp);
-				return;
-			}
+			DAVRequest.checkLock(req, repos, url);
 			
 			// create resource
 			repos.createResource(url.getResref(),req.getEntity().getContent());
 			resp.setStatusCode(201);
 			System.out.println(repos.toString());
 		} catch (ConflictException ce) {
-			DAVUtil.handleError(new DAVException(409, ce.getMessage()),resp);
-			return;
+			throw new DAVException(409, ce.getMessage());
 		} catch (ResourceExistsException ee) {
-			DAVUtil.handleError(new DAVException(405, ee.getMessage()),resp);
-			return;			
+			throw new DAVException(405, ee.getMessage());
 		} catch (RepositoryException re) {
 			re.printStackTrace();
-			DAVUtil.handleError(new DAVException(500,re.getMessage()),resp);
-			return;
+			throw new DAVException(500,re.getMessage());
 		} catch (IOException e) {
 			e.printStackTrace();
-			DAVUtil.handleError(new DAVException(500,e.getMessage()),resp);
-			return;
+			throw new DAVException(500,e.getMessage());
 		}
 		
 	}

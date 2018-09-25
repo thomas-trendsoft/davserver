@@ -49,60 +49,41 @@ public class DAVPropPatch {
 	 * @param req HTTP Request
 	 * @param resp HTTP Response
 	 * @param durl Resource URL
+	 * @throws DAVException 
+	 * @throws NotAllowedException 
+	 * @throws NotFoundException 
 	 */
-	public void handlePropPatch(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) {
+	public void handlePropPatch(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException, NotAllowedException {
 		Resource target;
 		Document body;
 		
 		// check precondition
-		try {
-			DAVRequest.checkLock(req, repos, durl);
-		} catch (DAVException e) {
-			e.printStackTrace();
-			DAVUtil.handleError(e, resp);
-			return;
-		}
+		DAVRequest.checkLock(req, repos, durl);
 
 		// check target resource
-		try {
-			target = repos.locate(durl.getResref());
-			if (target == null) {
-				DAVUtil.handleError(new DAVException(404,"not found"),resp);
-				return;			
-			}
-		} catch (NotAllowedException e) {
-			DAVUtil.handleError(new DAVException(403,"access denied"),resp);
-			return;
-		} catch (NotFoundException e) {
-			DAVUtil.handleError(new DAVException(404,"not found"),resp);
-			return;
+		target = repos.locate(durl.getResref());
+		if (target == null) {
+			throw new DAVException(404,"not found");
 		}
 
 		// check patch body 
 		if (req.getEntity().getContentLength() > 0) {
 			try {
 				body = XMLParser.singleton().parseStream(req.getEntity().getContent());
-				if (body == null) {
-					DAVUtil.handleError(new DAVException(400,"xml error"), resp);
-					return;
-				}
+				if (body == null) 
+					throw new DAVException(400,"xml error");
 				if (debug) { DAVUtil.debug(body); }
 			} catch (UnsupportedOperationException e) {
-				DAVUtil.handleError(new DAVException(400,e.getMessage()),resp);
-				return;
+				throw new DAVException(400,e.getMessage());
 			} catch (SAXException e) {
-				DAVUtil.handleError(new DAVException(400,e.getMessage()),resp);
-				return;
+				throw new DAVException(400,e.getMessage());
 			} catch (IOException e) {
-				DAVUtil.handleError(new DAVException(500,e.getMessage()),resp);
-				return;
+				throw new DAVException(500,e.getMessage());
 			} catch (ParserConfigurationException e) {
-				DAVUtil.handleError(new DAVException(500,e.getMessage()),resp);
-				return;
+				throw new DAVException(500,e.getMessage());
 			} 
 		} else {
-			DAVUtil.handleError(new DAVException(400,"bad request"),resp);
-			return;
+			throw new DAVException(400,"bad request");
 		}
 		
 		try {
@@ -160,14 +141,12 @@ public class DAVPropPatch {
 					child = child.getNextSibling();
 				}
 			} else {
-				DAVUtil.handleError(new DAVException(400,"bad request"), resp);
-				return;
+				throw new DAVException(400,"bad request");
 			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			DAVUtil.handleError(new DAVException(500,e.getMessage()), resp);
-			return;
+			throw new DAVException(500,e.getMessage());
 		}
 	}
 	

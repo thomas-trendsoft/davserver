@@ -5,7 +5,6 @@ import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
-import davserver.DAVUtil;
 import davserver.repository.IRepository;
 
 /**
@@ -23,9 +22,9 @@ public class DAVBind {
 	 * @param resp
 	 * @param repos
 	 * @param url
+	 * @throws DAVException 
 	 */
-	public void handleBind(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
-		DAVUtil.handleError(new DAVException(400,"not supported now"), resp);
-		return;
+	public void handleBind(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+		throw new DAVException(400,"not supported now");
 	}
 }

@@ -265,8 +265,9 @@ public class DAVPropFind {
 	 * @param resp HTTP Response
 	 * @param repos Given resource repository
 	 * @param r Resource if found otherwithe null
+	 * @throws NotFoundException 
 	 */
-	public void handlePropFind(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) {
+	public void handlePropFind(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException {
 		Integer depthval;
 		Header  depth;
 		
@@ -274,26 +275,20 @@ public class DAVPropFind {
 		
 		// check resource reference
 		if (repos == null || durl == null || durl.getResref() == null) {
-			DAVUtil.handleError(new DAVException(404,"resource not found"), resp);
-			return;
+			throw new DAVException(404,"resource not found");
 		}
 		
 		// check resource entry
 		Resource r = null;
 		try {
 			r = repos.locate(durl.getResref());			
-		} catch (NotFoundException nfe) {
-			DAVUtil.handleError(new DAVException(404,durl.getResref() + " not found"), resp);
-			return;
 		} catch (NotAllowedException nae) {
-			DAVUtil.handleError(new DAVException(404,durl.getResref() + " not found"), resp);
-			return;
+			throw new DAVException(404,durl.getResref() + " not found");
 		}
 		
 		// check if repos failed to say no resource
 		if (r == null) {
-			DAVUtil.handleError(new DAVException(404,durl.getResref() + " not found"), resp);
-			return;			
+			throw new DAVException(404,durl.getResref() + " not found");
 		}
 		
 		// check for depth header value (infinity not supported as default now)
@@ -304,15 +299,13 @@ public class DAVPropFind {
 			try {
 				depthval = Integer.parseInt(depth.getValue());			
 			} catch (NumberFormatException nfe) {
-				DAVUtil.handleError(new DAVException(400,"no depth number value"),resp);
-				return;
+				throw new DAVException(400,"no depth number value");
 			}			
 		}
 		
 		
 		if (depthval < 0) {
-			DAVUtil.handleError(new DAVException(400,"wrong depth value: " + depthval),resp);
-			return;
+			throw new DAVException(400,"wrong depth value: " + depthval);
 		}
 		System.out.println("depth : " + depthval);
 		
@@ -326,25 +319,16 @@ public class DAVPropFind {
 				// read requested properties
 				reflist = readPropFindReq(body.getDocumentElement(),r);
 			} catch (SAXParseException pe) {
-				DAVUtil.handleError(new DAVException(400,pe.getMessage()),resp);
-				return;
+				throw new DAVException(400,pe.getMessage());
 			} catch (UnsupportedOperationException e) {
-				DAVUtil.handleError(new DAVException(400,e.getMessage()),resp);
-				return;
+				throw new DAVException(400,e.getMessage());
 			} catch (SAXException e) {
-				DAVUtil.handleError(new DAVException(400,e.getMessage()),resp);
-				return;
+				throw new DAVException(400,e.getMessage());
 			} catch (IOException e) {
-				DAVUtil.handleError(new DAVException(500,e.getMessage()),resp);
-				return;
+				throw new DAVException(500,e.getMessage());
 			} catch (ParserConfigurationException e) {
-				DAVUtil.handleError(new DAVException(500,e.getMessage()),resp);
-				return;
-			} catch (DAVException e) {
-				DAVUtil.handleError(e,resp);
-				e.printStackTrace();
-				return;
-			}
+				throw new DAVException(500,e.getMessage());
+			} 
 		} else {
 			reflist = new LinkedList<PropertyRef>();
 			reflist.add(new PropertyRef(PropertyRef.ALLPROP));
@@ -364,8 +348,7 @@ public class DAVPropFind {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			DAVUtil.handleError(new DAVException(500,e.getMessage()), resp);
-			return;
+			throw new DAVException(500,e.getMessage());
 		}
 		
 		// MultiStatus Response

@@ -205,9 +205,9 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		} catch (DAVException e) {
 			DAVUtil.handleError(e, response);
 		} catch (NotFoundException e) {
-			DAVUtil.handleError(new DAVException(404,"not found"),response);
+			DAVUtil.handleError(new DAVException(404,e.getMessage()),response);
 		} catch (NotAllowedException e) {
-			DAVUtil.handleError(new DAVException(403,"not allowed"),response);
+			DAVUtil.handleError(new DAVException(403,e.getMessage()),response);
 		}
 		
 		if (debug) debug(response);

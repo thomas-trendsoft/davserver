@@ -117,8 +117,11 @@ public class DAVCopy {
 	 * @param resp
 	 * @param repos
 	 * @param url
+	 * @throws DAVException 
+	 * @throws NotFoundException 
+	 * @throws NotAllowedException 
 	 */
-	public void handleCopy(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,boolean move) {
+	public void handleCopy(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,boolean move) throws DAVException, NotAllowedException, NotFoundException {
 		System.out.println("handle copy/move");
 		int stat = 201;
 
@@ -129,14 +132,12 @@ public class DAVCopy {
 			Header d  = req.getFirstHeader("Destination");
 			Header ow = req.getFirstHeader("Overwrite");
 			if (d == null) {
-				DAVUtil.handleError(new DAVException(400,"destination header missing"), resp);
-				return;
+				throw new DAVException(400,"destination header missing");
 			}
 			
 			// check source resource
 			if (url.getResref() == null) {
-				DAVUtil.handleError(new DAVException(400,"no source reference"), resp);
-				return;
+				throw new DAVException(400,"no source reference");
 			}
 			
 			// check target resource TODO check prefix management for resources
@@ -144,33 +145,24 @@ public class DAVCopy {
 			DAVUrl turl = new DAVUrl(turi.getPath(),"");
 
 			// check preconditions
-			try {
-				if (move)
-					DAVRequest.checkLock(req, repos, url);
-				else 
-					DAVRequest.checkLock(req, repos, turl);
-			} catch (DAVException e) {
-				e.printStackTrace();
-				DAVUtil.handleError(e, resp);
-				return;
-			}
+			if (move)
+				DAVRequest.checkLock(req, repos, url);
+			else 
+				DAVRequest.checkLock(req, repos, turl);
 			
 			// check source resource
 			Resource src = repos.locate(url.getResref());
 			if (src == null) {
-				DAVUtil.handleError(new DAVException(404,"source not found"), resp);
-				return;				
+				throw new DAVException(404,"source not found");
 			}
 			
 			if (turl.getResref() == null) {
-				DAVUtil.handleError(new DAVException(400,"no readable target reference"), resp);
-				return;
+				throw new DAVException(400,"no readable target reference");
 			}	
 			
 			// check if source and target the same
 			if (turl.getResref().compareTo(url.getResref()) == 0) {
-				DAVUtil.handleError(new DAVException(403,"source is target"), resp);
-				return;
+				throw new DAVException(403,"source is target");
 			}
 			
 			
@@ -180,8 +172,7 @@ public class DAVCopy {
 				if (depth.getValue().compareTo("0")==0) {
 					dv = 0;
 				} else {
-					DAVUtil.handleError(new DAVException(400,"bad request"), resp);
-					return;
+					throw new DAVException(400,"bad request");
 				}
 			}
 
@@ -194,14 +185,13 @@ public class DAVCopy {
 					// update http response
 					stat = 204;
 					if (ow == null || ow.getValue().compareTo("F")==0) {
-						DAVUtil.handleError(new DAVException(412,"precondition failed"), resp);
-						return;
+						throw new DAVException(412,"precondition failed");
 					} else if (ow.getValue().compareTo("T")==0 && !(dv == 0 && target instanceof Collection)) {
 						try {
 							repos.remove(turl.getResref());
 						} catch (LockedException e) {
 							e.printStackTrace();
-							DAVUtil.handleError(new DAVException(412,"locked"), resp);
+							throw new DAVException(412,"locked");
 						}
 					} 
 				}
@@ -212,9 +202,7 @@ public class DAVCopy {
 			
 			// Check resource type of source element 
 			if (src instanceof Collection) {
-								
 				copyCollection(repos,(Collection)src,turl.getResref(),target,dv);
-				
 			// copy simple resource
 			} else {
 				copyResource(repos,src,turl.getResref());
@@ -231,13 +219,6 @@ public class DAVCopy {
 			
 			resp.setStatusCode(stat);
 			
-		} catch (NotAllowedException nae) {
-			DAVUtil.handleError(new DAVException(403,nae.getMessage()), resp);
-			return;
-		} catch (NotFoundException nfe) {
-			nfe.printStackTrace();
-			DAVUtil.handleError(new DAVException(404,nfe.getMessage()), resp);
-			return;
 		} catch (IOException ioe) {
 			DAVUtil.handleError(new DAVException(500, ioe.getMessage()),resp);
 		} catch (ConflictException ce) {
