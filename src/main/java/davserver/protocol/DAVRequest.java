@@ -1,6 +1,8 @@
 package davserver.protocol;
 
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
@@ -44,8 +46,8 @@ public class DAVRequest {
 		
 		// check locks
 		if (repos.supportLocks()) {
-			LockEntry le = repos.getLockManager().checkLocked(url.getResref());
-			if (le != null) {
+			HashMap<String,LockEntry> le = repos.getLockManager().checkLocked(url.getResref());
+			if (le != null && le.size() > 0) {
 				// check precondition
 				Header hif = req.getFirstHeader("If");
 				if (hif == null) {
@@ -63,7 +65,8 @@ public class DAVRequest {
 							throw new DAVException(400,"bad if uri");
 						}						
 					}
-					if (!lh.evaluate(le.getToken(), (r != null ? r.getETag() : null))) {
+					HashSet<String> tokens = lh.evaluate(le, (r != null ? r.getETag() : null));
+					if (tokens == null) {
 						throw new DAVException(412,"precondition failed");
 					}
 				} catch (ParseException e) {

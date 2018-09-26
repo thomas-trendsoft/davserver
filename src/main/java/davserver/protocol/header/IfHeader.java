@@ -3,10 +3,14 @@ package davserver.protocol.header;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import davserver.repository.LockEntry;
 
 /**
  * Implementation of IfHeader Handling
@@ -56,18 +60,24 @@ public class IfHeader {
 	 * @param etag
 	 * @return
 	 */
-	public boolean evaluate(String lock,String etag) {
+	public HashSet<String> evaluate(HashMap<String,LockEntry> locks,String etag) {
+		HashSet<String> ret = null;
 		for (IfCondition c : getConditions()) {
 			if (c.entity && c.state.compareTo(etag) != 0) {
 				System.out.println("fail on etag:  " + c.state + ":" + etag);
-				return false;
-			} else if (!c.entity && c.state.compareTo(lock) != 0) {
-				System.out.println("fail on state:  " + c.state + ":" + lock);
-				return false;
+				return null;
+			} else if (!c.entity) {
+				if (!locks.containsKey(c.state)) {
+					System.out.println("fail on state:  " + c.state);
+					return null;					
+				} else {
+					if (ret == null) ret = new HashSet<String>();
+					ret.add(c.state);
+				}
 			}
 			
 		}
-		return true;
+		return ret;
 	}
 
 	/**

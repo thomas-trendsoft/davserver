@@ -9,6 +9,7 @@ import org.w3c.dom.Node;
 import davserver.DAVServer;
 import davserver.DAVUtil;
 import davserver.protocol.xml.DAVXMLObject;
+import davserver.protocol.xml.LockDiscovery;
 
 /**
  * Resource property 
@@ -217,9 +218,12 @@ public class Property extends DAVXMLObject {
 			break;
 		case PropertyRef.DAV_LOCKDISCOVERY:
 			ILockManager lm = repos.getLockManager();
-			if (!repos.supportLocks() || (p = lm.checkLocked(ref)) == null)  {
-				p = new Property(DAVServer.Namespace,"lockdiscovery",null);
-			} 
+			if (repos.supportLocks())  {
+				HashMap<String,LockEntry> locks = lm.checkLocked(ref);
+				p = new LockDiscovery((locks == null ? null : locks.values()));
+			} else {
+				p = new LockDiscovery(null);					
+			}
 			break;
 		case PropertyRef.DAV_SUPPORTEDLOCK:
 			if (!repos.supportLocks()) {

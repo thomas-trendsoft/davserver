@@ -32,7 +32,6 @@ public class DAVPut {
 	 * @throws DAVException 
 	 */
 	public void handlePut(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
-		System.out.println("handle put request");
 		
 		if (url.getResref() == null) {
 			throw new DAVException(400,"bad request");
@@ -45,7 +44,6 @@ public class DAVPut {
 			// create resource
 			repos.createResource(url.getResref(),req.getEntity().getContent());
 			resp.setStatusCode(201);
-			System.out.println(repos.toString());
 		} catch (ConflictException ce) {
 			throw new DAVException(409, ce.getMessage());
 		} catch (ResourceExistsException ee) {

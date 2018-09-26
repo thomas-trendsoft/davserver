@@ -46,7 +46,7 @@ public class DAVPropFind {
 	 * Defaultkonstruktor 
 	 */
 	public DAVPropFind() {
-		this.debug = true;
+		this.debug = false;
 	}
 		
 	/**

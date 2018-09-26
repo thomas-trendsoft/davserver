@@ -27,7 +27,6 @@ public class DAVDelete {
 	 * @param durl DAV Url
 	 */
 	public void handleDelete(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException,NotFoundException,NotAllowedException {
-		System.out.println("handle delete");
 
 		if (durl == null || durl.getResref() == null) {
 			throw new DAVException(404,"not found");

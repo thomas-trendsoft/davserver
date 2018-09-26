@@ -30,7 +30,6 @@ public class DAVMkCol {
 	 * @param url DAV Url
 	 */
 	public void handleMkCol(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException,NotAllowedException {
-		System.out.println("handle mkcol");
 		Resource r = null;
 		
 		// check precondition
@@ -62,7 +61,6 @@ public class DAVMkCol {
 		try {
 			repos.createCollection(url.getResref());
 			resp.setStatusCode(201);
-			System.out.println(repos.toString());
 		} catch (ConflictException ce) {
 			throw new DAVException(409, ce.getMessage());
 		} catch (ResourceExistsException ee) {

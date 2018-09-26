@@ -120,7 +120,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	}
 	
 	private void debug(HttpResponse resp) {
-		System.out.println("RESPONSE:\n");
+		System.out.println("-------------------------------------- \nRESPONSE:");
 		System.out.println(resp.getStatusLine().toString());
 		Header[] headers = resp.getAllHeaders();
 		for (Header h : headers) {
@@ -129,7 +129,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	}
 	
 	private void debug(HttpRequest req) {
-		System.out.println("REQUEST:\n");
+		System.out.println("-------------------------------------- \nREQUEST:\n");
 		System.out.println(req.getRequestLine().toString());
 		
 		Header[] headers = req.getAllHeaders();
@@ -212,7 +212,6 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		
 		if (debug) debug(response);
 
-		System.out.println("submit resp");
 		async.submitResponse(new BasicAsyncResponseProducer(response));
 	}
 

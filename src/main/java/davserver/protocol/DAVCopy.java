@@ -3,6 +3,7 @@ package davserver.protocol;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.http.Header;
@@ -212,10 +213,12 @@ public class DAVCopy {
 			// if move delete the source
 			if (move) {
 				try {
-					LockEntry lock = null;
+					HashMap<String,LockEntry> lock = null;
 					// first delete the lock from source if given
 					if (repos.supportLocks() && (lock = repos.getLockManager().checkLocked(url.getResref())) != null) {
-						repos.getLockManager().removeLock(lock);
+						for (LockEntry l : lock.values()) {
+							repos.getLockManager().removeLock(l);							
+						}
 					}
 					repos.remove(url.getResref());
 				} catch (LockedException le) {

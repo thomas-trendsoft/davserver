@@ -3,6 +3,10 @@ package davserver.protocol;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,7 +30,6 @@ import davserver.repository.IRepository;
 import davserver.repository.LockEntry;
 import davserver.repository.Resource;
 import davserver.repository.error.ConflictException;
-import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.repository.error.ResourceExistsException;
@@ -46,7 +49,7 @@ public class DAVLock {
 	 * Defaultkonstruktor 
 	 */
 	public DAVLock() {
-		this.debug = true;
+		this.debug = false;
 	}
 	
 	/**
@@ -108,18 +111,20 @@ public class DAVLock {
 		return target;
 	}
 	
-	private void responseLock(HttpResponse resp,LockEntry lock) {
+	private void responseLock(HttpResponse resp,Collection<LockEntry> lock) {
 		// create response
 		try {
 			ListElement  mr    = new ListElement("prop", DAVServer.Namespace);
 			
-			mr.addChild(lock);
+			for (LockEntry l : lock) {
+				mr.addChild(l);
+				resp.addHeader("Lock-Token","<" + l.getToken() + ">");				
+			}
 			
 			String xmlDoc = XMLParser.singleton().serializeDoc(mr.createDocument());
 			
 			if (debug) { System.out.println(xmlDoc); }
 			
-			resp.addHeader("Lock-Token","<" + lock.getToken() + ">");
 			
 			resp.setEntity(new StringEntity(xmlDoc,"utf-8"));
 			resp.setHeader("Content-Type","application/xml;charset=utf-8");
@@ -172,8 +177,7 @@ public class DAVLock {
 		if (req.getEntity().getContentLength() > 0) {
 			try {
 				Document body = XMLParser.singleton().parseStream(req.getEntity().getContent());
-				System.out.println("got a lock body: " + body);
-				if (debug) { DAVUtil.debug(body); }
+				//if (debug) { DAVUtil.debug(body); }
 				// read requested lock properties
 				le = LockEntry.parse(url.getResref(),body,depth,token);
 			} catch (UnsupportedOperationException e) {
@@ -194,24 +198,24 @@ public class DAVLock {
 		// check for refresh header
 		Header lheader = req.getFirstHeader("If");
 		if (le == null && lheader != null) {
-			System.out.println("check refresh");
 			try {
-				LockEntry lock = lm.checkLocked(url.getResref());
-				IfHeader  rif  = IfHeader.parseIfHeader(lheader.getValue());
+				HashMap<String,LockEntry> lock = lm.checkLocked(url.getResref());
+				IfHeader                  rif  = IfHeader.parseIfHeader(lheader.getValue());
 				
-				if (lock == null) {
-					System.out.println("no lock");
+				if (lock == null || lock.size() == 0) {
 					throw new DAVException(400,"no lock");
 				}
-				if (!rif.evaluate(lock.getToken(), null)) {
-					System.out.println("wrong lock token");
+				HashSet<String> tokens = rif.evaluate(lock, null);
+				if (tokens == null) {
 					throw new DAVException(423,"wrong lock token");
 				}
-				lock.setTimeout(LockEntry.updatedTimeout());
-				repos.getLockManager().updateLock(lock);
+				for (String t : tokens) {
+					LockEntry l = lock.get(t);
+					l.setTimeout(LockEntry.updatedTimeout());
+					repos.getLockManager().updateLock(l);
+				}
 				// response the lock
-				responseLock(resp, lock);
-				System.out.println("ret lock refresh");
+				responseLock(resp, lock.values());
 				return;
 			} catch (ParseException e) {
 				throw new DAVException(400,"bad request if");
@@ -231,28 +235,10 @@ public class DAVLock {
 
 		// create lock entry
 		LockEntry lock  = null;
-		try {
-			lock = lm.registerLock(le);
-		} catch (LockedException e1) {
-			lock = lm.checkLocked(url.getResref());
-			System.out.println(lock.isShared() + ":" + le.isShared());
-			// TODO Check when to update and when to conflict (litmus no lock-token only owner as "auth"?)
-			// includes exclusive share?
-			if (!lock.isShared() || !le.isShared()) {
-				// check if includes owner
-				for (String o : le.getOwner()) {
-					if (!lock.getOwner().contains(o)) {
-						throw new DAVException(423,"is already locked");
-					}
-				}
-			} else if (lock.isShared() && le.isShared()) {
-				le.getOwner().addAll(lock.getOwner());
-				lm.updateLock(le);
-			}
-		}
+		lock = lm.registerLock(le);
 		
 		// response the lock
-		responseLock(resp, lock);
+		responseLock(resp, Arrays.asList(lock));
 
 	}
 	
@@ -274,8 +260,8 @@ public class DAVLock {
 		}
 		
 		// check existing lock
-		LockEntry le = repos.getLockManager().checkLocked(url.getResref());
-		if (le == null) {
+		HashMap<String,LockEntry> le = repos.getLockManager().checkLocked(url.getResref());
+		if (le == null || le.size() == 0) {
 			throw new DAVException(409,"no lock given");
 		}
 		
@@ -289,8 +275,10 @@ public class DAVLock {
 				Header hlt = req.getFirstHeader("Lock-Token");
 				if (hlt != null && hlt.getValue().length() > 3) {
 					String check = hlt.getValue().substring(1, hlt.getValue().length()-1);
-					if (check.compareTo(le.getToken()) != 0) {
+					if (!le.containsKey(check)) {
 						throw new DAVException(423,"wrong lock token submitted");											
+					} else {
+						repos.getLockManager().removeLock(le.get(check));
 					}
 				} else {
 					throw new DAVException(423,"no lock token submitted");					
@@ -298,11 +286,16 @@ public class DAVLock {
 			} else {
 				IfHeader lh = IfHeader.parseIfHeader(hif.getValue());
 
-				if (!lh.evaluate(le.getToken(), (r != null ? r.getETag() : null))) {
+				HashSet<String> tokens = lh.evaluate(le, (r != null ? r.getETag() : null)); 
+				if (tokens == null) {
 					throw new DAVException(409,"precondition failed");
-				}				
+				} else {
+					for (String t : tokens) {
+						LockEntry l = le.get(t);
+						repos.getLockManager().removeLock(l);
+					}
+				}
 			}
-			repos.getLockManager().removeLock(le);
 		} catch (ParseException pe) {
 			throw new DAVException(400,"bad if header");
 		} catch (NotFoundException e) {

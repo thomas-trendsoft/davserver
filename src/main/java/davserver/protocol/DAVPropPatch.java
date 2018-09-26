@@ -40,7 +40,7 @@ public class DAVPropPatch {
 	 * Defaultkonstruktor 
 	 */
 	public DAVPropPatch() {
-		this.debug = true;
+		this.debug = false;
 	}
 	
 	/**
