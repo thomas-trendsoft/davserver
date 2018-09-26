@@ -1,5 +1,10 @@
 package davserver.repository.file;
 
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -10,57 +15,73 @@ import davserver.repository.Resource;
 
 public class FileCollection extends Collection {
 
-	public FileCollection(String name) {
-		super(name);
-		// TODO Auto-generated constructor stub
+	/**
+	 * Local path
+	 */
+	private Path path;
+	
+	/**
+	 * Filesystem
+	 */
+	private FileSystem fs;
+	
+	public FileCollection(Path path) {
+		super(path.getFileName().toString());
+		
+		this.path = path;
+		this.fs   = FileSystems.getDefault();
 	}
 
 	@Override
 	public Resource getChild(String name) {
-		// TODO Auto-generated method stub
+		Path child = fs.getPath(path.toString(), name);
+		// check exists
+		if (child != null && Files.exists(child)) {
+			// check collection or resource
+			if (Files.isDirectory(child)) {
+				return new FileCollection(child);
+			} else {
+				return new FileResource(child);
+			}
+		} 
 		return null;
 	}
 
 	@Override
 	public Iterator<Resource> getChildIterator() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Property getProperty(PropertyRef ref) {
-		// TODO Auto-generated method stub
+		// no special properties given here
 		return null;
 	}
 
 	@Override
 	public void remProperty(PropertyRef ref) {
-		// TODO Auto-generated method stub
-		
+		// nothing to do
 	}
 
 	@Override
 	public void setProperty(Property p) {
-		// TODO Auto-generated method stub
-		
+		// nothing to do 
+		// TODO check exception handling
 	}
 
 	@Override
 	public Iterator<Property> getPropertyIterator() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Date getCreationDate() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Date();
 	}
 
 	@Override
 	public Date getLastmodified() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Date();
 	}
 
 }

@@ -1,9 +1,12 @@
 package davserver.repository.file;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
@@ -21,7 +24,12 @@ public class SimpleFileRepository implements IRepository {
 	/**
 	 * Root Directory
 	 */
-	private File root;
+	private Path root;
+	
+	/**
+	 * Filesystem
+	 */
+	private FileSystem fs;
 	
 	/**
 	 * Lock Manager
@@ -34,8 +42,12 @@ public class SimpleFileRepository implements IRepository {
 	 * @param path
 	 */
 	public SimpleFileRepository(String path) throws FileNotFoundException {
-		root = new File(path);
-		if (!root.exists() || !root.isDirectory()) {
+		
+		// init defaults
+		fs    = FileSystems.getDefault();
+		root  = fs.getPath(path);
+		
+		if (!Files.exists(root) || !Files.isDirectory(root)) {
 			throw new FileNotFoundException();
 		} 
 		lockmanager = new SimpleLockManager();
@@ -43,14 +55,22 @@ public class SimpleFileRepository implements IRepository {
 	
 	@Override
 	public Resource locate(String uri) throws NotFoundException, NotAllowedException {
-		// TODO Auto-generated method stub
+		// open path
+		Path child = fs.getPath(root.toString(), uri);
+		// check exists
+		if (child != null && Files.exists(child)) {
+			// check collection or resource
+			if (Files.isDirectory(child)) {
+				return new FileCollection(child);
+			} else {
+				return new FileResource(child);
+			}
+		} 
 		return null;
 	}
 
 	@Override
 	public void remove(String uri) throws NotFoundException, NotAllowedException, LockedException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

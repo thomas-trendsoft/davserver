@@ -1,8 +1,8 @@
 package davserver.repository.file;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -15,10 +15,10 @@ public class FileResource extends Resource {
 	/**
 	 * Reference to local file
 	 */
-	private File file;
+	private Path file;
 	
-	public FileResource(File file) {
-		super(file.getName());
+	public FileResource(Path file) {
+		super(file.getFileName().toString());
 		this.file = file;
 	}
 
@@ -52,7 +52,7 @@ public class FileResource extends Resource {
 
 	@Override
 	public long getContentLength() {
-		return file.length();
+		return 0;
 	}
 
 	@Override
