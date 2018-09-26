@@ -49,7 +49,7 @@ public class DAVLock {
 	 * Defaultkonstruktor 
 	 */
 	public DAVLock() {
-		this.debug = false;
+		this.debug = true;
 	}
 	
 	/**
@@ -177,7 +177,7 @@ public class DAVLock {
 		if (req.getEntity().getContentLength() > 0) {
 			try {
 				Document body = XMLParser.singleton().parseStream(req.getEntity().getContent());
-				//if (debug) { DAVUtil.debug(body); }
+				if (debug) { DAVUtil.debug(body); }
 				// read requested lock properties
 				le = LockEntry.parse(url.getResref(),body,depth,token);
 			} catch (UnsupportedOperationException e) {
@@ -193,29 +193,33 @@ public class DAVLock {
 				e.printStackTrace();
 				resp.setStatusCode(500);
 			} 
-		} 
+		} else {
+			System.out.println("NO Body");
+		}
+		
+		// check given locks
+		HashMap<String,LockEntry> locks = lm.checkLocked(url.getResref());
 		
 		// check for refresh header
 		Header lheader = req.getFirstHeader("If");
 		if (le == null && lheader != null) {
 			try {
-				HashMap<String,LockEntry> lock = lm.checkLocked(url.getResref());
 				IfHeader                  rif  = IfHeader.parseIfHeader(lheader.getValue());
 				
-				if (lock == null || lock.size() == 0) {
+				if (locks == null || locks.size() == 0) {
 					throw new DAVException(400,"no lock");
 				}
-				HashSet<String> tokens = rif.evaluate(lock, null);
+				HashSet<String> tokens = rif.evaluate(locks, null);
 				if (tokens == null) {
 					throw new DAVException(423,"wrong lock token");
 				}
 				for (String t : tokens) {
-					LockEntry l = lock.get(t);
+					LockEntry l = locks.get(t);
 					l.setTimeout(LockEntry.updatedTimeout());
 					repos.getLockManager().updateLock(l);
 				}
 				// response the lock
-				responseLock(resp, lock.values());
+				responseLock(resp, locks.values());
 				return;
 			} catch (ParseException e) {
 				throw new DAVException(400,"bad request if");
@@ -227,6 +231,25 @@ public class DAVLock {
 		if (le == null) {
 			throw new DAVException(400,"bad request");
 		}
+		
+		// check owner if exclusive
+		if (!le.isShared() && locks != null && locks.size() > 0) {
+			for (LockEntry l : locks.values()) {
+				if (!l.isShared()) {
+					// TODO Check User if sessions with acl
+					boolean found = false;
+					for (String r : l.getOwner()) {
+						if (le.getOwner().contains(r)) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						throw new DAVException(405,"is exclusive locked");
+					}
+				}
+			}
+		}
 
 		// get or create resource
 		Resource target = getLockResource(repos, url.getResref(), resp);
@@ -235,6 +258,7 @@ public class DAVLock {
 
 		// create lock entry
 		LockEntry lock  = null;
+		
 		lock = lm.registerLock(le);
 		
 		// response the lock
