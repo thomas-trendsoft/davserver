@@ -142,15 +142,14 @@ public class DAVLock {
 	 * @param r Resource
 	 * @param url DAV URL
 	 */
-	public void handleLock(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) {
+	public void handleLock(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
 		int          depth;
 		ILockManager lm;
 		
 		// check if locks are supported
 		if (!repos.supportLocks()) {
 			System.out.println("no lock support");
-			DAVUtil.handleError(new DAVException(415,"Locks are not supported inside this repository"),resp);
-			return;
+			throw new DAVException(415,"Locks are not supported inside this repository");
 		}
 		
 		lm = repos.getLockManager();
@@ -163,8 +162,7 @@ public class DAVLock {
 			try {
 				depth = Integer.parseInt(d.getValue());
 			} catch (NumberFormatException nfe) {
-				DAVUtil.handleError(new DAVException(400,"bad request"), resp);
-				return;
+				throw new DAVException(400,"bad request");
 			}
 		}
 				
@@ -203,13 +201,11 @@ public class DAVLock {
 				
 				if (lock == null) {
 					System.out.println("no lock");
-					DAVUtil.handleError(new DAVException(400,"no lock"), resp);
-					return;
+					throw new DAVException(400,"no lock");
 				}
 				if (!rif.evaluate(lock.getToken(), null)) {
 					System.out.println("wrong lock token");
-					DAVUtil.handleError(new DAVException(423,"wrong lock token"), resp);
-					return;
+					throw new DAVException(423,"wrong lock token");
 				}
 				lock.setTimeout(LockEntry.updatedTimeout());
 				repos.getLockManager().updateLock(lock);
@@ -218,16 +214,14 @@ public class DAVLock {
 				System.out.println("ret lock refresh");
 				return;
 			} catch (ParseException e) {
-				DAVUtil.handleError(new DAVException(400,"bad request if"), resp);
-				return;
+				throw new DAVException(400,"bad request if");
 			}
 			
 		}
 		
 		// check parsed response
 		if (le == null) {
-			DAVUtil.handleError(new DAVException(400,"bad request"), resp);
-			return;
+			throw new DAVException(400,"bad request");
 		}
 
 		// get or create resource
@@ -248,8 +242,7 @@ public class DAVLock {
 				// check if includes owner
 				for (String o : le.getOwner()) {
 					if (!lock.getOwner().contains(o)) {
-						DAVUtil.handleError(new DAVException(423,"is already locked"), resp);
-						return;					
+						throw new DAVException(423,"is already locked");
 					}
 				}
 			} else if (lock.isShared() && le.isShared()) {
@@ -263,13 +256,24 @@ public class DAVLock {
 
 	}
 	
+	/**
+	 * Handle unlock request
+	 * 
+	 * @param req HttpRequest
+	 * @param resp HttpResponse 
+	 * @param repos Repository
+	 * @param url Resource url
+	 * @throws DAVException 
+	 */
 	public void handleUnlock(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
 		System.out.println("handle unlock");
 		
+		// check lock support
 		if (!repos.supportLocks()) {
 			throw new DAVException(425,"unsupported");
 		}
 		
+		// check existing lock
 		LockEntry le = repos.getLockManager().checkLocked(url.getResref());
 		if (le == null) {
 			throw new DAVException(409,"no lock given");
@@ -285,7 +289,6 @@ public class DAVLock {
 				Header hlt = req.getFirstHeader("Lock-Token");
 				if (hlt != null && hlt.getValue().length() > 3) {
 					String check = hlt.getValue().substring(1, hlt.getValue().length()-1);
-					System.out.println("lheader check: " + check + "  ==  " + le.getToken());
 					if (check.compareTo(le.getToken()) != 0) {
 						throw new DAVException(423,"wrong lock token submitted");											
 					}

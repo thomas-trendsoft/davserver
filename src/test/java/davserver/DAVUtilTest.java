@@ -11,7 +11,7 @@ import davserver.repository.error.NotAllowedException;
  * @author tkrieger
  *
  */
-public class DAVUtilTests {
+public class DAVUtilTest {
 
 	/**
 	 * Test Path Component detection with .. inside path

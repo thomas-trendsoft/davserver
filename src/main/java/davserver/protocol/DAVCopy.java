@@ -14,6 +14,7 @@ import davserver.DAVUrl;
 import davserver.DAVUtil;
 import davserver.repository.Collection;
 import davserver.repository.IRepository;
+import davserver.repository.LockEntry;
 import davserver.repository.Property;
 import davserver.repository.Resource;
 import davserver.repository.error.ConflictException;
@@ -211,6 +212,11 @@ public class DAVCopy {
 			// if move delete the source
 			if (move) {
 				try {
+					LockEntry lock = null;
+					// first delete the lock from source if given
+					if (repos.supportLocks() && (lock = repos.getLockManager().checkLocked(url.getResref())) != null) {
+						repos.getLockManager().removeLock(lock);
+					}
 					repos.remove(url.getResref());
 				} catch (LockedException le) {
 					DAVUtil.handleError(new DAVException(500,"cant delete source"), resp);

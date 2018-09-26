@@ -132,13 +132,11 @@ public class DAVPropFind {
 					done.add(p.getNamespace() + ":" + p.getName());
 				}
 				
+				// add default properties
 				for (String dpk : Property.getDAVProperties().keySet()) {
-					System.out.println("check: " + dpk);
 					if (!done.contains(dpk)) {
-						System.out.println("try add");
 						p = Property.getDAVProperty(dpk, r, repos);
 						if (p != null) {
-							System.out.println("add:");
 							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 							propstat.appendChild(prop);
 							p.appendXML(prop,content);

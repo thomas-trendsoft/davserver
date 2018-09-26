@@ -53,10 +53,12 @@ public class SimpleLockManager implements ILockManager {
 	
 	public void updateLock(LockEntry le) {
 		locks.put(le.getRef(), le);
+		System.out.println(this);
 	}
 	
 	public void removeLock(LockEntry le) {
 		locks.remove(le.getRef());
+		System.out.println(this);
 	}
 	
 	public synchronized LockEntry registerLock(LockEntry request) throws LockedException {
@@ -73,12 +75,22 @@ public class SimpleLockManager implements ILockManager {
 		System.out.println("register lock: " + request.getRef());
 		locks.put(request.getRef(), le);
 		
+		System.out.println(this);
 		return le;
 	}
 
 	@Override
 	public SupportedLocks getSupportedLocks() {
 		return support;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer buf = new StringBuffer();
+		for (LockEntry l : locks.values()) {
+			buf.append(l.getRef() + " = " + l.getToken() + "\n");
+		}
+		return buf.toString();
 	}
 
 }

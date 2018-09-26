@@ -7,7 +7,6 @@ import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
-import davserver.DAVUtil;
 import davserver.repository.IRepository;
 import davserver.repository.error.ConflictException;
 import davserver.repository.error.RepositoryException;
