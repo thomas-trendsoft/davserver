@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUtil;
 import davserver.protocol.xml.DAVXMLObject;
@@ -182,8 +183,9 @@ public class Property extends DAVXMLObject {
 	 * @param ref
 	 * @param r
 	 * @return
+	 * @throws DAVException 
 	 */
-	public static Property getDAVProperty(String ref,Resource r,IRepository repos) {
+	public static Property getDAVProperty(String ref,Resource r,IRepository repos) throws DAVException {
 		Property    p  = null;
 		Date        d  = null;
 		PropertyRef dp = Property.getDAVProperties().get(ref);
@@ -221,7 +223,7 @@ public class Property extends DAVXMLObject {
 		case PropertyRef.DAV_LOCKDISCOVERY:
 			ILockManager lm = repos.getLockManager();
 			if (repos.supportLocks())  {
-				HashMap<String,LockEntry> locks = lm.checkLocked(ref);
+				HashMap<String,LockEntry> locks = lm.checkLocked(ref);					
 				p = new LockDiscovery((locks == null ? null : locks.values()));
 			} else {
 				p = new LockDiscovery(null);					

@@ -46,6 +46,7 @@ public class SimpleCardDAVRepository implements IRepository {
 	@Override
 	public Collection createCollection(String ref)
 			throws NotAllowedException, ResourceExistsException, ConflictException {
+		
 		return null;
 	}
 

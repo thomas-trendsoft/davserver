@@ -24,4 +24,4 @@ For testing surpose i will try to get this framework running against the litmus 
 
 -> running 'props': done (with warnings)
 
--> running 'locks': 69 tests run: 60 passed, 9 failed. 87.0%
+-> running 'locks': 69 tests run: 62 passed, 7 failed. 89.9%

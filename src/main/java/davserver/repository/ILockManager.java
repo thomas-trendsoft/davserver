@@ -1,8 +1,8 @@
 package davserver.repository;
 
 import java.util.HashMap;
-import java.util.List;
 
+import davserver.DAVException;
 import davserver.protocol.xml.SupportedLocks;
 import davserver.repository.error.LockedException;
 
@@ -20,7 +20,7 @@ public interface ILockManager {
 	 * @param ref Resource reference
 	 * @return lock entry or null if no lock exists
 	 */
-	HashMap<String,LockEntry> checkLocked(String ref);
+	HashMap<String,LockEntry> checkLocked(String ref) throws DAVException;
 	
 
 	/**

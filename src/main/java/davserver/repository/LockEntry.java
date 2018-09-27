@@ -69,6 +69,7 @@ public class LockEntry extends Property {
 		this.owner = new HashSet<String>();
 		this.type  = WRITE_LOCK;
 		this.token = token;
+		this.depth = d;
 		
 		this.timeout = updatedTimeout();
 	}

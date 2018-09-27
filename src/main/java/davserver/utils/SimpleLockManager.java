@@ -6,9 +6,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import davserver.DAVException;
+import davserver.DAVUtil;
 import davserver.protocol.xml.SupportedLocks;
 import davserver.repository.ILockManager;
 import davserver.repository.LockEntry;
+import davserver.repository.error.NotAllowedException;
 
 /**
  * Simple Lock Manager implementation 
@@ -45,6 +48,7 @@ public class SimpleLockManager implements ILockManager {
 	 */
 	public synchronized LockEntry checkLocked(String ref,String token) {
 		HashMap<String,LockEntry> rm = locks.get(ref);
+		
 		if (rm != null) {
 			return rm.get(token);
 		}
@@ -53,32 +57,58 @@ public class SimpleLockManager implements ILockManager {
 	
 	/**
 	 * Check resource ref for lock entry
+	 * @throws DAVException 
 	 */
-	public HashMap<String,LockEntry> checkLocked(String ref) {		
-		// check lock entries
-		HashMap<String,LockEntry> le = locks.get(ref);
+	public HashMap<String,LockEntry> checkLocked(String ref) throws DAVException {
+		HashMap<String,LockEntry> result = new HashMap<>();
 		
-		// check list
+		// check direct lock entries
+		HashMap<String,LockEntry> le = locks.get(ref);
 		if (le != null) {
+			result.putAll(le);
+		}
+		
+		// check parent locks
+		try {
+			List<String> path = DAVUtil.getPathComps(ref);
+			String cp = "/";
+			for (int i=0;i<path.size()-1;i++) {
+				String p = path.get(i);
+				cp += p + "/";
+				System.out.println("check parent lock: " + cp);
+				le = locks.get(cp);
+				if (le != null) {
+					for (LockEntry l : le.values()) {
+						if (l.getDepth() > 0) {
+							result.put(l.getToken(), l);
+						}
+					}
+				}
+			} 
+		} catch (NotAllowedException e) {
+			throw new DAVException(405, "bad path");
+		}
+
+		// check list
+		if (result != null) {
 			// check timeout
 			List<LockEntry> to = new LinkedList<>();
 			Date now = new Date();
-			for (LockEntry l : le.values()) {
+			for (LockEntry l : result.values()) {
 				if (l.getTimeout() <= now.getTime()) {
 					to.add(l);
 				} 
 			}
 			// remove timeouts 
 			for (LockEntry l : to) {
-				le.remove(l.getToken());
+				this.removeLock(l);
 			}
-			locks.put(ref, le);
 		}
 		
-		if (le == null || le.size() == 0) 
+		if (result == null || result.size() == 0) 
 			return null;
 		else
-			return le;
+			return result;
 	}
 	
 	public void updateLock(LockEntry le) {

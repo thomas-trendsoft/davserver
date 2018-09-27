@@ -22,13 +22,11 @@ import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
-import davserver.protocol.xml.ResourceType;
 import davserver.repository.Collection;
 import davserver.repository.IRepository;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
-import davserver.repository.card.SimpleCardDAVRepository;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.utils.XMLParser;
@@ -57,9 +55,10 @@ public class DAVPropFind {
 	 * @param r
 	 * @param refs
 	 * @param depth
+	 * @throws DAVException 
 	 * @returns a list of not found properties
 	 */
-	public void createPropFindResp(Element multistatus,DAVUrl rurl,Resource r,List<PropertyRef> refs,int depth,IRepository repos) {
+	public void createPropFindResp(Element multistatus,DAVUrl rurl,Resource r,List<PropertyRef> refs,int depth,IRepository repos) throws DAVException {
 		HashSet<String> done     = new HashSet<String>();
 		Document        owner    = multistatus.getOwnerDocument();
 		// response root
