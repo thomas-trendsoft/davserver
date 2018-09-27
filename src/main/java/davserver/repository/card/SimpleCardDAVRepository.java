@@ -20,7 +20,7 @@ import davserver.utils.SimpleLockManager;
  * @author tkrieger
  *
  */
-public class CardDAVRepository implements IRepository {
+public class SimpleCardDAVRepository implements IRepository {
 	
 	/**
 	 * Locking Manager
@@ -30,7 +30,7 @@ public class CardDAVRepository implements IRepository {
 	/**
 	 * Defaultkonstruktor 
 	 */
-	public CardDAVRepository() {
+	public SimpleCardDAVRepository() {
 		lmanager = new SimpleLockManager();
 	}
 

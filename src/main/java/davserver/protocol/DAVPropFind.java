@@ -28,7 +28,7 @@ import davserver.repository.IRepository;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
-import davserver.repository.card.CardDAVRepository;
+import davserver.repository.card.SimpleCardDAVRepository;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.utils.XMLParser;

@@ -36,7 +36,7 @@ public class SimpleRepository implements IRepository {
 		List<String> comps = DAVUtil.getPathComps(uri);
 		
 		if (comps.size() == 0) {
-			throw new ResourceExistsException("resource exists");
+			return root;
 		} 
 		
 		SimpleCollection cur = root;

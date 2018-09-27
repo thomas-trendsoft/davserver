@@ -27,7 +27,7 @@ import davserver.protocol.DAVPropPatch;
 import davserver.protocol.DAVPut;
 import davserver.repository.IRepository;
 import davserver.repository.cal.SimpleCalDAVRepository;
-import davserver.repository.card.CardDAVRepository;
+import davserver.repository.card.SimpleCardDAVRepository;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.repository.simple.SimpleRepository;
@@ -107,7 +107,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		this.prefix = "";
 		this.repositories  = new HashMap<String, IRepository>();
 		this.repositories.put("simple", new SimpleRepository());
-		this.repositories.put("contacts", new CardDAVRepository());
+		this.repositories.put("contacts", new SimpleCardDAVRepository());
 		this.repositories.put("calendars", new SimpleCalDAVRepository());
 		
 		propfind  = new DAVPropFind();
