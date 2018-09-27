@@ -26,6 +26,13 @@ public class CardDAVRepository implements IRepository {
 	 * Locking Manager
 	 */
 	private SimpleLockManager lmanager;
+	
+	/**
+	 * Defaultkonstruktor 
+	 */
+	public CardDAVRepository() {
+		lmanager = new SimpleLockManager();
+	}
 
 	@Override
 	public Resource locate(String uri) throws NotFoundException, NotAllowedException {
