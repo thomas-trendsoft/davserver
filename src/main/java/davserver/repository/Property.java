@@ -10,6 +10,7 @@ import davserver.DAVServer;
 import davserver.DAVUtil;
 import davserver.protocol.xml.DAVXMLObject;
 import davserver.protocol.xml.LockDiscovery;
+import davserver.protocol.xml.ResourceType;
 
 /**
  * Resource property 
@@ -170,6 +171,7 @@ public class Property extends DAVXMLObject {
 			davProperties.put(DAVServer.Namespace + "displayname",new PropertyRef(PropertyRef.DAV_DISPLAYNAME));
 			davProperties.put(DAVServer.Namespace + "lockdiscovery",new PropertyRef(PropertyRef.DAV_LOCKDISCOVERY));
 			davProperties.put(DAVServer.Namespace + "supportedlock",new PropertyRef(PropertyRef.DAV_SUPPORTEDLOCK));
+			davProperties.put(DAVServer.Namespace + "resourcetype",new PropertyRef(PropertyRef.DAV_RESOURCETYPE));
 		}
 		return davProperties;
 	}
@@ -232,7 +234,13 @@ public class Property extends DAVXMLObject {
 				p = new Property(DAVServer.Namespace,"supportedlock",null);
 			}
 			break;
-		}
+		case PropertyRef.DAV_RESOURCETYPE:
+			if (r instanceof Collection)
+				p = new ResourceType(DAVServer.Namespace,"collection");
+			else 
+				p = new ResourceType(null,null);
+			break;
+		} 
 		
 		return p;
 	}

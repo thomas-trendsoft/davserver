@@ -12,8 +12,20 @@ import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.repository.error.ResourceExistsException;
+import davserver.utils.SimpleLockManager;
 
+/**
+ * Simple CardDAV Repository Implementation
+ * 
+ * @author tkrieger
+ *
+ */
 public class CardDAVRepository implements IRepository {
+	
+	/**
+	 * Locking Manager
+	 */
+	private SimpleLockManager lmanager;
 
 	@Override
 	public Resource locate(String uri) throws NotFoundException, NotAllowedException {
@@ -38,12 +50,12 @@ public class CardDAVRepository implements IRepository {
 
 	@Override
 	public boolean supportLocks() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public ILockManager getLockManager() {
-		return null;
+		return lmanager;
 	}
 
 }

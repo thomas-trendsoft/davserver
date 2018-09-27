@@ -28,6 +28,7 @@ import davserver.repository.IRepository;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
+import davserver.repository.card.CardDAVRepository;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.utils.XMLParser;
@@ -85,12 +86,9 @@ public class DAVPropFind {
 					Property p = r.getProperty(spr);
 					// check default properties
 					if (p == null && spr.getNs().compareTo(DAVServer.Namespace) == 0) {
-						if (spr.getName().compareTo("resourcetype") == 0) {
-							if (r instanceof Collection)
-								p = new ResourceType(DAVServer.Namespace,"collection");
-							else 
-								p = new ResourceType(null,null);
-						} else if ((p = Property.getDAVProperty(spr.getNs() + spr.getName(), r,repos)) == null) {
+						if (Property.getDAVProperties().containsKey(DAVServer.Namespace + spr.getName())) {
+							p = Property.getDAVProperty(DAVServer.Namespace + spr.getName(), r, repos);
+						} else {
 							System.out.println("UNKNOWN dav property: " + spr.getName());
 						} 
 					}
@@ -119,23 +117,10 @@ public class DAVPropFind {
 					}
  				}
 				
-				// dav properties
-				Property p;
-				if (!done.contains(DAVServer.Namespace + ":resourcetype")) {
-					if (r instanceof Collection)
-						p = new ResourceType(DAVServer.Namespace,"collection");
-					else 
-						p = new ResourceType(null,null);					
-					Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
-					propstat.appendChild(prop);
-					p.appendXML(prop,content);
-					done.add(p.getNamespace() + ":" + p.getName());
-				}
-				
 				// add default properties
 				for (String dpk : Property.getDAVProperties().keySet()) {
 					if (!done.contains(dpk)) {
-						p = Property.getDAVProperty(dpk, r, repos);
+						Property p = Property.getDAVProperty(dpk, r, repos);
 						if (p != null) {
 							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 							propstat.appendChild(prop);

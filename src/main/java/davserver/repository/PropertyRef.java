@@ -77,6 +77,11 @@ public class PropertyRef {
 	 * Constant for supported locks
 	 */
 	public static final int DAV_SUPPORTEDLOCK = 107;
+	
+	/**
+	 * Constant for resource type property
+	 */
+	public static final int DAV_RESOURCETYPE = 108;
 
 	/**
 	 * Reference type identifier

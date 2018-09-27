@@ -12,6 +12,7 @@ public class AddressBook extends Collection {
 
 	public AddressBook(String name) {
 		super(name);
+		
 	}
 
 	@Override
