@@ -20,8 +20,8 @@ import davserver.repository.LockEntry;
  */
 public class IfHeader {
 	
-	protected static Pattern PList        = Pattern.compile("\\((?<cond>[^\\)])\\)\\s*");
-	protected static Pattern PCondition   = Pattern.compile("(?<not>Not )?(?<state>\\<[^\\>\\<]*\\>|\\[[^\\[\\]]*\\])");
+	protected static Pattern PList        = Pattern.compile("\\((?<cond>[^\\)]*)\\)\\s*");
+	protected static Pattern PCondition   = Pattern.compile("(?<state>(Not )?\\<[^\\>\\<]*\\>|\\[[^\\[\\]]*\\])");
 		
 	/**
 	 * Resource tag
@@ -65,6 +65,7 @@ public class IfHeader {
 		HashSet<String> ret = null;
 		for (List<IfCondition> sub : getConditions()) {
 			for (IfCondition c : sub) {
+				System.out.println("check cond: " + c.state + ":" + c.entity + ":" + c.not);
 				if (c.entity && c.state.compareTo(etag) != 0) {
 					System.out.println("fail on etag:  " + c.state + ":" + etag);
 					return null;
@@ -102,6 +103,7 @@ public class IfHeader {
 			throw new ParseException("no value", 0);
 		} 
 		
+		// parse resource tag
 		if (value.startsWith("<")) {
 			try {
 				off = value.indexOf('>');
@@ -114,31 +116,34 @@ public class IfHeader {
 		} 
 		
 		ret = new IfHeader(res);
+		
+		// parse conditions
 		String list = value.substring(off).trim();
-		if (list.startsWith("(")) {
-			off = list.indexOf(")");
-			String plist = list.substring(0 ,off+1);
-			System.out.println(plist);
-			Matcher m = PList.matcher(plist);
-			while (m.find()) {
-				String sub = m.group("cond");
-				if (sub != null) {
-					List<IfCondition> clist = new LinkedList<>();
-					Matcher sm = PCondition.matcher(sub);
-					while (sm.find()) {
-						String state = m.group("state");
-						IfCondition c = new IfCondition();
-						c.not   = (m.group("not") != null);
-						c.state = state.substring(1,state.length()-1);
-						c.entity = state.startsWith("[");	
-						clist.add(c);
-					}
-					if (clist != null & clist.size() > 0) {
-						ret.getConditions().add(clist);											
-					}
-				}
-			}			
-		} else {
+		Matcher m = PList.matcher(list);
+		List<String> disj = new LinkedList<>();
+		while (m.find()) {
+			String sub = m.group("cond");
+			System.out.println(sub);
+			disj.add(sub);
+		}
+			
+		for (String sub : disj) {
+			List<IfCondition> clist = new LinkedList<>();
+			Matcher sm = PCondition.matcher(sub);
+			while (sm.find()) {
+				String state = sm.group("state");
+				IfCondition c = new IfCondition();
+				c.not   = state.startsWith("Not ");
+				c.state = state.substring((c.not ? 5 : 1),state.length()-1);
+				c.entity = state.startsWith("[");
+				clist.add(c);
+			}
+			if (clist != null & clist.size() > 0) {
+				ret.getConditions().add(clist);											
+			}
+		}
+		
+		if (ret.getConditions().size() == 0) {
 			throw new ParseException("no list",off);
 		}
 		
