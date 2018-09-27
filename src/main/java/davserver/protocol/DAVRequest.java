@@ -58,6 +58,7 @@ public class DAVRequest {
 		} else {
 			try {
 				IfHeader lh = IfHeader.parseIfHeader(hif.getValue());
+				
 				// check header info
 				if (lh.getResource() == null && lh.getConditions() == null) {
 					throw new DAVException(400,"bad request");
@@ -71,6 +72,8 @@ public class DAVRequest {
 				}
 				// evaluate header conditions
 				HashSet<String> tokens = lh.evaluate(le, (r != null ? r.getETag() : null));
+				
+				// eval result
 				if (tokens == null) {
 					throw new DAVException(412,"precondition failed");
 				} else {

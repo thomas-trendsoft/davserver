@@ -10,10 +10,24 @@ import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicLineParser;
 
+/**
+ * Simple example server class 
+ * 
+ * @author tkrieger
+ *
+ */
 public class DAVServer {
 	
+	/**
+	 * DAV Namespace
+	 */
 	public final static String Namespace = "DAV:";
 	
+	/**
+	 * Main server entry 
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
         final IOReactorConfig config = IOReactorConfig.custom()
                 .setSoTimeout(15000)
