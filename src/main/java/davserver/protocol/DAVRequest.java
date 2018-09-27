@@ -45,36 +45,44 @@ public class DAVRequest {
 		}
 		
 		// check locks
+		HashMap<String,LockEntry> le = null;
 		if (repos.supportLocks()) {
-			HashMap<String,LockEntry> le = repos.getLockManager().checkLocked(url.getResref());
-			if (le != null && le.size() > 0) {
-				// check precondition
-				Header hif = req.getFirstHeader("If");
-				if (hif == null) {
-					throw new DAVException(423,"no lock token submitted");
-				} 
-				try {
-					IfHeader lh = IfHeader.parseIfHeader(hif.getValue());
-					if (lh.getResource() == null && lh.getConditions() == null) {
-						throw new DAVException(400,"bad request");
-					}
-					if (lh.getResource() != null) {
-						DAVUrl curl = new DAVUrl(lh.getResource().getPath(), url.getPrefix());
-						if (url.getResref().compareTo(curl.getResref())!=0) {
-							System.out.println(curl.getResref());
-							throw new DAVException(400,"bad if uri");
-						}						
-					}
-					HashSet<String> tokens = lh.evaluate(le, (r != null ? r.getETag() : null));
-					if (tokens == null) {
-						throw new DAVException(412,"precondition failed");
-					}
-				} catch (ParseException e) {
-					e.printStackTrace();
+			le = repos.getLockManager().checkLocked(url.getResref());
+		}  
+		
+		// check precondition
+		Header hif = req.getFirstHeader("If");
+		if (hif == null) {
+			if (le != null && le.size() > 0)
+				throw new DAVException(423,"no lock token submitted");
+		} else {
+			try {
+				IfHeader lh = IfHeader.parseIfHeader(hif.getValue());
+				// check header info
+				if (lh.getResource() == null && lh.getConditions() == null) {
 					throw new DAVException(400,"bad request");
 				}
-			}
-		}		
+				// check or get resource tagged
+				if (lh.getResource() != null) {
+					DAVUrl curl = new DAVUrl(lh.getResource().getPath(), url.getPrefix());
+					if (url.getResref().compareTo(curl.getResref())!=0) {
+						throw new DAVException(400,"bad if uri");
+					}						
+				}
+				// evaluate header conditions
+				HashSet<String> tokens = lh.evaluate(le, (r != null ? r.getETag() : null));
+				if (tokens == null) {
+					throw new DAVException(412,"precondition failed");
+				} else {
+					for (String t : tokens) {
+						System.out.println("success token: " + t);
+					}
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+				throw new DAVException(400,"bad request");
+			}			
+		}
 	}
 
 }

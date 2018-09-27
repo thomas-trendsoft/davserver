@@ -20,6 +20,7 @@ import davserver.repository.LockEntry;
  */
 public class IfHeader {
 	
+	protected static Pattern PList        = Pattern.compile("\\((?<cond>[^\\)])\\)\\s*");
 	protected static Pattern PCondition   = Pattern.compile("(?<not>Not )?(?<state>\\<[^\\>\\<]*\\>|\\[[^\\[\\]]*\\])");
 		
 	/**
@@ -30,7 +31,7 @@ public class IfHeader {
 	/**
 	 * condition list
 	 */
-	private List<IfCondition> conditions;
+	private List<List<IfCondition>> conditions;
 	
 	/**
 	 * Defaultkonstruktor 
@@ -40,7 +41,7 @@ public class IfHeader {
 		this.conditions = new LinkedList<>();
 	}
 	
-	public List<IfCondition> getConditions() {
+	public List<List<IfCondition>> getConditions() {
 		return conditions;
 	}
 
@@ -62,20 +63,26 @@ public class IfHeader {
 	 */
 	public HashSet<String> evaluate(HashMap<String,LockEntry> locks,String etag) {
 		HashSet<String> ret = null;
-		for (IfCondition c : getConditions()) {
-			if (c.entity && c.state.compareTo(etag) != 0) {
-				System.out.println("fail on etag:  " + c.state + ":" + etag);
-				return null;
-			} else if (!c.entity) {
-				if (!locks.containsKey(c.state)) {
-					System.out.println("fail on state:  " + c.state);
-					return null;					
-				} else {
-					if (ret == null) ret = new HashSet<String>();
-					ret.add(c.state);
+		for (List<IfCondition> sub : getConditions()) {
+			for (IfCondition c : sub) {
+				if (c.entity && c.state.compareTo(etag) != 0) {
+					System.out.println("fail on etag:  " + c.state + ":" + etag);
+					return null;
+				} else if (!c.entity) {
+					if (c.state.compareTo("DAV:no-lock")==0 && locks == null) {
+						if (ret == null) ret = new HashSet<String>();
+						ret.add(c.state);						
+					} else if (!locks.containsKey(c.state)) {
+						System.out.println("fail on state:  " + c.state);
+						return null;					
+					} else {
+						if (ret == null) ret = new HashSet<String>();
+						ret.add(c.state);
+					}
 				}
-			}
-			
+			} // sub list
+			if (ret != null) 
+				return ret;
 		}
 		return ret;
 	}
@@ -112,14 +119,24 @@ public class IfHeader {
 			off = list.indexOf(")");
 			String plist = list.substring(0 ,off+1);
 			System.out.println(plist);
-			Matcher m = PCondition.matcher(plist);
+			Matcher m = PList.matcher(plist);
 			while (m.find()) {
-				String state = m.group("state");
-				IfCondition c = new IfCondition();
-				c.not   = (m.group("not") != null);
-				c.state = state.substring(1,state.length()-1);
-				c.entity = state.startsWith("[");
-				ret.getConditions().add(c);
+				String sub = m.group("cond");
+				if (sub != null) {
+					List<IfCondition> clist = new LinkedList<>();
+					Matcher sm = PCondition.matcher(sub);
+					while (sm.find()) {
+						String state = m.group("state");
+						IfCondition c = new IfCondition();
+						c.not   = (m.group("not") != null);
+						c.state = state.substring(1,state.length()-1);
+						c.entity = state.startsWith("[");	
+						clist.add(c);
+					}
+					if (clist != null & clist.size() > 0) {
+						ret.getConditions().add(clist);											
+					}
+				}
 			}			
 		} else {
 			throw new ParseException("no list",off);

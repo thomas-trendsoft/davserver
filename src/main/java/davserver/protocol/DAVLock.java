@@ -234,19 +234,20 @@ public class DAVLock {
 		
 		// check owner if exclusive
 		if (!le.isShared() && locks != null && locks.size() > 0) {
+			System.out.println("check exclusive lock");
 			for (LockEntry l : locks.values()) {
-				if (!l.isShared()) {
-					// TODO Check User if sessions with acl
-					boolean found = false;
-					for (String r : l.getOwner()) {
-						if (le.getOwner().contains(r)) {
-							found = true;
-							break;
-						}
+				System.out.println("found another exclusive");
+				// TODO Check User if sessions with acl
+				boolean found = false;
+				for (String r : l.getOwner()) {
+					if (le.getOwner().contains(r)) {
+						System.out.println("found ownder: " + r);
+						found = true;
+						break;
 					}
-					if (!found) {
-						throw new DAVException(405,"is exclusive locked");
-					}
+				}
+				if (!found) {
+					throw new DAVException(405,"is exclusive locked");
 				}
 			}
 		}
