@@ -11,14 +11,31 @@ import davserver.repository.Resource;
 
 public class SimpleCollection extends Collection {
 	
+	/**
+	 * property map
+	 */
 	private HashMap<String,Property> properties;
 	
+	/**
+	 * child map
+	 */
 	private HashMap<String,Resource> childs;
 	
+	/**
+	 * last modified
+	 */
 	private Date lm;
 	
+	/**
+	 * creation date
+	 */
 	private Date created;
 	
+	/**
+	 * Defaultconstructor 
+	 * 
+	 * @param name
+	 */
 	public SimpleCollection(String name) {
 		super(name);
 		lm = new Date();
@@ -50,6 +67,12 @@ public class SimpleCollection extends Collection {
 		lm = new Date();
 	}
 	
+	/**
+	 * string representation for debug purpose
+	 * 
+	 * @param pre
+	 * @return
+	 */
 	public String toString(String pre) {
 		String ret = "";
 		for (String n : childs.keySet()) {

@@ -23,6 +23,12 @@ import davserver.repository.error.NotFoundException;
 import davserver.repository.error.ResourceExistsException;
 import davserver.utils.SimpleLockManager;
 
+/**
+ * Basic File WebDAV server implementation
+ * 
+ * @author tkrieger
+ *
+ */
 public class SimpleFileRepository implements IRepository {
 
 	/**
@@ -41,7 +47,7 @@ public class SimpleFileRepository implements IRepository {
 	private SimpleLockManager lockmanager;
 	
 	/**
-	 * Defaultkonstruktor 
+	 * Defaultconstructor 
 	 * 
 	 * @param path
 	 */

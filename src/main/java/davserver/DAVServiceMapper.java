@@ -1,8 +1,6 @@
 package davserver;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 import org.apache.http.Header;
@@ -16,6 +14,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.protocol.HttpContext;
 
+import davserver.protocol.DAVACL;
 import davserver.protocol.DAVBind;
 import davserver.protocol.DAVCopy;
 import davserver.protocol.DAVDelete;
@@ -29,14 +28,18 @@ import davserver.protocol.DAVPut;
 import davserver.protocol.DAVReport;
 import davserver.protocol.DAVRequest;
 import davserver.repository.IRepository;
-import davserver.repository.cal.SimpleCalDAVRepository;
-import davserver.repository.card.SimpleCardDAVRepository;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
-import davserver.repository.file.SimpleFileRepository;
-import davserver.repository.simple.SimpleRepository;
 
 // TODO Make Error Handling with multiple messages easier or enable it at least
+
+
+/**
+ * Basic Http service mapper to configured repositories 
+ * 
+ * @author tkrieger
+ *
+ */
 public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	
 	/**
@@ -62,21 +65,13 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	/**
 	 * Defaultkonstruktor 
 	 */
-	public DAVServiceMapper() {
-		this.prefix = "";
+	public DAVServiceMapper(String prefix) {
+
+		// sample config (later through api)
+		this.prefix = prefix;
 		this.repositories  = new HashMap<String, IRepository>();
-		this.repositories.put("simple", new SimpleRepository());
-		this.repositories.put("contacts", new SimpleCardDAVRepository());
-		this.repositories.put("calendars", new SimpleCalDAVRepository());
 		
-		// sample file server
-		try {
-			String root = Paths.get(".").toAbsolutePath().toString() + "/files";
-			this.repositories.put("files", new SimpleFileRepository(root));
-		} catch (FileNotFoundException e) {
-			System.out.println("found now test webdav directory: " + Paths.get(".").toString());
-		}
-		
+		// create protocol method map
 		DAVLock lock = new DAVLock();
 		DAVGet  get  = new DAVGet();
 		DAVCopy copy = new DAVCopy();
@@ -96,6 +91,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		methods.put("PROPPATCH", new DAVPropPatch());
 		methods.put("BIND", new DAVBind());
 		methods.put("REPORT", new DAVReport());
+		methods.put("ACL",new DAVACL());
 		
 	}
 	

@@ -20,6 +20,11 @@ public class FileResource extends Resource {
 	 */
 	private Path file;
 	
+	/**
+	 * Defaultconstructor 
+	 * 
+	 * @param file
+	 */
 	public FileResource(Path file) {
 		super(file.getFileName().toString());
 		this.file = file;
