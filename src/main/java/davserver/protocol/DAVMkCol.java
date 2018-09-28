@@ -1,5 +1,7 @@
 package davserver.protocol;
 
+import java.io.IOException;
+
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -75,6 +77,9 @@ public class DAVMkCol extends DAVRequest {
 			throw new DAVException(405, ee.getMessage());
 		} catch (RepositoryException re) {
 			throw new DAVException(500,re.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new DAVException(500,e.getMessage());			
 		}
 		
 	}

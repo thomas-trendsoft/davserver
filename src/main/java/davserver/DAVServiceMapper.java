@@ -1,6 +1,8 @@
 package davserver;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 import org.apache.http.Header;
@@ -31,6 +33,7 @@ import davserver.repository.cal.SimpleCalDAVRepository;
 import davserver.repository.card.SimpleCardDAVRepository;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
+import davserver.repository.file.SimpleFileRepository;
 import davserver.repository.simple.SimpleRepository;
 
 // TODO Make Error Handling with multiple messages easier or enable it at least
@@ -65,6 +68,14 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		this.repositories.put("simple", new SimpleRepository());
 		this.repositories.put("contacts", new SimpleCardDAVRepository());
 		this.repositories.put("calendars", new SimpleCalDAVRepository());
+		
+		// sample file server
+		try {
+			String root = Paths.get(".").toAbsolutePath().toString() + "/files";
+			this.repositories.put("files", new SimpleFileRepository(root));
+		} catch (FileNotFoundException e) {
+			System.out.println("found now test webdav directory: " + Paths.get(".").toString());
+		}
 		
 		DAVLock lock = new DAVLock();
 		DAVGet  get  = new DAVGet();
@@ -126,10 +137,6 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 			repos = repositories.get(durl.getRepository());
 		}
 
-		// dev outs
-		System.out.println("durl: " + durl.getRepository() + ":" + durl.getResref());
-		System.out.println("repos: " + repos);
-
 		String method = req.getRequestLine().getMethod();
 
 		try {
@@ -171,7 +178,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	 * @param repos
 	 */
 	public void addRepository(String name,IRepository repos) {
-		
+		this.repositories.put(name, repos);
 	}
 
 }

@@ -26,8 +26,10 @@ public class DAVUtilTest {
 		} catch (NotAllowedException nae) {
 			e = nae;
 		}
-		
+				
 		Asserts.check(e != null, "Need the exception here");
 	}
+	
+	
 	
 }

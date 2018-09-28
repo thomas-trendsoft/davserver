@@ -1,8 +1,11 @@
 package davserver.repository.file;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -52,25 +55,38 @@ public class FileResource extends Resource {
 
 	@Override
 	public long getContentLength() {
-		return 0;
+		try {
+			return Files.size(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return 0L;
+		}
 	}
 
 	@Override
 	public Date getCreationDate() {
-		// check java nio
-		return new Date(0);
+		try {
+			BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
+			return new Date(attr.creationTime().toMillis());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new Date(0);
+		}
 	}
 
 	@Override
 	public Date getLastmodified() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return new Date(Files.getLastModifiedTime(file).toMillis());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new Date();
+		}
 	}
 
 	@Override
 	public InputStream getContent() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return new FileInputStream(file.toAbsolutePath().toString());
 	}
 
 }

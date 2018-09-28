@@ -37,7 +37,7 @@ public interface IRepository {
 	 * @throws NotAllowedException
 	 * @throws LockedException
 	 */
-	public void remove(String uri) throws NotFoundException,NotAllowedException,LockedException;
+	public void remove(String uri) throws IOException,NotFoundException,NotAllowedException,LockedException;
 	
 	/**
 	 * Create a new collection on the given resource reference 
@@ -45,7 +45,7 @@ public interface IRepository {
 	 * @param ref Resource reference
 	 * @throws RepositoryException
 	 */
-	public Collection createCollection(String ref) throws NotAllowedException,ResourceExistsException,ConflictException;
+	public Collection createCollection(String ref) throws IOException,NotAllowedException,ResourceExistsException,ConflictException;
 	
 	/**
 	 * Create a new resource on the given resource reference 

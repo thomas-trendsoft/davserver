@@ -3,10 +3,13 @@ package davserver.repository.file;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import org.apache.commons.io.FileExistsException;
 
 import davserver.DAVServer;
 import davserver.repository.Collection;
@@ -71,21 +74,61 @@ public class SimpleFileRepository implements IRepository {
 	}
 
 	@Override
-	public void remove(String uri) throws NotFoundException, NotAllowedException, LockedException {
+	public void remove(String uri) throws IOException, NotFoundException, NotAllowedException, LockedException {
+		Path res = fs.getPath(root.toString(), uri);
+		
+		// check exists
+		if (!Files.exists(res)) {
+			throw new NotFoundException("no such file or directory");
+		}
+		
+		// check write access
+		if (!Files.isWritable(res)) {
+			throw new NotAllowedException("is not writeable");
+		}
+		
+		// remove the file or directory 
+		try {
+			Files.delete(res);
+		} catch (DirectoryNotEmptyException e) {
+			throw new NotAllowedException("collection is not empty");
+		} 
+
 	}
 
 	@Override
-	public Collection createCollection(String ref)
-			throws NotAllowedException, ResourceExistsException, ConflictException {
-		// TODO Auto-generated method stub
-		return null;
+	public Collection createCollection(String ref) throws IOException,NotAllowedException, ResourceExistsException, ConflictException {
+		Path coll = fs.getPath(root.toString(), ref);
+		Path dir  = null;
+		
+		try {
+			dir = Files.createDirectory(coll);
+		} catch (FileExistsException e) {
+			throw new ResourceExistsException(ref + " exits already");
+		} 	
+		
+		return new FileCollection(dir);
 	}
 
 	@Override
 	public Resource createResource(String ref, InputStream data)
 			throws NotAllowedException, ConflictException, ResourceExistsException, NotFoundException, IOException {
-		// TODO Auto-generated method stub
-		return null;
+		Path res = fs.getPath(root.toString(), ref);
+		
+		// check if directory
+		if (Files.isDirectory(res)) {
+			throw new NotAllowedException("is a directory");
+		}
+		
+		// check write access
+		if (!Files.isWritable(res)) {
+			throw new NotAllowedException("is not writeable");
+		}
+		
+		// copy data to file
+		Files.copy(data, res);
+		
+		return new FileResource(res);
 	}
 
 	@Override

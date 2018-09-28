@@ -1,5 +1,7 @@
 package davserver.protocol;
 
+import java.io.IOException;
+
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 
@@ -40,7 +42,10 @@ public class DAVDelete extends DAVRequest {
 			resp.setStatusCode(204);
 		} catch (LockedException le) {
 			throw new DAVException(423,le.getMessage());
-		} 
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new DAVException(500,e.getMessage());
+		}
 		
 	}
 
