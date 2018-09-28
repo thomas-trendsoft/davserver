@@ -1,6 +1,7 @@
 package davserver.protocol;
 
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
@@ -19,7 +20,7 @@ import davserver.repository.error.ResourceExistsException;
  * @author tkrieger
  *
  */
-public class DAVMkCol {
+public class DAVMkCol extends DAVRequest {
 	
 	/**
 	 * Make Collection Implementation
@@ -29,9 +30,16 @@ public class DAVMkCol {
 	 * @param repos Repository
 	 * @param url DAV Url
 	 */
-	public void handleMkCol(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException,NotAllowedException {
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException,NotAllowedException {
 		Resource r = null;
+		HttpEntityEnclosingRequest req;
 		
+		// check request
+		if (!(breq instanceof HttpEntityEnclosingRequest)) {
+			throw new DAVException(400,"no body");
+		}
+		req = (HttpEntityEnclosingRequest)breq;
+
 		// check precondition
 		DAVRequest.checkLock(req, repos, url);
 

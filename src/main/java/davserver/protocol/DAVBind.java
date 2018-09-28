@@ -13,7 +13,7 @@ import davserver.repository.IRepository;
  * @author tkrieger
  *
  */
-public class DAVBind {
+public class DAVBind extends DAVRequest {
 
 	/**
 	 * Handle bind requests
@@ -24,7 +24,7 @@ public class DAVBind {
 	 * @param url
 	 * @throws DAVException 
 	 */
-	public void handleBind(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
 		throw new DAVException(400,"not supported now");
 	}
 }

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -25,6 +24,8 @@ import davserver.protocol.DAVOptions;
 import davserver.protocol.DAVPropFind;
 import davserver.protocol.DAVPropPatch;
 import davserver.protocol.DAVPut;
+import davserver.protocol.DAVReport;
+import davserver.protocol.DAVRequest;
 import davserver.repository.IRepository;
 import davserver.repository.cal.SimpleCalDAVRepository;
 import davserver.repository.card.SimpleCardDAVRepository;
@@ -51,54 +52,9 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	private static boolean debug = true;
 	
 	/**
-	 * PROPFIND Implementation
+	 * Mapping of the method implementations
 	 */
-	private DAVPropFind propfind;
-	
-	/**
-	 * PROFPATCH Implementation
-	 */
-	private DAVPropPatch proppatch;
-	
-	/**
-	 * LOCK Implementation
-	 */
-	private DAVLock lock;
-	
-	/**
-	 * GET Implementation
-	 */
-	private DAVGet get;
-	
-	/**
-	 * PUT Implementation
-	 */
-	private DAVPut put;
-	
-	/**
-	 * MKCOL Implementation
-	 */
-	private DAVMkCol mkcol;
-	
-	/**
-	 * DELETE Implementation
-	 */
-	private DAVDelete delete;
-	
-	/**
-	 * OPTIONS Implementation
-	 */
-	private DAVOptions options;
-	
-	/**
-	 * COPY Implementation
-	 */
-	private DAVCopy copy;
-	
-	/**
-	 * BIND Implementation
-	 */
-	private DAVBind bind;
+	private HashMap<String,DAVRequest> methods;
 	
 	/**
 	 * Defaultkonstruktor 
@@ -110,16 +66,25 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		this.repositories.put("contacts", new SimpleCardDAVRepository());
 		this.repositories.put("calendars", new SimpleCalDAVRepository());
 		
-		propfind  = new DAVPropFind();
-		lock      = new DAVLock();
-		put       = new DAVPut();
-		get       = new DAVGet();
-		mkcol     = new DAVMkCol();
-		delete    = new DAVDelete();
-		options   = new DAVOptions();
-		copy      = new DAVCopy();
-		proppatch = new DAVPropPatch();
-		bind      = new DAVBind();
+		DAVLock lock = new DAVLock();
+		DAVGet  get  = new DAVGet();
+		DAVCopy copy = new DAVCopy();
+		
+		methods   = new HashMap<String,DAVRequest>();
+		methods.put("PROPFIND",new DAVPropFind());
+		methods.put("LOCK",lock);
+		methods.put("UNLOCK",lock);
+		methods.put("PUT",new DAVPut());
+		methods.put("GET",get);
+		methods.put("HEAD",get);
+		methods.put("MKCOL",new DAVMkCol());
+		methods.put("DELETE",new DAVDelete());
+		methods.put("OPTIONS",new DAVOptions());
+		methods.put("COPY",copy);
+		methods.put("MOVE",copy);
+		methods.put("PROPPATCH", new DAVPropPatch());
+		methods.put("BIND", new DAVBind());
+		methods.put("REPORT", new DAVReport());
 		
 	}
 	
@@ -174,35 +139,9 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 			} else if (repos == null) {
 				// 404 if no repository is found
 				response.setStatusCode(404);	
-			} else if (method.startsWith("PROP")) {
-				if (method.compareTo("PROPFIND")==0) {
-					propfind.handlePropFind((HttpEntityEnclosingRequest)req, response, repos,durl);
-				} else if (method.compareTo("PROPPATCH")==0) {
-					proppatch.handlePropPatch((HttpEntityEnclosingRequest)req,response,repos,durl);
-				}
-			} else if (method.compareTo("GET")==0) {
-				get.handleGet(req,response, repos,durl,false);
-			} else if (method.compareTo("HEAD")==0) {
-				get.handleGet(req, response, repos, durl, true);
-			} else if (method.compareTo("OPTIONS")==0) {
-				System.out.println("options prepare: " + durl.getResref());
-				options.handleOptions(req, response, repos,durl);
-			} else if (method.compareTo("COPY")==0) {
-				copy.handleCopy(req,response,repos,durl,false);
-			} else if (method.compareTo("MOVE")==0) {
-				copy.handleCopy(req, response, repos, durl, true);
-			} else if (method.compareTo("DELETE")==0) {
-				delete.handleDelete(req, response, repos,durl);
-			} else if (method.compareTo("MKCOL")==0) {
-				mkcol.handleMkCol((HttpEntityEnclosingRequest)req,response, repos,durl);
-			} else if (method.compareTo("PUT")==0) {
-				put.handlePut((HttpEntityEnclosingRequest)req,response,repos,durl);
-			} else if (method.compareTo("BIND")==0) {
-				bind.handleBind(req, response, repos, durl);
-			} else if (method.compareTo("LOCK")==0) {
-				lock.handleLock((HttpEntityEnclosingRequest)req,response,repos,durl);
-			} else if (method.compareTo("UNLOCK")==0) {
-				lock.handleUnlock(req, response, repos, durl);
+			} else if (methods.containsKey(method)) {
+				DAVRequest handler = methods.get(method);
+				handler.handle(req, response, repos, durl);
 			} else {
 				async.getResponse().setStatusCode(404);			
 			}			
@@ -219,9 +158,20 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		async.submitResponse(new BasicAsyncResponseProducer(response));
 	}
 
+	@Override 
 	public HttpAsyncRequestConsumer<HttpRequest> processRequest(HttpRequest req, HttpContext ctx)
 			throws HttpException, IOException {
 		return new BasicAsyncRequestConsumer();
+	}
+	
+	/**
+	 * add a repository to the service mapper 
+	 * 
+	 * @param name
+	 * @param repos
+	 */
+	public void addRepository(String name,IRepository repos) {
+		
 	}
 
 }

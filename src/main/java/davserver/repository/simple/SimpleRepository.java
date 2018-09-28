@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
+import davserver.DAVServer;
 import davserver.DAVUtil;
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
@@ -17,21 +18,38 @@ import davserver.repository.error.NotFoundException;
 import davserver.repository.error.ResourceExistsException;
 import davserver.utils.SimpleLockManager;
 
+/**
+ * Simple example repository implementation 
+ * 
+ * @author tkrieger
+ *
+ */
 public class SimpleRepository implements IRepository {
 
+	/**
+	 * Base root element
+	 */
 	private SimpleCollection root;
 	
+	/**
+	 * Locking manager
+	 */
 	private SimpleLockManager lmanager;
 	
+	/**
+	 * Defaultkonstruktor 
+	 */
 	public SimpleRepository() {
 		root    = new SimpleCollection("");
 		lmanager = new SimpleLockManager();
 	}
 	
+	@Override
 	public boolean supportLocks() {
 		return true;
 	}
 	
+	@Override
 	public Collection createCollection(String uri) throws ResourceExistsException,NotAllowedException,ConflictException {
 		List<String> comps = DAVUtil.getPathComps(uri);
 		
@@ -72,6 +90,7 @@ public class SimpleRepository implements IRepository {
 		return coll;
 	}
 	
+	@Override
 	public Resource createResource(String ref,InputStream data) throws ConflictException,NotAllowedException,IOException {
 		List<String> comps = DAVUtil.getPathComps(ref);
 		
@@ -112,6 +131,7 @@ public class SimpleRepository implements IRepository {
 		return active;
 	}
 		
+	@Override
 	public void remove(String uri) throws NotFoundException, NotAllowedException {
 		System.out.println("locate resource: " + uri);
 		
@@ -148,6 +168,7 @@ public class SimpleRepository implements IRepository {
 		}
 	}
 
+	@Override
 	public Resource locate(String uri) throws NotFoundException, NotAllowedException {
 		System.out.println("locate resource: " + uri);
 		
@@ -183,6 +204,7 @@ public class SimpleRepository implements IRepository {
 		}
 	}
 	
+	@Override
 	public ILockManager getLockManager() {
 		return lmanager;
 	}
@@ -190,6 +212,11 @@ public class SimpleRepository implements IRepository {
 	@Override
 	public String toString() {
 		return root.toString();
+	}
+
+	@Override
+	public int getProtocol() {
+		return DAVServer.PROT_WEBDAV;
 	}
 
 

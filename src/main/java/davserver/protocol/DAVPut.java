@@ -3,11 +3,14 @@ package davserver.protocol;
 import java.io.IOException;
 
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
+import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.repository.IRepository;
+import davserver.repository.Resource;
 import davserver.repository.error.ConflictException;
 import davserver.repository.error.RepositoryException;
 import davserver.repository.error.ResourceExistsException;
@@ -18,7 +21,7 @@ import davserver.repository.error.ResourceExistsException;
  * @author tkrieger
  *
  */
-public class DAVPut {
+public class DAVPut extends DAVRequest {
 
 	
 	/**
@@ -31,8 +34,15 @@ public class DAVPut {
 	 * @param url DAV URL
 	 * @throws DAVException 
 	 */
-	public void handlePut(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+		HttpEntityEnclosingRequest req;
 		
+		// check request
+		if (!(breq instanceof HttpEntityEnclosingRequest)) {
+			throw new DAVException(400,"no body");
+		}
+		req = (HttpEntityEnclosingRequest)breq;
+
 		if (url.getResref() == null) {
 			throw new DAVException(400,"bad request");
 		}
@@ -42,8 +52,15 @@ public class DAVPut {
 			DAVRequest.checkLock(req, repos, url);
 			
 			// create resource
-			repos.createResource(url.getResref(),req.getEntity().getContent());
+			Resource r = repos.createResource(url.getResref(),req.getEntity().getContent());
+			
+			// strong etag return for carddav 
+			if (repos.getProtocol() == DAVServer.PROT_CARDDAV && r != null) {
+				resp.addHeader("ETag", r.getETag());
+			}
+			
 			resp.setStatusCode(201);
+			
 		} catch (ConflictException ce) {
 			throw new DAVException(409, ce.getMessage());
 		} catch (ResourceExistsException ee) {

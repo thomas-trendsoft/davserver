@@ -8,6 +8,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import davserver.DAVServer;
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
 import davserver.repository.IRepository;
@@ -95,6 +96,11 @@ public class SimpleFileRepository implements IRepository {
 	@Override
 	public ILockManager getLockManager() {
 		return lockmanager;
+	}
+
+	@Override
+	public int getProtocol() {
+		return DAVServer.PROT_WEBDAV;
 	}
 
 }

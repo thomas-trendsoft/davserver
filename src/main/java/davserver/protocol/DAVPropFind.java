@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Document;
@@ -37,7 +38,7 @@ import davserver.utils.XMLParser;
  * @author tkrieger
  *
  */
-public class DAVPropFind {
+public class DAVPropFind extends DAVRequest {
 	
 	private boolean debug;
 	
@@ -249,11 +250,18 @@ public class DAVPropFind {
 	 * @param r Resource if found otherwithe null
 	 * @throws NotFoundException 
 	 */
-	public void handlePropFind(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException {
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException {
 		Integer depthval;
 		Header  depth;
+		HttpEntityEnclosingRequest req;
 		
 		System.out.println("handle prop find");
+		
+		// check request
+		if (!(breq instanceof HttpEntityEnclosingRequest)) {
+			throw new DAVException(400,"no body");
+		}
+		req = (HttpEntityEnclosingRequest)breq;
 		
 		// check resource reference
 		if (repos == null || durl == null || durl.getResref() == null) {

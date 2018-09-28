@@ -16,7 +16,7 @@ import davserver.repository.error.NotFoundException;
  * @author tkrieger
  *
  */
-public class DAVOptions {
+public class DAVOptions extends DAVRequest {
 
 	/**
 	 * Handle OPTIONS method
@@ -26,7 +26,7 @@ public class DAVOptions {
 	 * @param repos Repository
 	 * @param durl DAV Url
 	 */
-	public void handleOptions(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException,NotAllowedException {
+	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException,NotAllowedException {
 		Resource r = null;
 		
 		System.out.println("handle options request: " + req.getRequestLine().getUri());

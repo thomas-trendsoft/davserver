@@ -6,6 +6,7 @@ import java.util.HashSet;
 
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
@@ -22,7 +23,18 @@ import davserver.repository.error.NotFoundException;
  * @author tkrieger
  *
  */
-public class DAVRequest {
+public abstract class DAVRequest {
+	
+	/**
+	 * Handle request implementation
+	 * 
+	 * @param req
+	 * @param resp
+	 * @param repos
+	 * @param url
+	 * @throws DAVException
+	 */
+	public abstract void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException,NotFoundException,NotAllowedException;
 	
 	/**
 	 * Help method to test lock (precondition)

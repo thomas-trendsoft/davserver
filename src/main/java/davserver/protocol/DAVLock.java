@@ -43,7 +43,7 @@ import davserver.utils.XMLParser;
  * @author tkrieger
  *
  */
-public class DAVLock {
+public class DAVLock extends DAVRequest {
 
 	private boolean debug;
 	
@@ -141,6 +141,17 @@ public class DAVLock {
 	}
 
 	/**
+	 * Router method
+	 */
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+		if (breq.getRequestLine().getMethod().compareTo("UNLOCK")==0) {
+			this.handleUnlock(breq, resp, repos, url);
+		} else {
+			this.handleLock(breq, resp, repos, url);
+		}
+	}
+
+	/**
 	 * Handle HTTP LOCK Method
 	 * 
 	 * @param req HTTP Request
@@ -149,10 +160,17 @@ public class DAVLock {
 	 * @param r Resource
 	 * @param url DAV URL
 	 */
-	public void handleLock(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+	public void handleLock(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
 		int          depth;
 		ILockManager lm;
+		HttpEntityEnclosingRequest req;
 		
+		// check request
+		if (!(breq instanceof HttpEntityEnclosingRequest)) {
+			throw new DAVException(400,"no body");
+		}
+		req = (HttpEntityEnclosingRequest)breq;
+
 		// check if locks are supported
 		if (!repos.supportLocks()) {
 			System.out.println("no lock support");
@@ -372,4 +390,5 @@ public class DAVLock {
 		
 		resp.setStatusCode(204);
 	}
+
 }

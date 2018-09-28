@@ -22,7 +22,7 @@ import davserver.repository.error.NotFoundException;
  * @author tkrieger
  *
  */
-public class DAVGet {
+public class DAVGet extends DAVRequest {
 
 	/**
 	 * Defaultkonstruktor 
@@ -39,8 +39,10 @@ public class DAVGet {
 	 * @param head Flag for head request without body
 	 * @throws DAVException 
 	 */
-	public void handleGet(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,boolean head) throws DAVException,NotFoundException,NotAllowedException {
+	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException,NotFoundException,NotAllowedException {
 		System.out.println("handle get");
+		
+		boolean head = req.getRequestLine().getMethod().compareTo("HEAD")==0;
 		
 		// check url and repos
 		if (url == null || repos == null) {

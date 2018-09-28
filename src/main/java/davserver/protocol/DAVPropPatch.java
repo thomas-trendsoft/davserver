@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,7 +30,7 @@ import davserver.utils.XMLParser;
  * @author tkrieger
  *
  */
-public class DAVPropPatch {
+public class DAVPropPatch extends DAVRequest {
 
 	/**
 	 * Debugging flag
@@ -53,10 +54,17 @@ public class DAVPropPatch {
 	 * @throws NotAllowedException 
 	 * @throws NotFoundException 
 	 */
-	public void handlePropPatch(HttpEntityEnclosingRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException, NotAllowedException {
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException, NotAllowedException {
 		Resource target;
 		Document body;
+		HttpEntityEnclosingRequest req;
 		
+		// check request
+		if (!(breq instanceof HttpEntityEnclosingRequest)) {
+			throw new DAVException(400,"no body");
+		}
+		req = (HttpEntityEnclosingRequest)breq;
+
 		// check precondition
 		DAVRequest.checkLock(req, repos, durl);
 

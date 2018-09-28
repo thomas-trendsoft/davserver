@@ -29,7 +29,8 @@ public class WebDAVRequestFactory implements HttpRequestFactory {
             "PROPFIND",
             "PROPPATCH",
             "MKCOL",
-            "LOCK"
+            "LOCK",
+            "REPORT"
     };
 
     private static final String[] RFC4918_COMMON_METHODS = {

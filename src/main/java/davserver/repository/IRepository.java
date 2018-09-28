@@ -18,6 +18,7 @@ import davserver.repository.error.ResourceExistsException;
  */
 public interface IRepository {
 	
+	
 	/**
 	 * Locate a specific resource by reference 
 	 * 
@@ -69,5 +70,12 @@ public interface IRepository {
 	 * @return
 	 */
 	public ILockManager getLockManager();
+
+	/**
+	 * Check special protocol versions (CalDAV / CardDAV)
+	 * 
+	 * @return
+	 */
+	public int getProtocol();
 
 }

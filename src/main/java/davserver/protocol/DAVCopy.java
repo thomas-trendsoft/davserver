@@ -30,7 +30,7 @@ import davserver.repository.error.ResourceExistsException;
  * @author tkrieger
  *
  */
-public class DAVCopy {
+public class DAVCopy extends DAVRequest {
 	
 	public DAVCopy() {
 	}
@@ -123,12 +123,13 @@ public class DAVCopy {
 	 * @throws NotFoundException 
 	 * @throws NotAllowedException 
 	 */
-	public void handleCopy(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,boolean move) throws DAVException, NotAllowedException, NotFoundException {
+	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException, NotAllowedException, NotFoundException {
 		System.out.println("handle copy/move");
 		int stat = 201;
 
 		try {
 			
+			boolean move = (req.getRequestLine().getMethod().compareTo("MOVE")==0);
 
 			// check destination header
 			Header d  = req.getFirstHeader("Destination");

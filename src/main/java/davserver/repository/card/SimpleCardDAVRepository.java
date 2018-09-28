@@ -3,6 +3,7 @@ package davserver.repository.card;
 import java.io.IOException;
 import java.io.InputStream;
 
+import davserver.DAVServer;
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
 import davserver.repository.IRepository;
@@ -64,6 +65,11 @@ public class SimpleCardDAVRepository implements IRepository {
 	@Override
 	public ILockManager getLockManager() {
 		return lmanager;
+	}
+
+	@Override
+	public int getProtocol() {
+		return DAVServer.PROT_CARDDAV;
 	}
 
 }

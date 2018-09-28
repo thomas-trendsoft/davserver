@@ -16,7 +16,7 @@ import davserver.repository.error.NotFoundException;
  * @author tkrieger
  *
  */
-public class DAVDelete {
+public class DAVDelete extends DAVRequest {
 
 	/**
 	 * Handle the HTTP Method
@@ -26,7 +26,7 @@ public class DAVDelete {
 	 * @param repos Repository
 	 * @param durl DAV Url
 	 */
-	public void handleDelete(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException,NotFoundException,NotAllowedException {
+	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException,NotFoundException,NotAllowedException {
 
 		if (durl == null || durl.getResref() == null) {
 			throw new DAVException(404,"not found");

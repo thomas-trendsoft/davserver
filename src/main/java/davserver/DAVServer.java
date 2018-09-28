@@ -23,6 +23,23 @@ public class DAVServer {
 	 */
 	public final static String Namespace = "DAV:";
 	
+	// Protocol version constants
+	
+	/**
+	 * Base WebDAV Protocol
+	 */
+	public final static int PROT_WEBDAV  = 0;
+	
+	/**
+	 * CalDAV protocol extension
+	 */
+	public final static int PROT_CALDAV  = 1;
+	
+	/**
+	 * CardDAV protocol extension
+	 */
+	public final static int PROT_CARDDAV = 2;
+	
 	/**
 	 * Main server entry 
 	 * 
