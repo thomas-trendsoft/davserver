@@ -262,7 +262,7 @@ public class DAVLock {
 						}
 					}
 					if (!found) {
-						throw new DAVException(405,"is exclusive locked");
+						throw new DAVException(423,"is exclusive locked");
 					}					
 				}
 			}
@@ -279,6 +279,15 @@ public class DAVLock {
 
 	}
 	
+	/**
+	 * Locate child locks of any collection to check if parent can be locked 
+	 * 
+	 * @param lm
+	 * @param target
+	 * @param base
+	 * @return
+	 * @throws DAVException
+	 */
 	private Map<String,LockEntry> getChildLocks(ILockManager lm,davserver.repository.Collection target,String base) throws DAVException {
 		HashMap<String,LockEntry> locks;
 		Iterator<Resource>        iter;
@@ -288,7 +297,6 @@ public class DAVLock {
 		while (iter.hasNext()) {
 			Resource r = iter.next();
 			String ref = base + r.getName();
-			System.out.println("check sub lock:  "+ ref);
 			HashMap<String,LockEntry> sl = lm.checkLocked(ref);
 			if (sl != null)
 				locks.putAll(sl);

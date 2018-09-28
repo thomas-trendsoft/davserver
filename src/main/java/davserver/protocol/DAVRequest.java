@@ -61,13 +61,13 @@ public class DAVRequest {
 				
 				// check header info
 				if (lh.getResource() == null && lh.getConditions() == null) {
-					throw new DAVException(400,"bad request");
+					throw new DAVException(423,"bad request");
 				}
 				// check or get resource tagged
 				if (lh.getResource() != null) {
 					DAVUrl curl = new DAVUrl(lh.getResource().getPath(), url.getPrefix());
 					if (url.getResref().compareTo(curl.getResref())!=0) {
-						throw new DAVException(400,"bad if uri");
+						throw new DAVException(423,"bad if uri");
 					}						
 				}
 				// evaluate header conditions
@@ -75,7 +75,7 @@ public class DAVRequest {
 				
 				// eval result
 				if (tokens == null) {
-					throw new DAVException(412,"precondition failed");
+					throw new DAVException(423,"precondition failed");
 				} else {
 					for (String t : tokens) {
 						System.out.println("success token: " + t);
