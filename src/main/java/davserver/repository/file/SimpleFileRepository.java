@@ -8,6 +8,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import org.apache.commons.io.FileExistsException;
 
@@ -89,9 +90,9 @@ public class SimpleFileRepository implements IRepository {
 		}
 		
 		// check write access
-		if (!Files.isWritable(res)) {
-			throw new NotAllowedException("is not writeable");
-		}
+		//if (!Files.isWritable(res)) {
+		//	throw new NotAllowedException("is not writeable");
+		//}
 		
 		// remove the file or directory 
 		try {
@@ -127,12 +128,12 @@ public class SimpleFileRepository implements IRepository {
 		}
 		
 		// check write access
-		if (!Files.isWritable(res)) {
-			throw new NotAllowedException("is not writeable");
-		}
+		//if (!Files.isWritable(res)) {
+		//	throw new NotAllowedException("is not writeable");
+		//}
 		
 		// copy data to file
-		Files.copy(data, res);
+		Files.copy(data, res,StandardCopyOption.REPLACE_EXISTING);
 		
 		return new FileResource(res);
 	}

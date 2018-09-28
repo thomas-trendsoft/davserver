@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import davserver.repository.Property;
@@ -21,41 +22,48 @@ public class FileResource extends Resource {
 	private Path file;
 	
 	/**
+	 * property map
+	 */
+	private HashMap<String,Property> properties;
+	
+	/**
 	 * Defaultconstructor 
 	 * 
 	 * @param file
 	 */
 	public FileResource(Path file) {
 		super(file.getFileName().toString());
-		this.file = file;
+		
+		this.file       = file;
+		this.properties = new HashMap<String,Property>();
 	}
 
 	@Override
 	public Property getProperty(PropertyRef ref) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void remProperty(PropertyRef ref) {
-		// can't really remove properties i think
 	}
 
 	@Override
 	public void setProperty(Property p) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public Iterator<Property> getPropertyIterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return properties.values().iterator();
 	}
 
 	@Override
 	public String getETag() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return String.valueOf(Files.getLastModifiedTime(file));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return String.valueOf((new Date()).getTime());
+		}
 	}
 
 	@Override

@@ -138,6 +138,12 @@ public class PropertyRef {
 	public String getName() {
 		return name;
 	}
+
+	@Override
+	public String toString() {
+		String ret = ns + ":" + name + " (" + type + ")";
+		return ret;
+	}
 	
 	
 }

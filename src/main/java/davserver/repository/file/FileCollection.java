@@ -6,7 +6,9 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +37,11 @@ public class FileCollection extends Collection {
 	private FileSystem fs;
 	
 	/**
+	 * property map
+	 */
+	private HashMap<String,Property> properties;
+	
+	/**
 	 * Defaultkonstruktor 
 	 * 
 	 * @param path
@@ -42,8 +49,9 @@ public class FileCollection extends Collection {
 	public FileCollection(Path path) {
 		super(path.getFileName().toString());
 		
-		this.path = path;
-		this.fs   = FileSystems.getDefault();
+		this.properties = new HashMap<String,Property>();
+		this.path       = path;
+		this.fs         = FileSystems.getDefault();
 	}
 
 	@Override
@@ -94,17 +102,28 @@ public class FileCollection extends Collection {
 
 	@Override
 	public Iterator<Property> getPropertyIterator() {
-		return null;
+		return properties.values().iterator();
 	}
 
 	@Override
 	public Date getCreationDate() {
-		return new Date();
+		try {
+			BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
+			return new Date(attr.creationTime().toMillis());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new Date(0);
+		}
 	}
 
 	@Override
 	public Date getLastmodified() {
-		return new Date();
+		try {
+			return new Date(Files.getLastModifiedTime(path).toMillis());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new Date();
+		}
 	}
 
 }
