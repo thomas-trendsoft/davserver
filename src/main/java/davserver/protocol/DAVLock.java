@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -232,30 +234,40 @@ public class DAVLock {
 			throw new DAVException(400,"bad request");
 		}
 		
-		// check owner if exclusive
-		if (!le.isShared() && locks != null && locks.size() > 0) {
-			System.out.println("check exclusive lock");
-			for (LockEntry l : locks.values()) {
-				System.out.println("found another exclusive");
-				// TODO Check User if sessions with acl
-				boolean found = false;
-				for (String r : l.getOwner()) {
-					if (le.getOwner().contains(r)) {
-						System.out.println("found ownder: " + r);
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					throw new DAVException(405,"is exclusive locked");
-				}
-			}
-		}
-
 		// get or create resource
 		Resource target = getLockResource(repos, url.getResref(), resp);
 		if (target == null)
 			return;
+		
+		// get child locks if needed
+		if (target instanceof davserver.repository.Collection && depth > 0) {
+			if (locks == null)
+				locks = new HashMap<String,LockEntry>();
+			locks.putAll(getChildLocks(repos.getLockManager(),(davserver.repository.Collection)target,url.getResref()));
+		}
+
+		// check owner if exclusive
+		if (locks != null && locks.size() > 0) {
+			System.out.println("check exclusive lock");
+			for (LockEntry l : locks.values()) {
+				if (!l.isShared() || !le.isShared()) {
+					System.out.println("check: ");
+					// TODO Check User if sessions with acl
+					boolean found = false;
+					for (String r : l.getOwner()) {
+						if (le.getOwner().contains(r)) {
+							System.out.println("found ownder: " + r);
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						throw new DAVException(405,"is exclusive locked");
+					}					
+				}
+			}
+		}
+
 
 		// create lock entry
 		LockEntry lock  = null;
@@ -267,6 +279,27 @@ public class DAVLock {
 
 	}
 	
+	private Map<String,LockEntry> getChildLocks(ILockManager lm,davserver.repository.Collection target,String base) throws DAVException {
+		HashMap<String,LockEntry> locks;
+		Iterator<Resource>        iter;
+		
+		locks = new HashMap<String,LockEntry>();
+		iter  = target.getChildIterator();
+		while (iter.hasNext()) {
+			Resource r = iter.next();
+			String ref = base + r.getName();
+			System.out.println("check sub lock:  "+ ref);
+			HashMap<String,LockEntry> sl = lm.checkLocked(ref);
+			if (sl != null)
+				locks.putAll(sl);
+			if (r instanceof Collection) {
+				locks.putAll(getChildLocks(lm, target, base + r.getName() + "/"));
+			}
+		}
+		
+		return locks;
+	}
+
 	/**
 	 * Handle unlock request
 	 * 
