@@ -39,6 +39,10 @@ public class SimpleCredentialStore implements ICredentialStore {
 	
 	@Override
 	public Principal checkAuth(String username, String secret) {
+		Pair<String,Principal> entry = store.get(username);
+		if (entry != null && entry.getKey().compareTo(secret)==0) {
+			return entry.getValue();
+		}
 		return null;
 	}
 

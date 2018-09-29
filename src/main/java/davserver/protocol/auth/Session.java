@@ -39,6 +39,15 @@ public class Session {
 	}
 	
 	/**
+	 * Set authenticated principal to session 
+	 * 
+	 * @param p
+	 */
+	public void setPrincipal(Principal p) {
+		this.principal = p;
+	}
+	
+	/**
 	 * get session id
 	 * 
 	 * @return

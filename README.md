@@ -6,7 +6,9 @@ It is an learning project to get a protocol implementation. The target is still 
 
 The second step with CalDAV and CardDAV should enable the server to be able to serve resources, calendars, contacts and todos. There will be no user interface or anything else, the project aims only to be the protocol implementation. 
 
-Authentication will be target in the future. 
+## Status 
+
+A base file server worked to create,edit,delete,share some office files. Authentication is for HTTP Basic Auth in small steps given.  
  
 THE PROJECT IS WORK IN PROGRESS and no useful release is done yet.
 

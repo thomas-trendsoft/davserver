@@ -10,6 +10,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 
+import davserver.protocol.acl.Principal;
+
 /**
  * basic default auth provider (no acl given owner = all and other = read)
  * 
@@ -63,6 +65,13 @@ public class BasicAuthProvider implements IAuthenticationProvider {
 				String[] acreds = dcreds.split(":");
 				if (acreds == null || acreds.length != 2) {
 					return false;
+				}
+				Principal p = credentials.checkAuth(acreds[0], acreds[1]);
+				if (p != null) {
+					session.setPrincipal(p);
+					return true;
+				} else {
+					System.out.println("failed auth");
 				}
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
