@@ -47,7 +47,7 @@ public class DAVPropFind extends DAVRequest {
 	 * Defaultkonstruktor 
 	 */
 	public DAVPropFind() {
-		this.debug = false;
+		this.debug = true;
 	}
 		
 	/**
@@ -88,7 +88,7 @@ public class DAVPropFind extends DAVRequest {
 					// check default properties
 					if (p == null && spr.getNs().compareTo(DAVServer.Namespace) == 0) {
 						if (Property.getDAVProperties().containsKey(DAVServer.Namespace + spr.getName())) {
-							p = Property.getDAVProperty(DAVServer.Namespace + spr.getName(), r, repos);
+							p = Property.getDAVProperty(DAVServer.Namespace + spr.getName(), r, repos,rurl);
 						} else {
 							System.out.println("UNKNOWN dav property: " + spr.getName());
 						} 
@@ -121,7 +121,7 @@ public class DAVPropFind extends DAVRequest {
 				// add default properties
 				for (String dpk : Property.getDAVProperties().keySet()) {
 					if (!done.contains(dpk)) {
-						Property p = Property.getDAVProperty(dpk, r, repos);
+						Property p = Property.getDAVProperty(dpk, r, repos, rurl);
 						if (p != null) {
 							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
 							propstat.appendChild(prop);
@@ -352,7 +352,8 @@ public class DAVPropFind extends DAVRequest {
 			throw new DAVException(500,e.getMessage());
 		}
 
-		System.out.println("RET PROPS:" + xmlDoc);
+		if (debug)
+			System.out.println("RET PROPS:" + xmlDoc);
 	}
 
 }

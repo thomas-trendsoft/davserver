@@ -63,6 +63,10 @@ public class DAVUrl {
 				if ((idx = resref.indexOf("#")) > 0) {
 					resref = resref.substring(0,idx);
 				}
+				// cut last / to avaid checks
+				if (resref.endsWith("/")) {
+					resref.substring(0,resref.length()-1);
+				}
 			} 		
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();

@@ -1,9 +1,7 @@
 package davserver.repository.cal;
 
 import davserver.DAVServer;
-import davserver.protocol.auth.BasicAuthProvider;
 import davserver.protocol.auth.IAuthenticationProvider;
-import davserver.protocol.auth.SessionStore;
 import davserver.repository.simple.SimpleRepository;
 
 /**

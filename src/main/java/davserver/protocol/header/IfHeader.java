@@ -63,7 +63,6 @@ public class IfHeader {
 	 */
 	public HashSet<String> evaluate(HashMap<String,LockEntry> locks,String etag) {
 		HashSet<String> ret = null;
-		System.out.println("etag: " + etag);
 		// check condition disjunktion
 		for (List<IfCondition> sub : getConditions()) {
 			
@@ -72,7 +71,6 @@ public class IfHeader {
 			
 			// conjunction conditions
 			for (IfCondition c : sub) {
-				System.out.println("check cond: " + c.state + ":" + c.entity + ":" + c.not + ":" + (locks == null ? "no locks" : locks.size()));
 				// entity condition
 				if (c.entity) {
 					int ec = c.state.compareTo(etag);
@@ -87,13 +85,11 @@ public class IfHeader {
 					if (c.state.compareTo("DAV:no-lock")==0) {
 						if ((locks == null && !c.not) || (locks != null && c.not)) {
 							sret.add(c.state);
-							System.out.println("add state: " + c.state);
 						}
 					} else if (locks == null) {
 						cval = false;
 					} else if (locks.containsKey(c.state)) {
 						sret.add(c.state);
-						System.out.println("add state: " + c.state);
 					} else {
 						cval = false;
 					}
@@ -139,7 +135,6 @@ public class IfHeader {
 		if (value.startsWith("<")) {
 			try {
 				off = value.indexOf('>');
-				System.out.println("ifres: " + value.substring(1, off));
 				res = new URI(value.substring(1, off));
 				off++;
 			} catch (URISyntaxException e) {
