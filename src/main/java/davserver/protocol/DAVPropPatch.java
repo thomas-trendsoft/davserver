@@ -41,7 +41,7 @@ public class DAVPropPatch extends DAVRequest {
 	 * Defaultkonstruktor 
 	 */
 	public DAVPropPatch() {
-		this.debug = false;
+		this.debug = true;
 	}
 	
 	/**

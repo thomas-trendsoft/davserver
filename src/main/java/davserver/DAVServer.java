@@ -1,5 +1,6 @@
 package davserver;
 
+import java.io.ByteArrayInputStream;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -71,7 +72,7 @@ public class DAVServer {
 		try {
 			SimpleCalDAVRepository caldav = new SimpleCalDAVRepository();
 			caldav.setAuthProvider(auth);
-			caldav.createCollection("/test");
+			caldav.createResource("/test.ics", new ByteArrayInputStream(new byte[0]));
 			davService.addRepository("calendars", caldav);
 
 			String root = Paths.get(".").toAbsolutePath().toString() + "/files";

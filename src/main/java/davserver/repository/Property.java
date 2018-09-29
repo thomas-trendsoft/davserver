@@ -197,7 +197,6 @@ public class Property extends DAVXMLObject {
 		
 		switch (dp.getType()) {
 		case PropertyRef.DAV_CONTENTLENGTH:
-			System.out.println("create cl: " + dp.getName());
 			p = new Property(DAVServer.Namespace, "getcontentlength", r.getContentLength());
 			break;
 		case PropertyRef.DAV_ETAG:
