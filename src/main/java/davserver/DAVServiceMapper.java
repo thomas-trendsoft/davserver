@@ -2,6 +2,8 @@ package davserver;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
@@ -27,6 +29,9 @@ import davserver.protocol.DAVPropPatch;
 import davserver.protocol.DAVPut;
 import davserver.protocol.DAVReport;
 import davserver.protocol.DAVRequest;
+import davserver.protocol.auth.IAuthenticationProvider;
+import davserver.protocol.auth.Session;
+import davserver.protocol.auth.SessionStore;
 import davserver.repository.IRepository;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
@@ -41,6 +46,8 @@ import davserver.repository.error.NotFoundException;
  *
  */
 public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
+	
+	private static final Pattern PSession = Pattern.compile("DAVSESSID=(?<sid>[^;\\s]*)");
 	
 	/**
 	 * URL Prefix
@@ -61,6 +68,11 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	 * Mapping of the method implementations
 	 */
 	private HashMap<String,DAVRequest> methods;
+	
+	/**
+	 * Session store 
+	 */
+	private SessionStore sessions;
 	
 	/**
 	 * Defaultkonstruktor 
@@ -93,6 +105,8 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		methods.put("REPORT", new DAVReport());
 		methods.put("ACL",new DAVACL());
 		
+		this.sessions = new SessionStore();
+		
 	}
 	
 	private void debug(HttpResponse resp) {
@@ -122,23 +136,36 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	 * @param ctx HttpContext
 	 */
 	public void handle(HttpRequest req, HttpAsyncExchange async, HttpContext ctx) throws HttpException, IOException {
+		boolean authFailed = false;
 		
 		if (debug) this.debug(req);
 		
 		final HttpResponse response = async.getResponse();
-		
+				
+		// check target url
 		DAVUrl durl = new DAVUrl(req.getRequestLine().getUri(),prefix);
 		IRepository repos = null;
 		if (durl.getRepository() != null) {
 			repos = repositories.get(durl.getRepository());
 		}
 
+		System.out.println("CHECK AUTH: ");
+		// check auth if needed
+		if (repos != null && repos.needsAuth()) {
+			if (!getAuthentication(req,response,repos.getAuthProvider())) {
+				authFailed = true;
+			}
+		}
+		
 		String method = req.getRequestLine().getMethod();
 
 		try {
-			if (req.getRequestLine().getUri().indexOf("#") > 0) {
+			if (authFailed) {
+				repos.getAuthProvider().rejectedResponse(response);
+				throw new DAVException(401, "not allowed");
+			} else if (req.getRequestLine().getUri().indexOf("#") > 0) {
 				// disallow fragments on request url
-				DAVUtil.handleError(new DAVException(400,"fragment in request url"), response);
+				throw new DAVException(400,"fragment in request url");
 			} else if (repos == null) {
 				// 404 if no repository is found
 				response.setStatusCode(404);	
@@ -160,6 +187,46 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 
 		async.submitResponse(new BasicAsyncResponseProducer(response));
 	}
+	
+	/**
+	 * Check session for auth neede repos 
+	 * 
+	 * @param req
+	 * @param authProvider
+	 * @return
+	 */
+	private boolean getAuthentication(HttpRequest req, HttpResponse resp,IAuthenticationProvider authProvider) {
+		Session session = null;
+		Header  cookie = req.getFirstHeader("Cookie");
+		String  sid = null;
+		
+		if (cookie == null) {
+			session = sessions.create(req);
+			resp.addHeader("Set-Cookie","DAVSESSID=" + session.getId());
+			return false;
+		}
+		
+		// Parse session ID
+		Matcher m = PSession.matcher(cookie.getValue());
+		if (m.find()) {
+			sid = m.group("sid");
+		}
+		
+		// got session id then check for active session
+		if (sid != null) {
+			session = sessions.get(sid);
+		}
+		
+		// still no session?
+		if (session == null) {
+			session = sessions.create(req);
+			resp.addHeader("Set-Cookie","DAVSESSID=" + session.getId());
+			return false;			
+		}
+		
+		return authProvider.authRequest(req, session);
+
+	}
 
 	@Override 
 	public HttpAsyncRequestConsumer<HttpRequest> processRequest(HttpRequest req, HttpContext ctx)
@@ -175,6 +242,15 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	 */
 	public void addRepository(String name,IRepository repos) {
 		this.repositories.put(name, repos);
+	}
+	
+	/**
+	 * Use individual session store 
+	 * 
+	 * @param store
+	 */
+	public void setSessionStore(SessionStore store) {
+		this.sessions = store;
 	}
 
 }

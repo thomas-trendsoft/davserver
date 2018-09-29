@@ -9,8 +9,19 @@ import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
 
+/**
+ * Calendar resource implementation 
+ * 
+ * @author tkrieger
+ *
+ */
 public class Calendar extends Resource {
 
+	/**
+	 * Defaultconstructor 
+	 * 
+	 * @param name
+	 */
 	public Calendar(String name) {
 		super(name);
 	}

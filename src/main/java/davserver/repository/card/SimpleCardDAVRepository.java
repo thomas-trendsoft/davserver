@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import davserver.DAVServer;
+import davserver.protocol.auth.BasicAuthProvider;
+import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
 import davserver.repository.IRepository;
@@ -29,10 +31,16 @@ public class SimpleCardDAVRepository implements IRepository {
 	private SimpleLockManager lmanager;
 	
 	/**
+	 * auth provider 
+	 */
+	private BasicAuthProvider authProvider;
+	
+	/**
 	 * Defaultkonstruktor 
 	 */
 	public SimpleCardDAVRepository() {
-		lmanager = new SimpleLockManager();
+		lmanager     = new SimpleLockManager();
+		authProvider = new BasicAuthProvider();
 	}
 
 	@Override
@@ -70,6 +78,16 @@ public class SimpleCardDAVRepository implements IRepository {
 	@Override
 	public int getProtocol() {
 		return DAVServer.PROT_CARDDAV;
+	}
+
+	@Override
+	public boolean needsAuth() {
+		return true;
+	}
+
+	@Override
+	public IAuthenticationProvider getAuthProvider() {
+		return authProvider;
 	}
 
 }

@@ -1,6 +1,7 @@
 package davserver.protocol;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,7 +13,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.nio.entity.NStringEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -342,9 +343,14 @@ public class DAVPropFind extends DAVRequest {
 		}
 		
 		// MultiStatus Response
-		resp.setStatusCode(207);
-		resp.setEntity(new StringEntity(xmlDoc, "utf-8"));
-		resp.setHeader("Content-Type","application/xml;charset=utf-8");
+		try {
+			resp.setStatusCode(207);
+			resp.setEntity(new NStringEntity(xmlDoc, "utf-8"));
+			resp.setHeader("Content-Type","application/xml;charset=utf-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			throw new DAVException(500,e.getMessage());
+		}
 
 		System.out.println("RET PROPS:" + xmlDoc);
 	}

@@ -17,7 +17,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.nio.entity.NStringEntity;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -128,7 +128,7 @@ public class DAVLock extends DAVRequest {
 			if (debug) { System.out.println(xmlDoc); }
 			
 			
-			resp.setEntity(new StringEntity(xmlDoc,"utf-8"));
+			resp.setEntity(new NStringEntity(xmlDoc,"utf-8"));
 			resp.setHeader("Content-Type","application/xml;charset=utf-8");
 
 			System.out.println("lock done");

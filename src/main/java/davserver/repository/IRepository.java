@@ -3,6 +3,7 @@ package davserver.repository;
 import java.io.IOException;
 import java.io.InputStream;
 
+import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.repository.error.ConflictException;
 import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
@@ -18,6 +19,17 @@ import davserver.repository.error.ResourceExistsException;
  */
 public interface IRepository {
 	
+	/**
+	 * flag if auth is used
+	 */
+	public boolean needsAuth();
+	
+	/**
+	 * get authentication implementation
+	 * 
+	 * @return
+	 */
+	public IAuthenticationProvider getAuthProvider();
 	
 	/**
 	 * Locate a specific resource by reference 

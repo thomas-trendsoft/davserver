@@ -8,8 +8,18 @@ import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
 
+/**
+ * calendar collection implementation
+ * 
+ * @author tkrieger
+ *
+ */
 public class CalendarCollection extends Collection{
 
+	/**
+	 * Defaultconstructor 
+	 * @param name
+	 */
 	public CalendarCollection(String name) {
 		super(name);
 	}

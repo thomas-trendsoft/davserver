@@ -9,7 +9,7 @@ import java.util.List;
 import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.nio.entity.NStringEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -108,7 +108,7 @@ public class DAVUtil {
 			err = doc.createElementNS(DAVServer.Namespace, "error");
 			doc.appendChild(err);
 			err.setTextContent(e.getMessage());
-			resp.setEntity(new StringEntity(XMLParser.singleton().serializeDoc(doc), "utf-8"));
+			resp.setEntity(new NStringEntity(XMLParser.singleton().serializeDoc(doc), "utf-8"));
 			resp.setHeader("Content-Type","application/xml;charset=utf-8");
 		} catch (Exception e1) {
 			e1.printStackTrace();

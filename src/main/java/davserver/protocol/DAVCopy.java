@@ -202,6 +202,7 @@ public class DAVCopy extends DAVRequest {
 				// exception ok 
 			}
 			
+			// TODO check for extra operation rename 
 			
 			// Check resource type of source element 
 			if (src instanceof Collection) {

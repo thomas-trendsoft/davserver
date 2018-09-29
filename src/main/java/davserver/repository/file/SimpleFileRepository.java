@@ -13,6 +13,7 @@ import java.nio.file.StandardCopyOption;
 import org.apache.commons.io.FileExistsException;
 
 import davserver.DAVServer;
+import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
 import davserver.repository.IRepository;
@@ -151,6 +152,16 @@ public class SimpleFileRepository implements IRepository {
 	@Override
 	public int getProtocol() {
 		return DAVServer.PROT_WEBDAV;
+	}
+
+	@Override
+	public boolean needsAuth() {
+		return false;
+	}
+
+	@Override
+	public IAuthenticationProvider getAuthProvider() {
+		return null;
 	}
 
 }
