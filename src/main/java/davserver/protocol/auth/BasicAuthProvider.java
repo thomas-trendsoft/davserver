@@ -29,10 +29,16 @@ public class BasicAuthProvider implements IAuthenticationProvider {
 	private Decoder bdecode;
 	
 	/**
+	 * Credentials store interface
+	 */
+	private ICredentialStore credentials;
+	
+	/**
 	 * Defaultconstructor 
 	 */
-	public BasicAuthProvider(SessionStore sessions) {
-		bdecode      = Base64.getDecoder();
+	public BasicAuthProvider(ICredentialStore credentials) {
+		this.bdecode      = Base64.getDecoder();
+		this.credentials  = credentials;
 	}
 	
 	@Override
@@ -70,7 +76,7 @@ public class BasicAuthProvider implements IAuthenticationProvider {
 	}
 
 	@Override
-	public void rejectedResponse(HttpResponse resp) {
+	public void rejectedResponse(HttpRequest req,HttpResponse resp) {
 		resp.addHeader("WWW-Authenticate", "Basic realm=\"WebDAV Server\"");
 	}
 	

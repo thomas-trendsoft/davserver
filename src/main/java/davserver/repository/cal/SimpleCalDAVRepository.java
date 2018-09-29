@@ -3,6 +3,7 @@ package davserver.repository.cal;
 import davserver.DAVServer;
 import davserver.protocol.auth.BasicAuthProvider;
 import davserver.protocol.auth.IAuthenticationProvider;
+import davserver.protocol.auth.SessionStore;
 import davserver.repository.simple.SimpleRepository;
 
 /**
@@ -16,15 +17,17 @@ public class SimpleCalDAVRepository extends SimpleRepository {
 	/**
 	 * Basic auth provider
 	 */
-	private BasicAuthProvider authProvider;
+	private IAuthenticationProvider authProvider;
 	
 	/**
 	 * Defaultconstructor 
 	 */
 	public SimpleCalDAVRepository() {
 		super();
-		
-		authProvider = new BasicAuthProvider();
+	}
+	
+	public void setAuthProvider(IAuthenticationProvider authProvider) {
+		this.authProvider = authProvider;
 	}
 	
 	@Override

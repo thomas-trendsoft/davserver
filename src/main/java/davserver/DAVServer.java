@@ -11,10 +11,13 @@ import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicLineParser;
 
+import davserver.protocol.acl.Principal;
+import davserver.protocol.auth.BasicAuthProvider;
 import davserver.repository.cal.SimpleCalDAVRepository;
 import davserver.repository.card.SimpleCardDAVRepository;
 import davserver.repository.file.SimpleFileRepository;
 import davserver.repository.simple.SimpleRepository;
+import davserver.utils.SimpleCredentialStore;
 
 /**
  * Simple example server class 
@@ -45,12 +48,19 @@ public class DAVServer {
 	public final static int PROT_CARDDAV = 2;
 	
 	/**
-	 * Main server entry 
+	 * create a simple demo server
 	 * 
-	 * @param args
+	 * @return
 	 */
-	public static void main(String[] args) {
-		DAVServiceMapper davService = new DAVServiceMapper("");
+	public static DAVServiceMapper createDemoServer() {
+		
+		SimpleCredentialStore credentials = new SimpleCredentialStore();
+		BasicAuthProvider     auth        = new BasicAuthProvider(credentials);
+		DAVServiceMapper      davService  = new DAVServiceMapper("");
+		
+		// demo admin and user 
+		credentials.addCredentials("admin", "admin", new Principal());
+		credentials.addCredentials("test", "test", new Principal());
 		
 		// configure demo repositories
 		davService.addRepository("simple", new SimpleRepository());
@@ -60,6 +70,7 @@ public class DAVServer {
 		// sample calendar and file server
 		try {
 			SimpleCalDAVRepository caldav = new SimpleCalDAVRepository();
+			caldav.setAuthProvider(auth);
 			caldav.createCollection("/test");
 			davService.addRepository("calendars", caldav);
 
@@ -68,6 +79,15 @@ public class DAVServer {
 		} catch (Exception e) {
 			System.out.println("failed to add special repositories: " + e.getMessage());
 		}
+		return davService;
+	}
+	
+	/**
+	 * Main server entry 
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args) {
 
 		// create http server
         final IOReactorConfig config = IOReactorConfig.custom()
@@ -84,7 +104,7 @@ public class DAVServer {
                 .setIOReactorConfig(config)
                 .setConnectionFactory(cf)
                 .setExceptionLogger(ExceptionLogger.STD_ERR)
-                .registerHandler("*", davService)
+                .registerHandler("*", createDemoServer())
                 .create();
 
         

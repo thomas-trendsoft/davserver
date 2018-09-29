@@ -161,7 +161,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 
 		try {
 			if (authFailed) {
-				repos.getAuthProvider().rejectedResponse(response);
+				repos.getAuthProvider().rejectedResponse(req,response);
 				throw new DAVException(401, "not allowed");
 			} else if (req.getRequestLine().getUri().indexOf("#") > 0) {
 				// disallow fragments on request url

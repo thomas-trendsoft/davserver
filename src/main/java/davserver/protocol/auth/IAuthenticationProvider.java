@@ -25,6 +25,6 @@ public interface IAuthenticationProvider {
 	 * 
 	 * @param resp
 	 */
-	void rejectedResponse(HttpResponse resp);
+	void rejectedResponse(HttpRequest req,HttpResponse resp);
 	
 }

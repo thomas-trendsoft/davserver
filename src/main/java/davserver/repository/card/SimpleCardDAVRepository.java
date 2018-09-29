@@ -40,7 +40,7 @@ public class SimpleCardDAVRepository implements IRepository {
 	 */
 	public SimpleCardDAVRepository() {
 		lmanager     = new SimpleLockManager();
-		authProvider = new BasicAuthProvider();
+		authProvider = new BasicAuthProvider(null);
 	}
 
 	@Override
