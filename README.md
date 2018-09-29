@@ -13,8 +13,6 @@ A base file server worked to create,edit,delete,share some office files. Authent
 THE PROJECT IS WORK IN PROGRESS and no useful release is done yet.
 
 For testing surpose i will try to get this framework running against the litmus project (https://github.com/tolsen/litmus). First steps are done the library passes the base tests.
- 
- First success to edit a simple text file on a hosted "WebDAV" drive on my Mac.
 
 ## Litmus Progress
 
