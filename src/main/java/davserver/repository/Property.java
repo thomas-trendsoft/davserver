@@ -12,7 +12,6 @@ import davserver.DAVUrl;
 import davserver.DAVUtil;
 import davserver.protocol.xml.DAVXMLObject;
 import davserver.protocol.xml.LockDiscovery;
-import davserver.protocol.xml.ResourceType;
 
 /**
  * Resource property 
@@ -237,10 +236,7 @@ public class Property extends DAVXMLObject {
 			}
 			break;
 		case PropertyRef.DAV_RESOURCETYPE:
-			if (r instanceof Collection)
-				p = new ResourceType(DAVServer.Namespace,"collection");
-			else 
-				p = new ResourceType(null,null);
+			p = r.getResourceTypes();
 			break;
 		} 
 		

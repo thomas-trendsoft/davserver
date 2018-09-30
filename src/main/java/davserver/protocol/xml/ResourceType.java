@@ -1,37 +1,44 @@
 package davserver.protocol.xml;
 
+import java.util.List;
+
 import org.w3c.dom.Element;
 
 import davserver.DAVServer;
 import davserver.repository.Property;
+import davserver.utils.Pair;
 
 public class ResourceType extends Property {
 
-	private String typeNS;
-
-	private String typeName;
+	/**
+	 * supported resource types
+	 */
+	public List<Pair<String,String>> types;
 	
-	public ResourceType(String namespace,String name) {
+	/**
+	 * Defaultkonstruktor 
+	 */
+	public ResourceType() {
 		super(DAVServer.Namespace, "resourcetype", null);
-		
-		this.typeNS   = namespace;
-		this.typeName = name;
+	}
+	
+	public void addType(String ns,String name) {
+		types.add(new Pair<String, String>(ns, name));
 	}
 	
 	@Override
 	public Element appendXML(Element doc,boolean content) {
 		Element elem = super.appendXML(doc,content);
 		Element type = null;
-		
-		if (typeNS == null) {
-			if (typeName != null) {
-				type = doc.getOwnerDocument().createElement(typeName);
+
+		for (Pair<String,String> t : types) {
+			if (t.getKey() == null) {
+				if (t.getValue() != null) {
+					type = doc.getOwnerDocument().createElement(t.getValue());
+				}
+			} else {
+				type = doc.getOwnerDocument().createElementNS(t.getKey(), t.getValue());
 			}
-		} else {
-			type = doc.getOwnerDocument().createElementNS(typeNS, typeName);
-		}
-		
-		if (type != null) {
 			elem.appendChild(type);
 		}
 		

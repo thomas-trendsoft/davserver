@@ -144,6 +144,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 				
 		// check target url
 		DAVUrl durl = new DAVUrl(req.getRequestLine().getUri(),prefix);
+		System.out.println("create durl:  "+ durl.getResref());
 		IRepository repos = null;
 		if (durl.getRepository() != null) {
 			repos = repositories.get(durl.getRepository());

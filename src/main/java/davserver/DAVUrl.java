@@ -32,12 +32,16 @@ public class DAVUrl {
 	 * @param url
 	 * @param prefix
 	 */
-	public DAVUrl(String url,String prefix) {
+	public DAVUrl(String surl,String prefix) {
 
 		this.prefix     = prefix;
 		this.repository = null;
 		this.resref     = null;
 		
+		if (surl == null) {
+			return;
+		}
+		String url = surl.trim();
 		if (url.length() < prefix.length()) {
 			return;
 		}
@@ -55,6 +59,7 @@ public class DAVUrl {
 			// create resource url
 			if (uri.length() >= ci) {
 				resref = URLDecoder.decode(uri.substring(ci),"utf-8");
+				System.out.println("resref base: " + resref);
 				int idx;
 				// remove query or fragment parts
 				if ((idx = resref.indexOf("?")) > 0) {
@@ -64,8 +69,8 @@ public class DAVUrl {
 					resref = resref.substring(0,idx);
 				}
 				// cut last / to avaid checks
-				if (resref.endsWith("/")) {
-					resref.substring(0,resref.length()-1);
+				if (resref.trim().endsWith("/")) {
+					resref = resref.trim().substring(0,resref.length()-1);
 				}
 			} 		
 		} catch (UnsupportedEncodingException e) {

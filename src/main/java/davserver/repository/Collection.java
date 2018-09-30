@@ -6,7 +6,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.UUID;
 
+import davserver.DAVServer;
 import davserver.DAVUtil;
+import davserver.protocol.xml.ResourceType;
 
 /**
  * Base class for a dav repository collection 
@@ -15,9 +17,22 @@ import davserver.DAVUtil;
  *
  */
 public abstract class Collection extends Resource {
+	
+	/**
+	 * Collection resource type
+	 */
+	private ResourceType resourceType;
 
+	/**
+	 * Defaultconstructor 
+	 * 
+	 * @param name
+	 */
 	public Collection(String name) {
 		super(name);
+		
+		resourceType = new ResourceType();
+		resourceType.addType(DAVServer.Namespace, "collection");
 	}
 
 	/***
@@ -67,6 +82,13 @@ public abstract class Collection extends Resource {
 			return UUID.randomUUID().toString();
 		}
 	}
-
+	
+	/**
+	 * Get the resource types supported
+	 * @return
+	 */
+	public ResourceType getResourceTypes() {
+		return resourceType;
+	}
 	
 }

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 
 import davserver.DAVUrl;
+import davserver.protocol.xml.ResourceType;
 
 public abstract class Resource {
 	
@@ -116,6 +117,14 @@ public abstract class Resource {
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	/**
+	 * Get the resource types supported
+	 * @return
+	 */
+	public ResourceType getResourceTypes() {
+		return new ResourceType();
 	}
 
 }

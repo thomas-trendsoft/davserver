@@ -256,7 +256,7 @@ public class DAVPropFind extends DAVRequest {
 		Header  depth;
 		HttpEntityEnclosingRequest req;
 		
-		System.out.println("handle prop find");
+		System.out.println("handle prop find: " + durl.getResref());
 		
 		// check request
 		if (!(breq instanceof HttpEntityEnclosingRequest)) {
