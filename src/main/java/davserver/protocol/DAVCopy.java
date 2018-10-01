@@ -222,7 +222,7 @@ public class DAVCopy extends DAVRequest {
 				try {
 					HashMap<String,LockEntry> lock = null;
 					// first delete the lock from source if given
-					if (repos.supportLocks() && (lock = repos.getLockManager().checkLocked(url.getResref())) != null) {
+					if (repos.supportLocks() && (lock = repos.getLockManager().checkLocked(url.getResref(),false)) != null) {
 						for (LockEntry l : lock.values()) {
 							repos.getLockManager().removeLock(l);							
 						}

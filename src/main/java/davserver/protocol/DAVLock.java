@@ -7,8 +7,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -218,8 +216,13 @@ public class DAVLock extends DAVRequest {
 		}
 		
 		// check given locks
-		HashMap<String,LockEntry> locks = lm.checkLocked(url.getResref());
-		
+		Resource tr = null;
+		try {
+			tr = repos.locate(url.getResref());
+		} catch (NotFoundException | NotAllowedException e1) {
+		}
+		HashMap<String,LockEntry> locks = lm.checkLocked(url.getResref(),(depth > 0 && tr instanceof davserver.repository.Collection));
+				
 		// check for refresh header
 		Header lheader = req.getFirstHeader("If");
 		if (le == null && lheader != null) {
@@ -257,13 +260,6 @@ public class DAVLock extends DAVRequest {
 		if (target == null)
 			return;
 		
-		// get child locks if needed
-		if (target instanceof davserver.repository.Collection && depth > 0) {
-			if (locks == null)
-				locks = new HashMap<String,LockEntry>();
-			locks.putAll(getChildLocks(repos.getLockManager(),(davserver.repository.Collection)target,url.getResref()));
-		}
-
 		// check owner if exclusive
 		if (locks != null && locks.size() > 0) {
 			System.out.println("check exclusive lock");
@@ -298,35 +294,6 @@ public class DAVLock extends DAVRequest {
 	}
 	
 	/**
-	 * Locate child locks of any collection to check if parent can be locked 
-	 * 
-	 * @param lm
-	 * @param target
-	 * @param base
-	 * @return
-	 * @throws DAVException
-	 */
-	private Map<String,LockEntry> getChildLocks(ILockManager lm,davserver.repository.Collection target,String base) throws DAVException {
-		HashMap<String,LockEntry> locks;
-		Iterator<Resource>        iter;
-		
-		locks = new HashMap<String,LockEntry>();
-		iter  = target.getChildIterator();
-		while (iter.hasNext()) {
-			Resource r = iter.next();
-			String ref = base + r.getName();
-			HashMap<String,LockEntry> sl = lm.checkLocked(ref);
-			if (sl != null)
-				locks.putAll(sl);
-			if (r instanceof Collection) {
-				locks.putAll(getChildLocks(lm, target, base + r.getName() + "/"));
-			}
-		}
-		
-		return locks;
-	}
-
-	/**
 	 * Handle unlock request
 	 * 
 	 * @param req HttpRequest
@@ -344,7 +311,7 @@ public class DAVLock extends DAVRequest {
 		}
 		
 		// check existing lock
-		HashMap<String,LockEntry> le = repos.getLockManager().checkLocked(url.getResref());
+		HashMap<String,LockEntry> le = repos.getLockManager().checkLocked(url.getResref(),false);
 		if (le == null || le.size() == 0) {
 			throw new DAVException(409,"no lock given");
 		}

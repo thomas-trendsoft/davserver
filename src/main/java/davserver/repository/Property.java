@@ -222,14 +222,14 @@ public class Property extends DAVXMLObject {
 		case PropertyRef.DAV_LOCKDISCOVERY:
 			ILockManager lm = repos.getLockManager();
 			if (repos.supportLocks())  {
-				HashMap<String,LockEntry> locks = lm.checkLocked(url.getResref());
+				HashMap<String,LockEntry> locks = lm.checkLocked(url.getResref(),false);
 				p = new LockDiscovery((locks == null ? null : locks.values()));
 			} else {
 				p = new LockDiscovery(null);					
 			}
 			break;
 		case PropertyRef.DAV_SUPPORTEDLOCK:
-			if (!repos.supportLocks()) {
+			if (repos.supportLocks()) {
 				p = repos.getLockManager().getSupportedLocks();				
 			} else {
 				p = new Property(DAVServer.Namespace,"supportedlock",null);

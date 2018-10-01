@@ -59,7 +59,7 @@ public abstract class DAVRequest {
 		// check locks
 		HashMap<String,LockEntry> le = null;
 		if (repos.supportLocks()) {
-			le = repos.getLockManager().checkLocked(url.getResref());
+			le = repos.getLockManager().checkLocked(url.getResref(),false);
 		}  
 		
 		// check precondition

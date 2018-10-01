@@ -40,32 +40,27 @@ public class SimpleLockManager implements ILockManager {
 	}
 	
 	/**
-	 * Check specific token
-	 * 
-	 * @param ref
-	 * @param token
-	 * @return
-	 */
-	public synchronized LockEntry checkLocked(String ref,String token) {
-		HashMap<String,LockEntry> rm = locks.get(ref);
-		
-		if (rm != null) {
-			return rm.get(token);
-		}
-		return null;
-	}
-	
-	/**
 	 * Check resource ref for lock entry
 	 * @throws DAVException 
 	 */
-	public HashMap<String,LockEntry> checkLocked(String ref) throws DAVException {
+	public HashMap<String,LockEntry> checkLocked(String ref,boolean childs) throws DAVException {
 		HashMap<String,LockEntry> result = new HashMap<>();
 		
 		// check direct lock entries
 		HashMap<String,LockEntry> le = locks.get(ref);
 		if (le != null) {
 			result.putAll(le);
+		}
+		
+		// check child locks if needed
+		if (childs) {
+			System.out.println("check child locks");
+			for (String k : locks.keySet()) {
+				if (k.startsWith(ref)) {
+					System.out.println("add locks: " + k);
+					result.putAll(locks.get(k));
+				}
+			}			
 		}
 		
 		// check parent locks

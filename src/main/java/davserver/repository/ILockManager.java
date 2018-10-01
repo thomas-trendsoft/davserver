@@ -18,9 +18,10 @@ public interface ILockManager {
 	 * Check a lock on a resource
 	 * 
 	 * @param ref Resource reference
+	 * @param childs include child locks
 	 * @return lock entry or null if no lock exists
 	 */
-	HashMap<String,LockEntry> checkLocked(String ref) throws DAVException;
+	HashMap<String,LockEntry> checkLocked(String ref,boolean childs) throws DAVException;
 	
 
 	/**
