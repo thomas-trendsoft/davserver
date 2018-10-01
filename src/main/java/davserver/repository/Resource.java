@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import davserver.DAVUrl;
 import davserver.protocol.xml.ResourceType;
+import davserver.repository.error.NotAllowedException;
 
 public abstract class Resource {
 	
@@ -51,7 +52,7 @@ public abstract class Resource {
 	 * 
 	 * @param p
 	 */
-	public abstract void setProperty(Property p);
+	public abstract void setProperty(Property p) throws NotAllowedException;
 	
 	/**
 	 * Get a resource property iterator

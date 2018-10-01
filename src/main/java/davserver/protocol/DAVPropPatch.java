@@ -7,6 +7,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.nio.entity.NStringEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,6 +17,7 @@ import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.xml.ListElement;
 import davserver.repository.IRepository;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
@@ -96,11 +98,16 @@ public class DAVPropPatch extends DAVRequest {
 		
 		try {
 			// prepare response 
-			Document mstat = XMLParser.singleton().createDocument();
-			Element  rroot = mstat.createElementNS(DAVServer.Namespace, "multistatus");
-			Element  ret   = mstat.createElementNS(DAVServer.Namespace, "result");
+			ListElement mstat = new ListElement("multistatus", DAVServer.Namespace);
+			ListElement mresp  = new ListElement("response",DAVServer.Namespace);
+			mresp.addChild(new Property(DAVServer.Namespace, "href", durl.toString()));
 			
-			rroot.appendChild(ret);
+			ListElement nfstat = new ListElement("propstat",DAVServer.Namespace);
+			ListElement nflist = new ListElement("prop",DAVServer.Namespace);
+			nfstat.addChild(nflist);
+			
+			// init status flag
+			boolean notallowed = false;
 			
 			// parse request body
 			Node root = body.getFirstChild();
@@ -120,7 +127,12 @@ public class DAVPropPatch extends DAVRequest {
 											// first element as value
 											if (vchild instanceof Element) {
 												Property p = new Property((Element)vchild);
-												target.setProperty(p);
+												try {
+													target.setProperty(p);
+												} catch (NotAllowedException e) {
+													notallowed = true;
+													nflist.addChild(p);
+												}
 											}
 											vchild = vchild.getNextSibling();
 										}
@@ -152,10 +164,25 @@ public class DAVPropPatch extends DAVRequest {
 				throw new DAVException(400,"bad request");
 			}
 			
+			// check not found status list
+			if (notallowed) {
+				mresp.addChild(nfstat);
+			}
+			
+			String xmlDoc = XMLParser.singleton().serializeDoc(mstat.createDocument());
+			resp.setStatusCode(207);
+			resp.setEntity(new NStringEntity(xmlDoc, "utf-8"));
+			resp.setHeader("Content-Type","application/xml;charset=utf-8");
+
+			if (debug)
+				System.out.println("RET PROPPATCH:" + xmlDoc);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DAVException(500,e.getMessage());
 		}
+		
+
 	}
 	
 }

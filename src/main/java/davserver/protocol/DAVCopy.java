@@ -102,12 +102,17 @@ public class DAVCopy extends DAVRequest {
 	 * @param src
 	 * @param target
 	 */
-	private void copyProperties(Resource src,Resource target) {
+	private void copyProperties(Resource src,Resource target)  {
 		Iterator<Property> iter = src.getPropertyIterator();
 		
 		while (iter.hasNext()) {
 			Property p = iter.next();
-			target.setProperty(p);
+			try {
+				target.setProperty(p);
+			} catch (NotAllowedException e) {
+				// TODO check best handling
+				e.printStackTrace();
+			}
 		}
 	}
 
