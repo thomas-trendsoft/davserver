@@ -16,7 +16,7 @@ public abstract class Calendar extends Collection {
 	 * Calendar resource type
 	 */
 	private ResourceType resourceType;
-
+	
 	/**
 	 * Defaultconstructor 
 	 * 

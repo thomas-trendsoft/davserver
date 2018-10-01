@@ -23,6 +23,11 @@ public class SimpleCalendar extends Calendar {
 	private HashMap<String,Resource> childs;
 
 	/**
+	 * property map
+	 */
+	private HashMap<String,Property> properties;
+	
+	/**
 	 * creation date
 	 */
 	private Date created;
@@ -40,9 +45,10 @@ public class SimpleCalendar extends Calendar {
 	public SimpleCalendar(String name) {
 		super(name);
 		
-		childs  = new HashMap<String,Resource>();
-		created = new Date();
-		lm      = new Date();
+		childs     = new HashMap<String,Resource>();
+		properties = new HashMap<String,Property>();
+		created    = new Date();
+		lm         = new Date();
 	}
 
 	@Override
@@ -61,20 +67,22 @@ public class SimpleCalendar extends Calendar {
 
 	@Override
 	public Property getProperty(PropertyRef ref) {
-		return null;
+		return properties.get(ref.getNs() + ref.getName());
 	}
 
 	@Override
 	public void remProperty(PropertyRef ref) {
+		properties.remove(ref.getNs() + ref.getName());
 	}
 
 	@Override
 	public void setProperty(Property p) {
+		properties.put(p.getNamespace() + p.getName(), p);
 	}
 
 	@Override
 	public Iterator<Property> getPropertyIterator() {
-		return null;
+		return properties.values().iterator();
 	}
 
 	@Override

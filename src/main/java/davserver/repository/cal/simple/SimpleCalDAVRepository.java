@@ -15,13 +15,12 @@ import davserver.repository.IRepository;
 import davserver.repository.Resource;
 import davserver.repository.cal.Calendar;
 import davserver.repository.cal.CalendarCollection;
-import davserver.repository.cal.resources.CalendarResourceParser;
 import davserver.repository.error.ConflictException;
 import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.repository.error.ResourceExistsException;
-import davserver.repository.simple.SimpleCollection;
+import davserver.repository.simple.SimpleResource;
 import davserver.utils.SimpleLockManager;
 
 /**
@@ -226,10 +225,8 @@ public class SimpleCalDAVRepository implements IRepository {
 		Resource active = cur.getChild(last);
 		
 		if (active == null) {
-			active = CalendarResourceParser.parse(data);
-			if (active == null) {
-				throw new IOException("unable to parse calendar resource");
-			}
+			// TODO create a calendar resource form stream
+			active = new SimpleResource(comps.get(comps.size()-1));			
 			((SimpleCalendar)cur).addChild(last, active);
 			System.out.println("added: " + last);
 		} else if (active instanceof CalendarCollection) {

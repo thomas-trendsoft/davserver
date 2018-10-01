@@ -57,7 +57,9 @@ public class DAVUrl {
 			}
 						
 			// create resource url
-			if (uri.length() >= ci) {
+			if (ci == -1) {
+				resref = "/";
+			} else if (uri.length() >= ci) {
 				resref = URLDecoder.decode(uri.substring(ci),"utf-8");
 				System.out.println("resref base: " + resref);
 				int idx;
@@ -72,7 +74,8 @@ public class DAVUrl {
 				if (resref.trim().endsWith("/")) {
 					resref = resref.trim().substring(0,resref.length()-1);
 				}
-			} 		
+			} 	
+			System.out.println("resref: " + resref);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}

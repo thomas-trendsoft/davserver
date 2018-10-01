@@ -161,11 +161,14 @@ public class DAVPropFind extends DAVRequest {
 			System.out.println("append child resources");
 			Collection             c = (Collection)r;
 			Iterator<Resource> riter = c.getChildIterator();
-			String              base = rurl.getPrefix() + "/" + rurl.getRepository() + rurl.getResref();
+			String              base = rurl.getPrefix() + "/" + rurl.getRepository() + rurl.getResref() + "/";
 			
 			while (riter.hasNext()) {
 				String   nu  = null;
 				Resource cr  = riter.next();
+				
+				System.out.println("add res: " + rurl.getPrefix() + "/" + rurl.getRepository() + rurl.getResref());
+				
 				if (cr instanceof Collection) {
 					nu = base + cr.getName() + "/";
 				} else {
