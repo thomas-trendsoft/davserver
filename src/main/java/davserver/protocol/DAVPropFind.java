@@ -69,7 +69,13 @@ public class DAVPropFind extends DAVRequest {
 
 		// href for resource
 		Element href = owner.createElementNS(DAVServer.Namespace,"href");
-		href.setTextContent(rurl.getPrefix() + "/" + rurl.getRepository() + rurl.getResref());
+		try {
+			href.setTextContent(rurl.getURI());
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			throw new DAVException(500,e.getMessage());
+		} catch (NotAllowedException e) {
+		}
 		rres.appendChild(href);
 		
 		// propstat element

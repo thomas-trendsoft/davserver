@@ -2,6 +2,10 @@ package davserver;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.List;
+
+import davserver.repository.error.NotAllowedException;
 
 /**
  * Resource URL Helper class 
@@ -106,6 +110,17 @@ public class DAVUrl {
 	 */
 	public String getResref() {
 		return resref;
+	}
+	
+	public String getURI() throws NotAllowedException, UnsupportedEncodingException {
+		String base = String.valueOf(this);
+		List<String> comps = DAVUtil.getPathComps(base);
+		
+		String uri = "";
+		for (String s : comps) {
+			uri += "/" + URLEncoder.encode(s, "utf-8");
+		}
+		return uri;
 	}
 	
 	@Override
