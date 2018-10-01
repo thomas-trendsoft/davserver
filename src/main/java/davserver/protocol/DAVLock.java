@@ -231,7 +231,7 @@ public class DAVLock extends DAVRequest {
 				}
 				HashSet<String> tokens = rif.evaluate(locks, null);
 				if (tokens == null) {
-					throw new DAVException(423,"wrong lock token");
+					throw new DAVException(412,"wrong lock token");
 				}
 				for (String t : tokens) {
 					LockEntry l = locks.get(t);

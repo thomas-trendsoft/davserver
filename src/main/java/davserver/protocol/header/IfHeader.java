@@ -82,13 +82,9 @@ public class IfHeader {
 					}
 				// lock condition
 				} else {
-					if (c.state.compareTo("DAV:no-lock")==0) {
-						if ((locks == null && !c.not) || (locks != null && c.not)) {
-							sret.add(c.state);
-						}
-					} else if (locks == null) {
+					if ((locks == null || !locks.containsKey(c.state)) && !c.not) {
 						cval = false;
-					} else if (locks.containsKey(c.state)) {
+					} else if (!c.not && locks.containsKey(c.state)) {
 						sret.add(c.state);
 					} else {
 						cval = false;

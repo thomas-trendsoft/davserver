@@ -73,7 +73,7 @@ public abstract class DAVRequest {
 				
 				// check header info
 				if (lh.getResource() == null && lh.getConditions() == null) {
-					throw new DAVException(423,"bad request");
+					throw new DAVException(412,"bad request");
 				}
 				// check or get resource tagged
 				if (lh.getResource() != null) {
@@ -87,7 +87,7 @@ public abstract class DAVRequest {
 				
 				// eval result
 				if (tokens == null) {
-					throw new DAVException(423,"precondition failed");
+					throw new DAVException(412,"precondition failed");
 				} else {
 					for (String t : tokens) {
 						System.out.println("success token: " + t);

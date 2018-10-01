@@ -75,10 +75,10 @@ public class SimpleRepository implements IRepository {
 			}
 		}
 		
-		if (cur == null) {
+		String k = comps.get(comps.size()-1);
+		if (cur == null || cur.getChild(k)==null) {
 			throw new NotFoundException("resource not found");
 		} else {
-			String k = comps.get(comps.size()-1);
 			((SimpleCollection)cur).removeChild(k);
 		}
 	}

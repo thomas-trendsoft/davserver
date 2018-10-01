@@ -78,7 +78,7 @@ public class DAVPropFind extends DAVRequest {
 		
 		// iter property requests
 		List<PropertyRef> notfound = new LinkedList<PropertyRef>();
-		System.out.println("req pref count: " + refs.size());
+
 		for (PropertyRef pr : refs) {
 			// Named property list
 			if (pr.getType() == PropertyRef.PROP) {
