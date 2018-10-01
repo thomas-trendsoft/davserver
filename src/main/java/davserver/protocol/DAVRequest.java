@@ -72,18 +72,12 @@ public abstract class DAVRequest {
 				IfHeader lh = IfHeader.parseIfHeader(hif.getValue());
 				
 				// check header info
-				if (lh.getResource() == null && lh.getConditions() == null) {
+				if (lh.getConditions() == null) {
 					throw new DAVException(412,"bad request");
 				}
-				// check or get resource tagged
-				if (lh.getResource() != null) {
-					DAVUrl curl = new DAVUrl(lh.getResource().getPath(), url.getPrefix());
-					if (url.getResref().compareTo(curl.getResref())!=0) {
-						throw new DAVException(423,"bad if uri");
-					}						
-				}
+
 				// evaluate header conditions
-				HashSet<String> tokens = lh.evaluate(le, (r != null ? r.getETag() : null));
+				HashSet<String> tokens = lh.evaluate(le, r, repos,url);
 				
 				// eval result
 				if (tokens == null) {

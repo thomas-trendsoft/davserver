@@ -1,10 +1,13 @@
 package davserver.protocol.header;
 
+import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
 
 import org.apache.http.util.Asserts;
 import org.junit.Test;
+
+import davserver.utils.Pair;
 
 public class IfHeaderTest {
 	
@@ -15,8 +18,8 @@ public class IfHeaderTest {
 		
 		IfHeader h = IfHeader.parseIfHeader(example1);
 		Asserts.check(h.getConditions().size() == 2, "wrong disjunction size: example1 " + h.getConditions().size());
-		for (List<IfCondition> e1 : h.getConditions()) {
-			Asserts.check(e1.size() == 2, "example1 missing sub state");
+		for (Pair<URI,List<IfCondition>> e1 : h.getConditions()) {
+			Asserts.check(e1.getValue().size() == 2, "example1 missing sub state");
 		}
 
 		h = IfHeader.parseIfHeader(example2);

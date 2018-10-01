@@ -232,7 +232,7 @@ public class DAVLock extends DAVRequest {
 				if (locks == null || locks.size() == 0) {
 					throw new DAVException(400,"no lock");
 				}
-				HashSet<String> tokens = rif.evaluate(locks, null);
+				HashSet<String> tokens = rif.evaluate(locks, tr, repos,url);
 				if (tokens == null) {
 					throw new DAVException(412,"wrong lock token");
 				}
@@ -337,7 +337,7 @@ public class DAVLock extends DAVRequest {
 			} else {
 				IfHeader lh = IfHeader.parseIfHeader(hif.getValue());
 
-				HashSet<String> tokens = lh.evaluate(le, (r != null ? r.getETag() : null)); 
+				HashSet<String> tokens = lh.evaluate(le, r,repos,url); 
 				if (tokens == null) {
 					throw new DAVException(409,"precondition failed");
 				} else {
