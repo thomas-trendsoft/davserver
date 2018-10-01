@@ -30,7 +30,7 @@ public class SimpleRepository implements IRepository {
 	/**
 	 * Base root element
 	 */
-	private SimpleCollection root;
+	private Collection root;
 	
 	/**
 	 * Locking manager
@@ -51,6 +51,76 @@ public class SimpleRepository implements IRepository {
 	}
 	
 	@Override
+	public void remove(String uri) throws NotFoundException, NotAllowedException,IOException {
+		System.out.println("remove resource: " + uri);
+		
+		// check root collection
+		if (uri.compareTo("/")==0) {
+			throw new NotAllowedException("root cannot be removed");
+		}
+		
+		List<String> comps = DAVUtil.getPathComps(uri);
+		System.out.println("path: " + comps.size() + ":" + root);
+		Collection cur = root;
+		for (int i=0;i<comps.size()-1;i++) {
+			if (cur == null) {
+				throw new NotFoundException(uri + " not found");
+			}
+			System.out.println("check " + comps.get(i));
+			Resource r = cur.getChild(comps.get(i));
+			if (r instanceof Collection) {
+				cur = (Collection)r;
+			} else {
+				cur = null;
+			}
+		}
+		
+		if (cur == null) {
+			throw new NotFoundException("resource not found");
+		} else {
+			String k = comps.get(comps.size()-1);
+			((SimpleCollection)cur).removeChild(k);
+		}
+	}
+
+	@Override
+	public Resource locate(String uri) throws NotFoundException, NotAllowedException {
+		System.out.println("locate resource: " + uri);
+		
+		// check root collection
+		if (uri.compareTo("/")==0) {
+			System.out.println("located root");
+			return root;
+		}
+		
+		List<String> comps = DAVUtil.getPathComps(uri);
+		Collection cur = root;
+		for (int i=0;i<comps.size()-1;i++) {
+			if (cur == null) {
+				throw new NotFoundException(uri + " not found");
+			}
+			Resource r = cur.getChild(comps.get(i));
+			if (r instanceof Collection) {
+				cur = (Collection)r;
+			} else {
+				cur = null;
+			}
+		}
+		
+		if (cur == null) {
+			throw new NotFoundException("resource not found");
+		} else {
+			Resource r = cur.getChild(comps.get(comps.size()-1));
+			if (r == null) {
+				throw new NotFoundException("not found");
+			} else {
+				return r;
+			}
+		}
+	}
+
+	
+	@Override
 	public Collection createCollection(String uri) throws ResourceExistsException,NotAllowedException,ConflictException {
 		List<String> comps = DAVUtil.getPathComps(uri);
 		
@@ -58,7 +128,7 @@ public class SimpleRepository implements IRepository {
 			return root;
 		} 
 		
-		SimpleCollection cur = root;
+		Collection cur = root;
 		for (int i=0;i<comps.size()-1;i++) {
 			Resource r = cur.getChild(comps.get(i));
 			if (r == null) {
@@ -85,7 +155,7 @@ public class SimpleRepository implements IRepository {
 		}
 		
 		SimpleCollection coll = new SimpleCollection(last);
-		cur.addChild(last, coll);
+		((SimpleCollection)cur).addChild(last, coll);
 		
 		System.out.println("added child collection :" + last);
 		return coll;
@@ -99,7 +169,7 @@ public class SimpleRepository implements IRepository {
 			throw new ConflictException("cannot write to root resource");
 		} 
 				
-		SimpleCollection cur = root;
+		Collection cur = root;
 		for (int i=0;i<comps.size()-1;i++) {
 			Resource r = cur.getChild(comps.get(i));
 			if (!(r instanceof SimpleCollection)) {
@@ -117,7 +187,7 @@ public class SimpleRepository implements IRepository {
 		
 		if (active == null) {
 			active = new SimpleResource(last);
-			cur.addChild(last, active);
+			((SimpleCollection)cur).addChild(last, active);
 			System.out.println("added: " + last);
 		} else if (active instanceof SimpleCollection) {
 			throw new NotAllowedException("cannot write to an collection");
@@ -131,80 +201,7 @@ public class SimpleRepository implements IRepository {
 		
 		return active;
 	}
-		
-	@Override
-	public void remove(String uri) throws NotFoundException, NotAllowedException {
-		System.out.println("locate resource: " + uri);
-		
-		// check root collection
-		if (uri.compareTo("/")==0) {
-			throw new NotAllowedException("root cannot be removed");
-		}
-		
-		List<String> comps = DAVUtil.getPathComps(uri);
-		System.out.println("path: " + comps.size() + ":" + root);
-		SimpleCollection cur = root;
-		for (int i=0;i<comps.size()-1;i++) {
-			if (cur == null) {
-				throw new NotFoundException(uri + " not found");
-			}
-			System.out.println("check " + comps.get(i));
-			Resource r = cur.getChild(comps.get(i));
-			if (r instanceof SimpleCollection) {
-				cur = (SimpleCollection)r;
-			} else {
-				cur = null;
-			}
-		}
-		
-		if (cur == null) {
-			throw new NotFoundException("resource not found");
-		} else {
-			String k = comps.get(comps.size()-1);
-			if (!cur.getChilds().containsKey(k)) {
-				throw new NotFoundException("not found");
-			} else {
-				cur.getChilds().remove(k);
-			}
-		}
-	}
-
-	@Override
-	public Resource locate(String uri) throws NotFoundException, NotAllowedException {
-		System.out.println("locate resource: " + uri);
-		
-		// check root collection
-		if (uri.compareTo("/")==0) {
-			System.out.println("located root");
-			return root;
-		}
-		
-			List<String> comps = DAVUtil.getPathComps(uri);
-		SimpleCollection cur = root;
-		for (int i=0;i<comps.size()-1;i++) {
-			if (cur == null) {
-				throw new NotFoundException(uri + " not found");
-			}
-			Resource r = cur.getChild(comps.get(i));
-			if (r instanceof SimpleCollection) {
-				cur = (SimpleCollection)r;
-			} else {
-				cur = null;
-			}
-		}
-		
-		if (cur == null) {
-			throw new NotFoundException("resource not found");
-		} else {
-			Resource r = cur.getChild(comps.get(comps.size()-1));
-			if (r == null) {
-				throw new NotFoundException("not found");
-			} else {
-				return r;
-			}
-		}
-	}
-	
+			
 	@Override
 	public ILockManager getLockManager() {
 		return lmanager;

@@ -123,8 +123,5 @@ public abstract class Resource {
 	 * Get the resource types supported
 	 * @return
 	 */
-	public ResourceType getResourceTypes() {
-		return new ResourceType();
-	}
-
+	public abstract ResourceType getResourceTypes();
 }

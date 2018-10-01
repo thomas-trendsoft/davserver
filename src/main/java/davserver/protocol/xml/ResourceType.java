@@ -1,5 +1,6 @@
 package davserver.protocol.xml;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -13,13 +14,15 @@ public class ResourceType extends Property {
 	/**
 	 * supported resource types
 	 */
-	public List<Pair<String,String>> types;
+	private List<Pair<String,String>> types;
 	
 	/**
 	 * Defaultkonstruktor 
 	 */
 	public ResourceType() {
 		super(DAVServer.Namespace, "resourcetype", null);
+		
+		types = new LinkedList<>();
 	}
 	
 	public void addType(String ns,String name) {
@@ -32,6 +35,7 @@ public class ResourceType extends Property {
 		Element type = null;
 
 		for (Pair<String,String> t : types) {
+			System.out.println("add type: " + t);
 			if (t.getKey() == null) {
 				if (t.getValue() != null) {
 					type = doc.getOwnerDocument().createElement(t.getValue());

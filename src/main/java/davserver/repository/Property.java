@@ -236,6 +236,7 @@ public class Property extends DAVXMLObject {
 			}
 			break;
 		case PropertyRef.DAV_RESOURCETYPE:
+			System.out.println("get resource type: " + r);
 			p = r.getResourceTypes();
 			break;
 		} 

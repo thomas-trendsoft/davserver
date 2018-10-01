@@ -1,6 +1,7 @@
 package davserver.repository.file;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.DirectoryNotEmptyException;
@@ -8,7 +9,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
 import org.apache.commons.io.FileExistsException;
 
@@ -133,8 +133,18 @@ public class SimpleFileRepository implements IRepository {
 		//	throw new NotAllowedException("is not writeable");
 		//}
 		
-		// copy data to file
-		Files.copy(data, res,StandardCopyOption.REPLACE_EXISTING);
+		// copy data to file (fail in cause of nio ?)
+		// Files.copy(data, res,StandardCopyOption.REPLACE_EXISTING);
+
+		FileOutputStream out = new FileOutputStream(res.toAbsolutePath().toString());
+		byte[] puf = new byte[512];
+		int    r   = -1;
+		
+		while ((r = data.read(puf)) > 0) {
+			out.write(puf,0,r);
+		}
+
+		out.close();
 		
 		return new FileResource(res);
 	}

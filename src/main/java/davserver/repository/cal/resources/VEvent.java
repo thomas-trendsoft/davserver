@@ -1,4 +1,4 @@
-package davserver.repository.card;
+package davserver.repository.cal.resources;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,9 +10,9 @@ import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
 
-public class Address extends Resource {
+public class VEvent extends Resource {
 
-	public Address(String name) {
+	public VEvent(String name) {
 		super(name);
 	}
 
@@ -61,7 +61,7 @@ public class Address extends Resource {
 
 	@Override
 	public ResourceType getResourceTypes() {
-		return new ResourceType();
+		return null;
 	}
 
 }

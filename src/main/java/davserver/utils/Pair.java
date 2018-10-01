@@ -27,4 +27,9 @@ public class Pair<T,L> {
 		this.value = value;
 	}
 	
+	@Override
+	public String toString() {
+		return String.valueOf(key) + " / " + String.valueOf(value);
+	}
+	
 }

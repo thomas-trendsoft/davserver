@@ -11,26 +11,55 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import davserver.DAVUtil;
+import davserver.protocol.xml.ResourceType;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
 
+/**
+ * Really simple resource implementation 
+ * 
+ * @author tkrieger
+ *
+ */
 public class SimpleResource extends Resource {
 	
+	/**
+	 * In memory properties
+	 */
 	private HashMap<String,Property> properties;
 	
+	/**
+	 * content string
+	 */
 	private String content;
 
+	/**
+	 * last modified
+	 */
 	private Date lm;
 	
+	/**
+	 * creation timestamp
+	 */
 	private Date created;
 	
+	/**
+	 * resource type 
+	 */
+	private ResourceType rType;
 	
+	/**
+	 * defaultconstructor 
+	 * 
+	 * @param name
+	 */
 	public SimpleResource(String name) {
 		super(name);
 
 		lm = new Date();
 		created = new Date();
+		rType   = new ResourceType();
 
 		properties = new HashMap<String,Property>();
 	}
@@ -96,6 +125,11 @@ public class SimpleResource extends Resource {
 	@Override
 	public void remProperty(PropertyRef ref) {
 		properties.remove(ref.getNs() + ref.getName());
+	}
+
+	@Override
+	public ResourceType getResourceTypes() {
+		return rType;
 	}
 
 }

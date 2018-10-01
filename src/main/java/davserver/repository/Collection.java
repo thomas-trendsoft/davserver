@@ -9,6 +9,7 @@ import java.util.UUID;
 import davserver.DAVServer;
 import davserver.DAVUtil;
 import davserver.protocol.xml.ResourceType;
+import davserver.repository.error.NotFoundException;
 
 /**
  * Base class for a dav repository collection 
@@ -62,9 +63,9 @@ public abstract class Collection extends Resource {
 	public InputStream getContent() throws IOException {
 		return null;
 	}
-	
+		
 	/**
-	 * 
+	 * get collection etag  
 	 */
 	public String getETag() {
 		Iterator<Resource> iter = this.getChildIterator();

@@ -117,5 +117,8 @@ public class SimpleCollection extends Collection {
 	public Date getLastmodified() {
 		return lm;
 	}
-
+	
+	public void removeChild(String name) {
+		childs.remove(name);
+	}
 }

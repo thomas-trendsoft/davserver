@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import davserver.protocol.xml.ResourceType;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
@@ -100,6 +101,11 @@ public class FileResource extends Resource {
 	@Override
 	public InputStream getContent() throws IOException {
 		return new FileInputStream(file.toAbsolutePath().toString());
+	}
+
+	@Override
+	public ResourceType getResourceTypes() {
+		return new ResourceType();
 	}
 
 }
