@@ -37,7 +37,8 @@ public class DAVUtil {
 	 */
 	public static String createHash(String data) throws NoSuchAlgorithmException {
 	    MessageDigest md = MessageDigest.getInstance("MD5");
-	    md.update(data.getBytes());
+	    if (data != null)
+	    	md.update(data.getBytes());
 	    byte[] digest = md.digest();
 	    return hex2String(digest);
 	}
