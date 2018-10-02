@@ -23,6 +23,7 @@ import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.header.IfCondition;
 import davserver.protocol.header.IfHeader;
 import davserver.protocol.xml.ListElement;
 import davserver.repository.ILockManager;
@@ -232,14 +233,16 @@ public class DAVLock extends DAVRequest {
 				if (locks == null || locks.size() == 0) {
 					throw new DAVException(400,"no lock");
 				}
-				HashSet<String> tokens = rif.evaluate(locks, tr, repos,url);
+				HashSet<IfCondition> tokens = rif.evaluate(locks, tr, repos,url);
 				if (tokens == null) {
 					throw new DAVException(412,"wrong lock token");
 				}
-				for (String t : tokens) {
-					LockEntry l = locks.get(t);
-					l.setTimeout(LockEntry.updatedTimeout());
-					repos.getLockManager().updateLock(l);
+				for (IfCondition t : tokens) {
+					if (!t.entity) {
+						LockEntry l = locks.get(t.state);
+						l.setTimeout(LockEntry.updatedTimeout());
+						repos.getLockManager().updateLock(l);						
+					}
 				}
 				// response the lock
 				responseLock(resp, locks.values());
@@ -337,13 +340,15 @@ public class DAVLock extends DAVRequest {
 			} else {
 				IfHeader lh = IfHeader.parseIfHeader(hif.getValue());
 
-				HashSet<String> tokens = lh.evaluate(le, r,repos,url); 
+				HashSet<IfCondition> tokens = lh.evaluate(le, r,repos,url); 
 				if (tokens == null) {
 					throw new DAVException(409,"precondition failed");
 				} else {
-					for (String t : tokens) {
-						LockEntry l = le.get(t);
-						repos.getLockManager().removeLock(l);
+					for (IfCondition t : tokens) {
+						if (!t.entity) {
+							LockEntry l = le.get(t.state);
+							repos.getLockManager().removeLock(l);							
+						}
 					}
 				}
 			}

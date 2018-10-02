@@ -10,6 +10,7 @@ import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
+import davserver.protocol.header.IfCondition;
 import davserver.protocol.header.IfHeader;
 import davserver.repository.IRepository;
 import davserver.repository.LockEntry;
@@ -77,14 +78,14 @@ public abstract class DAVRequest {
 				}
 
 				// evaluate header conditions
-				HashSet<String> tokens = lh.evaluate(le, r, repos,url);
+				HashSet<IfCondition> tokens = lh.evaluate(le, r, repos,url);
 				
 				// eval result
 				if (tokens == null) {
 					throw new DAVException(412,"precondition failed");
 				} else {
-					for (String t : tokens) {
-						System.out.println("success token: " + t);
+					for (IfCondition t : tokens) {
+						System.out.println("success token: " + t.entity + ":" + t.state);
 					}
 				}
 			} catch (ParseException e) {

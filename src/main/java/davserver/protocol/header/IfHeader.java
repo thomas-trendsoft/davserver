@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import davserver.DAVException;
 import davserver.DAVUrl;
 import davserver.repository.IRepository;
 import davserver.repository.LockEntry;
@@ -51,16 +52,18 @@ public class IfHeader {
 	 * @param lock
 	 * @param etag
 	 * @return
+	 * @throws DAVException 
 	 * @throws NotAllowedException 
 	 * @throws NotFoundException 
 	 */
-	public HashSet<String> evaluate(HashMap<String,LockEntry> locks,Resource r,IRepository repos,DAVUrl url) {
-		HashSet<String> ret = null;
+	public HashSet<IfCondition> evaluate(HashMap<String,LockEntry> locks,Resource r,IRepository repos,DAVUrl url) throws DAVException {
+		HashSet<IfCondition> ret = null;
+
 		// check condition disjunktion
 		for (Pair<URI,List<IfCondition>> sub : getConditions()) {
 			
-			boolean cval         = true;
-			HashSet<String> sret = new HashSet<String>();
+			boolean cval              = true;
+			HashSet<IfCondition> sret = new HashSet<IfCondition>();
 			
 			// conjunction conditions
 			for (IfCondition c : sub.getValue()) {
@@ -81,7 +84,7 @@ public class IfHeader {
 						}
 					}
 					if ((c.not && ec != 0) || (!c.not && ec == 0)) {
-						sret.add(c.state);
+						sret.add(c);
 						System.out.println("add state: " + c.state);						
 					} else {
 						cval = false;
@@ -99,28 +102,29 @@ public class IfHeader {
 								cval = false;
 							}
 						}
-						sret.add(c.state);
+						sret.add(c);
 					} else {
 						cval = false;
 					}
 				}
 			} // sub list
 			if (cval && sret.size() > 0) {
-				if (ret == null) ret = new HashSet<String>();
+				if (ret == null) ret = new HashSet<IfCondition>();
 				ret.addAll(sret);				
 			}
 		}
-		// is at least one condition true
-		if (ret == null) 
-			return ret;
 		// if locks given one must be satisfied
 		if (locks != null) {
-			for (String t : ret) {
-				if (locks.containsKey(t)) {
-					return ret;
-				}
+			System.out.println("check lock state if header");
+			if (ret != null) {
+				for (IfCondition t : ret) {
+					if (!t.entity && locks.containsKey(t.state)) {
+						System.out.println(t.state);
+						return ret;
+					}
+				}				
 			}
-			return null;
+			throw new DAVException(423, "locked");
 		} else {
 			return ret;
 		}
