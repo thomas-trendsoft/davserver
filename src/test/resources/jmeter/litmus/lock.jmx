@@ -2285,7 +2285,11 @@ foo</stringProp>
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">If</stringProp>
-                <stringProp name="Header.value">(&lt;DAV:no-lock&gt;) [${ETAG22}])</stringProp>
+                <stringProp name="Header.value">(&lt;DAV:no-lock&gt; [${ETAG22}])</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-test</stringProp>
+                <stringProp name="Header.value">22</stringProp>
               </elementProp>
             </collectionProp>
           </HeaderManager>
@@ -2428,6 +2432,15 @@ foo</stringProp>
             <stringProp name="Sample.scope">all</stringProp>
           </RegexExtractor>
           <hashTree/>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-test</stringProp>
+                <stringProp name="Header.value">25</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="complex_cond_put (25) - put" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -2538,6 +2551,10 @@ foo</stringProp>
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">If</stringProp>
                 <stringProp name="Header.value">(${LOCK10} [${ETAG25}x]) (Not &lt;DAV:no-lock&gt; [${ETAG25}x])</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-test</stringProp>
+                <stringProp name="Header.value">26</stringProp>
               </elementProp>
             </collectionProp>
           </HeaderManager>

@@ -36,12 +36,17 @@ public class IfHeader {
 	private List<Pair<URI,List<IfCondition>>> conditions;
 	
 	/**
-	 * Defaultkonstruktor 
+	 * default constructor  
 	 */
 	public IfHeader() {
 		this.conditions = new LinkedList<>();
 	}
 	
+	/**
+	 * Get the conditions
+	 * 
+	 * @return
+	 */
 	public List<Pair<URI,List<IfCondition>>> getConditions() {
 		return conditions;
 	}
@@ -70,9 +75,11 @@ public class IfHeader {
 				// entity condition
 				if (c.entity) {
 					int ec = -1;
+					// same resource or other
 					if (sub.getKey() == null) {
 						ec = c.state.compareTo(r.getETag());						
 					} else {
+						// get other resource 
 						DAVUrl   tu = new DAVUrl(sub.getKey().getPath(), url.getPrefix()); 
 						Resource tr;
 						try {
@@ -83,23 +90,28 @@ public class IfHeader {
 							ec = -1;
 						}
 					}
+					// check result
 					if ((c.not && ec != 0) || (!c.not && ec == 0)) {
 						sret.add(c);
 						System.out.println("add state: " + c.state);						
 					} else {
 						cval = false;
+						break;
 					}
 				// lock condition
 				} else {
-					if ((locks == null || !locks.containsKey(c.state)) && !c.not) {
-						cval = false;
-					} else if (!c.not && locks.containsKey(c.state)) {
+					if ((locks == null || !locks.containsKey(c.state)) && c.not) {
+						System.out.println("add no lock: " + c.state);
+						sret.add(c);
+					} else if (!c.not && (locks != null && locks.containsKey(c.state))) {
+						// other resource lock
 						if (sub.getKey() != null) {
 							LockEntry le = locks.get(c.state);
 							DAVUrl    tu = new DAVUrl(sub.getKey().getPath(), url.getPrefix());
 							if (le.getRef().compareTo(tu.getResref()) != 0) {
 								System.out.println("fail on missed resource url");
 								cval = false;
+								break;
 							}
 						}
 						sret.add(c);
@@ -109,9 +121,13 @@ public class IfHeader {
 				}
 			} // sub list
 			if (cval && sret.size() > 0) {
+				System.out.println("add true condition");
 				if (ret == null) ret = new HashSet<IfCondition>();
 				ret.addAll(sret);				
 			}
+		}
+		if (ret == null || ret.size() == 0) {
+			throw new DAVException(412,"precondition failed");
 		}
 		// if locks given one must be satisfied
 		if (locks != null) {
