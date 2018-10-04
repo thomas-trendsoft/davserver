@@ -90,7 +90,9 @@ public class DAVPropFind extends DAVRequest {
 			if (pr.getType() == PropertyRef.PROP) {
 				for (PropertyRef spr : pr.getSubRefs()) {
 					// check for default properties
-					Property p = r.getProperty(spr);
+					Property p = null;
+					if (r != null)
+						p = r.getProperty(spr);
 					// check default properties
 					if (p == null && spr.getNs().compareTo(DAVServer.Namespace) == 0) {
 						if (Property.getDAVProperties().containsKey(DAVServer.Namespace + spr.getName())) {
@@ -113,16 +115,18 @@ public class DAVPropFind extends DAVRequest {
 				}
 			} else if (pr.getType() == PropertyRef.ALLPROP || pr.getType() == PropertyRef.PROPNAMES) {
 				boolean content = pr.getType() != PropertyRef.PROPNAMES;
-				Iterator<Property> piter = r.getPropertyIterator();
-				while (piter.hasNext()) {
-					Property p = piter.next();
-					if (!done.contains(p.getNamespace() + ":" + p.getName())) {
-						Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
-						propstat.appendChild(prop);
-						p.appendXML(prop,content);
-						done.add(p.getNamespace() + ":" + p.getName());
-					}
- 				}
+				if (r != null) {
+					Iterator<Property> piter = r.getPropertyIterator();
+					while (piter.hasNext()) {
+						Property p = piter.next();
+						if (!done.contains(p.getNamespace() + ":" + p.getName())) {
+							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
+							propstat.appendChild(prop);
+							p.appendXML(prop,content);
+							done.add(p.getNamespace() + ":" + p.getName());
+						}
+	 				}					
+				}
 				
 				// add default properties
 				for (String dpk : Property.getDAVProperties().keySet()) {
@@ -133,7 +137,8 @@ public class DAVPropFind extends DAVRequest {
 							propstat.appendChild(prop);
 							p.appendXML(prop,content);
 							done.add(dpk);							
-						}
+						} 
+
 					}					
 				}
 			} 
@@ -286,11 +291,9 @@ public class DAVPropFind extends DAVRequest {
 			throw new DAVException(404,durl.getResref() + " not found");
 		}
 		
-		// check if repos failed to say no resource
 		if (r == null) {
-			throw new DAVException(404,durl.getResref() + " not found");
+			throw new DAVException(404,"not found");
 		}
-		
 		// check for depth header value (infinity not supported as default now)
 		depth = req.getFirstHeader("Depth");
 		if (depth == null || depth.getValue().compareTo("infinity")==0) {

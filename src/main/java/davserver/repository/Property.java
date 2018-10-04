@@ -194,6 +194,9 @@ public class Property extends DAVXMLObject {
 		if (dp == null) 
 			return null;
 		
+		if (r == null && dp.getType() != PropertyRef.DAV_SUPPORTEDLOCK)
+			return null;
+		
 		switch (dp.getType()) {
 		case PropertyRef.DAV_CONTENTLENGTH:
 			p = new Property(DAVServer.Namespace, "getcontentlength", r.getContentLength());

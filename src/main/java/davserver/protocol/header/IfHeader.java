@@ -103,7 +103,7 @@ public class IfHeader {
 					if ((locks == null || !locks.containsKey(c.state)) && c.not) {
 						System.out.println("add no lock: " + c.state);
 						sret.add(c);
-					} else if (!c.not && (locks != null && locks.containsKey(c.state))) {
+					} else if (!c.not && (locks != null && 	locks.containsKey(c.state))) {
 						// other resource lock
 						if (sub.getKey() != null) {
 							LockEntry le = locks.get(c.state);

@@ -69,11 +69,15 @@ public class DAVServer {
 		
 		// configure demo repositories
 		davService.addRepository("simple", new SimpleRepository());
-		davService.addRepository("contacts", new SimpleCardDAVRepository());
+		
 		
 		
 		// sample calendar and file server
 		try {
+			SimpleCardDAVRepository carddav = new SimpleCardDAVRepository();
+			carddav.setAuthProvider(auth);
+			davService.addRepository("contacts", carddav);
+			
 			SimpleCalDAVRepository caldav = new SimpleCalDAVRepository();
 			caldav.setAuthProvider(auth);
 			caldav.createCollection("/test");

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import davserver.DAVServer;
-import davserver.protocol.auth.BasicAuthProvider;
 import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.repository.Collection;
 import davserver.repository.Resource;
@@ -24,13 +23,12 @@ public class SimpleCardDAVRepository extends SimpleRepository {
 	/**
 	 * auth provider 
 	 */
-	private BasicAuthProvider authProvider;
+	private IAuthenticationProvider authProvider;
 	
 	/**
 	 * Defaultkonstruktor 
 	 */
 	public SimpleCardDAVRepository() {
-		authProvider = new BasicAuthProvider(null);
 	}
 
 	@Override
@@ -58,6 +56,10 @@ public class SimpleCardDAVRepository extends SimpleRepository {
 	@Override
 	public IAuthenticationProvider getAuthProvider() {
 		return authProvider;
+	}
+	
+	public void setAuthProvider(IAuthenticationProvider p) {
+		this.authProvider = p;
 	}
 
 }
