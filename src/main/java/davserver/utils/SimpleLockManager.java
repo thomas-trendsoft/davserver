@@ -69,9 +69,10 @@ public class SimpleLockManager implements ILockManager {
 			String cp = "/";
 			for (int i=0;i<path.size()-1;i++) {
 				String p = path.get(i);
-				cp += p + "/";
+				cp += p;
 				System.out.println("check parent lock: " + cp);
 				le = locks.get(cp);
+				cp += "/";
 				if (le != null) {
 					for (LockEntry l : le.values()) {
 						if (l.getDepth() > 0) {

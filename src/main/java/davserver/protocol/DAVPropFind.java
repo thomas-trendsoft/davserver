@@ -160,7 +160,13 @@ public class DAVPropFind extends DAVRequest {
 				pfn.appendChild(pe);
 			}
 			Element nfref = owner.createElementNS(DAVServer.Namespace, "href");
-			nfref.setTextContent(rurl.toString());
+			try {
+				href.setTextContent(rurl.getURI());
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+				throw new DAVException(500,e.getMessage());
+			} catch (NotAllowedException e) {
+			}
 			nfps.appendChild(nfref);			
 			Element nfnode = owner.createElementNS(DAVServer.Namespace, "status");
 			nfnode.setTextContent("HTTP/1.1 404 Not Found");

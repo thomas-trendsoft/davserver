@@ -27,7 +27,7 @@ import davserver.utils.Pair;
  */
 public class IfHeader {
 	
-	protected static Pattern PList        = Pattern.compile("(?<res>\\<[^\\>]\\>\\s)?\\((?<cond>[^\\)]*)\\)\\s*");
+	protected static Pattern PList        = Pattern.compile("(\\<(?<res>[^\\>]*)\\>\\s)?\\((?<cond>[^\\)]*)\\)\\s*");
 	protected static Pattern PCondition   = Pattern.compile("(?<state>(Not )?\\<[^\\>\\<]*\\>|\\[[^\\[\\]]*\\])");
 		
 	/**
@@ -72,6 +72,7 @@ public class IfHeader {
 			
 			// conjunction conditions
 			for (IfCondition c : sub.getValue()) {
+				System.out.println("check condition: " + c.not + ":" + c.state + ":" + c.entity);
 				// entity condition
 				if (c.entity) {
 					int ec = -1;
@@ -103,18 +104,25 @@ public class IfHeader {
 					if ((locks == null || !locks.containsKey(c.state)) && c.not) {
 						System.out.println("add no lock: " + c.state);
 						sret.add(c);
-					} else if (!c.not && (locks != null && 	locks.containsKey(c.state))) {
+					} else if (!c.not) {
+						System.out.println("check locks: " + sub.getKey());
 						// other resource lock
 						if (sub.getKey() != null) {
 							LockEntry le = locks.get(c.state);
 							DAVUrl    tu = new DAVUrl(sub.getKey().getPath(), url.getPrefix());
+							System.out.println("check url: " + tu.getResref() + ":" + le.getRef());
 							if (le.getRef().compareTo(tu.getResref()) != 0) {
 								System.out.println("fail on missed resource url");
 								cval = false;
-								break;
+							} else {
+								System.out.println("add state");
+								sret.add(c);								
 							}
+						} else if (locks != null && 	locks.containsKey(c.state)) {
+							sret.add(c);
+						} else {
+							cval = false;							
 						}
-						sret.add(c);
 					} else {
 						cval = false;
 					}

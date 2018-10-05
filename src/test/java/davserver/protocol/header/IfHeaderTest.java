@@ -3,8 +3,11 @@ package davserver.protocol.header;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.util.Asserts;
+import org.junit.Assert;
 import org.junit.Test;
 
 import davserver.utils.Pair;
@@ -25,5 +28,18 @@ public class IfHeaderTest {
 		h = IfHeader.parseIfHeader(example2);
 		Asserts.check(h.getConditions().size() == 1, "wrong disjunction size: example2 " + h.getConditions().size());
 	}
+	
+	@Test
+	public void testIfListResources() throws ParseException {
+		String example1 = "<http://localhost:8843/simple/litmus/lockcoll/> (<opaquelocktoken:fa628a3f-47b3-47d4-8f02-3e45192863cf>)";
+		Pattern PList        = Pattern.compile("(?<res>\\<[^\\>]*\\>\\s)?\\((?<cond>[^\\)]*)\\)\\s*");
+		
+		Matcher m = PList.matcher(example1);
+		
+		if (m.find()) {
+			System.out.println("got a match " + m.group());
+		}
+	}
+	
 
 }
