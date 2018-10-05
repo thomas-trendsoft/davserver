@@ -129,7 +129,7 @@ public class DAVUtil {
 		String ret = "err";
 		try {
 			ret = XMLParser.singleton().serializeDoc(doc);
-			//System.out.println(ret);
+			System.out.println(ret);
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
