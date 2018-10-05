@@ -297,6 +297,10 @@ public class DAVPropFind extends DAVRequest {
 			throw new DAVException(404,durl.getResref() + " not found");
 		}
 		
+		if (r == null) {
+			throw new DAVException(404, "not found");
+		}
+		
 		// check for depth header value (infinity not supported as default now)
 		depth = req.getFirstHeader("Depth");
 		if (depth == null || depth.getValue().compareTo("infinity")==0) {

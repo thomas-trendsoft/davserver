@@ -61,6 +61,7 @@ public class FileResource extends Resource {
 	public String getETag() {
 		try {
 			return String.valueOf(Files.getLastModifiedTime(file));
+		//	return "d41d8cd98f00b204e9800998ecf8427e";
 		} catch (IOException e) {
 			e.printStackTrace();
 			return String.valueOf((new Date()).getTime());
