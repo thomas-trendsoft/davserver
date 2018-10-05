@@ -50,6 +50,16 @@ public class DAVGet extends DAVRequest {
 			return;
 		}
 		
+		if (url.getResref().compareTo("/debug")==0) {
+			System.out.println("DEBUG:");
+			System.out.println(repos);
+			if (repos.supportLocks()) {
+				System.out.println("LOCKS:");
+				System.out.println(repos.getLockManager());				
+			}
+				
+		}
+		
 		try {
 			Resource r = repos.locate(url.getResref());
 			if (r != null) {
