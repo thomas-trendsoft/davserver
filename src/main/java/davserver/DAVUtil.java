@@ -125,12 +125,15 @@ public class DAVUtil {
 	 * 
 	 * @param doc
 	 */
-	public static void debug(Document doc) {
+	public static String debug(Document doc) {
+		String ret = "err";
 		try {
-			System.out.println(XMLParser.singleton().serializeDoc(doc));
+			ret = XMLParser.singleton().serializeDoc(doc);
+			//System.out.println(ret);
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
+		return ret;
 	}
 	
 }

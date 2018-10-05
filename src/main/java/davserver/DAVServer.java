@@ -1,5 +1,7 @@
 package davserver;
 
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -10,6 +12,9 @@ import org.apache.http.impl.nio.bootstrap.ServerBootstrap;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicLineParser;
+import org.pmw.tinylog.Configurator;
+import org.pmw.tinylog.Level;
+import org.pmw.tinylog.writers.FileWriter;
 
 import davserver.protocol.acl.Principal;
 import davserver.protocol.auth.BasicAuthProvider;
@@ -58,6 +63,13 @@ public class DAVServer {
 	 * @return
 	 */
 	public static DAVServiceMapper createDemoServer() {
+		
+		// config log 
+		Configurator.defaultConfig()
+			.writer(new FileWriter("data.log"))
+			.level(Level.DEBUG)
+			.activate();
+
 		
 		SimpleCredentialStore credentials = new SimpleCredentialStore();
 		BasicAuthProvider     auth        = new BasicAuthProvider(credentials);

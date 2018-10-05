@@ -16,6 +16,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.entity.NStringEntity;
+import org.pmw.tinylog.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -44,13 +45,10 @@ import davserver.utils.XMLParser;
  */
 public class DAVLock extends DAVRequest {
 
-	private boolean debug;
-	
 	/**
 	 * Defaultkonstruktor 
 	 */
 	public DAVLock() {
-		this.debug = true;
 	}
 	
 	/**
@@ -124,8 +122,7 @@ public class DAVLock extends DAVRequest {
 			
 			String xmlDoc = XMLParser.singleton().serializeDoc(mr.createDocument());
 			
-			if (debug) { System.out.println(xmlDoc); }
-			
+			Logger.debug(xmlDoc);
 			
 			resp.setEntity(new NStringEntity(xmlDoc,"utf-8"));
 			resp.setHeader("Content-Type","application/xml;charset=utf-8");
@@ -164,6 +161,8 @@ public class DAVLock extends DAVRequest {
 		ILockManager lm;
 		HttpEntityEnclosingRequest req;
 		
+		Logger.debug("LOCK Request: {}",breq.getRequestLine().toString());
+		
 		// check request
 		if (!(breq instanceof HttpEntityEnclosingRequest)) {
 			throw new DAVException(400,"no body");
@@ -196,7 +195,7 @@ public class DAVLock extends DAVRequest {
 		if (req.getEntity().getContentLength() > 0) {
 			try {
 				Document body = XMLParser.singleton().parseStream(req.getEntity().getContent());
-				if (debug) { DAVUtil.debug(body); }
+				Logger.debug("LOCK BODY: \n{}",DAVUtil.debug(body));
 				// read requested lock properties
 				le = LockEntry.parse(url.getResref(),body,depth,token);
 			} catch (UnsupportedOperationException e) {
@@ -268,7 +267,7 @@ public class DAVLock extends DAVRequest {
 			System.out.println("check exclusive lock");
 			for (LockEntry l : locks.values()) {
 				if (!l.isShared() || !le.isShared()) {
-					System.out.println("check: ");
+					System.out.println("check: " + le.isShared() + ":" + le.getToken() + ":" + l.isShared() + ":" + l.getToken());
 					// TODO Check User if sessions with acl
 					boolean found = false;
 					for (String r : l.getOwner()) {
