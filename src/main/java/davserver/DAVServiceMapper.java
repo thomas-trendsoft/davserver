@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -15,6 +16,7 @@ import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 
 import davserver.protocol.DAVACL;
 import davserver.protocol.DAVBind;
@@ -185,6 +187,11 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		}
 		
 		if (debug) debug(response);
+		
+		// close connection if unexpected body is not consumed
+		if (req instanceof HttpEntityEnclosingRequest) {
+			EntityUtils.consumeQuietly(((HttpEntityEnclosingRequest)req).getEntity());			
+		}
 
 		async.submitResponse(new BasicAsyncResponseProducer(response));
 	}
