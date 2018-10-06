@@ -2,19 +2,22 @@ package davserver.repository.cal.simple;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
+import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUtil;
 import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
-import davserver.repository.IRepository;
 import davserver.repository.Resource;
+import davserver.repository.cal.BaseCalDAVRepository;
 import davserver.repository.cal.Calendar;
 import davserver.repository.cal.CalendarCollection;
+import davserver.repository.cal.resource.VEvent;
 import davserver.repository.error.ConflictException;
 import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
@@ -22,6 +25,9 @@ import davserver.repository.error.NotFoundException;
 import davserver.repository.error.ResourceExistsException;
 import davserver.repository.simple.SimpleResource;
 import davserver.utils.SimpleLockManager;
+import ical4dav.caldav.iCalDAVParser;
+import ical4dav.caldav.resources.CalDAVResource;
+import ical4dav.caldav.resources.Event;
 
 /**
  * CalDAV repository sample implementation 
@@ -29,7 +35,7 @@ import davserver.utils.SimpleLockManager;
  * @author tkrieger
  *
  */
-public class SimpleCalDAVRepository implements IRepository {
+public class SimpleCalDAVRepository extends BaseCalDAVRepository {
 
 	/**
 	 * Basic auth provider
@@ -226,9 +232,19 @@ public class SimpleCalDAVRepository implements IRepository {
 		
 		if (active == null) {
 			// TODO create a calendar resource form stream
-			active = new SimpleResource(comps.get(comps.size()-1));			
-			((SimpleCalendar)cur).addChild(last, active);
-			System.out.println("added: " + last);
+			try {
+				CalDAVResource res = iCalDAVParser.parse(data);
+				if (res instanceof Event) {
+					VEvent ve = new VEvent(last,(Event)res);
+					((SimpleCalendar)cur).addChild(last, ve);
+					System.out.println("added: " + last + ":" + res );
+				} else {
+					throw new ConflictException("wrong resource type");
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+				throw new IOException("parser error");
+			}
 		} else if (active instanceof CalendarCollection) {
 			throw new NotAllowedException("cannot write to an collection");
 		} 

@@ -1,5 +1,6 @@
 package davserver.protocol.xml;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -37,6 +38,11 @@ public class Response extends DAVXMLObject {
 	public Response(String href,int status) {
 		this.href   = href;
 		this.status = status;
+		this.childs = new LinkedList<>();
+	}
+	
+	public void addChild(DAVXMLObject child) {
+		this.childs.add(child);
 	}
 
 	@Override

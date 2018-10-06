@@ -29,6 +29,7 @@ public class DAVUtil {
 	 */
 	public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	
+	
 	/**
 	 * Helping method to create ETags 
 	 * 

@@ -71,7 +71,12 @@
 	    <version>4.12</version>
 	    <scope>test</scope>
 	</dependency>
-		
+
+	<dependency>
+		<groupId>com.trendsoft</groupId>
+		<artifactId>ical4dav</artifactId>
+		<version>0.1</version>
+	</dependency>
   </dependencies>
   
 </project>
