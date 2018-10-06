@@ -108,6 +108,8 @@ public class IfHeader {
 						System.out.println("check locks: " + sub.getKey());
 						// other resource lock
 						if (sub.getKey() != null) {
+							if (locks == null) 
+								throw new DAVException(412,"precondition failed");
 							LockEntry le = locks.get(c.state);
 							DAVUrl    tu = new DAVUrl(sub.getKey().getPath(), url.getPrefix());
 							System.out.println("check url: " + tu.getResref() + ":" + le.getRef());
