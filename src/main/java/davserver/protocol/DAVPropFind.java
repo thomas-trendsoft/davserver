@@ -64,11 +64,11 @@ public class DAVPropFind extends DAVRequest {
 		HashSet<String> done     = new HashSet<String>();
 		Document        owner    = multistatus.getOwnerDocument();
 		// response root
-		Element rres = owner.createElementNS(DAVServer.Namespace, "response");
+		Element rres = owner.createElementNS(DAVServer.Namespace, "D:response");
 		multistatus.appendChild(rres);
 
 		// href for resource
-		Element href = owner.createElementNS(DAVServer.Namespace,"href");
+		Element href = owner.createElementNS(DAVServer.Namespace,"D:href");
 		try {
 			href.setTextContent(rurl.getURI());
 		} catch (UnsupportedEncodingException e) {
@@ -79,7 +79,7 @@ public class DAVPropFind extends DAVRequest {
 		rres.appendChild(href);
 		
 		// propstat element
-		Element propstat = owner.createElementNS(DAVServer.Namespace, "propstat");
+		Element propstat = owner.createElementNS(DAVServer.Namespace, "D:propstat");
 		rres.appendChild(propstat);
 		
 		// iter property requests
@@ -106,7 +106,7 @@ public class DAVPropFind extends DAVRequest {
 						notfound.add(spr);
 					} else {
 						if (!done.contains(p.getNamespace() + ":" + p.getName())) {
-							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
+							Element prop = owner.createElementNS(DAVServer.Namespace, "D:prop");
 							propstat.appendChild(prop);
 							p.appendXML(prop);
 							done.add(p.getNamespace() + ":" + p.getName());
@@ -120,7 +120,7 @@ public class DAVPropFind extends DAVRequest {
 					while (piter.hasNext()) {
 						Property p = piter.next();
 						if (!done.contains(p.getNamespace() + ":" + p.getName())) {
-							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
+							Element prop = owner.createElementNS(DAVServer.Namespace, "D:prop");
 							propstat.appendChild(prop);
 							p.appendXML(prop,content);
 							done.add(p.getNamespace() + ":" + p.getName());
@@ -133,7 +133,7 @@ public class DAVPropFind extends DAVRequest {
 					if (!done.contains(dpk)) {
 						Property p = Property.getDAVProperty(dpk, r, repos, rurl);
 						if (p != null) {
-							Element prop = owner.createElementNS(DAVServer.Namespace, "prop");
+							Element prop = owner.createElementNS(DAVServer.Namespace, "D:prop");
 							propstat.appendChild(prop);
 							p.appendXML(prop,content);
 							done.add(dpk);							
@@ -145,21 +145,21 @@ public class DAVPropFind extends DAVRequest {
 		}
 		
 		// append http ok stat
-		Element hnode = owner.createElementNS(DAVServer.Namespace, "status");
+		Element hnode = owner.createElementNS(DAVServer.Namespace, "D:status");
 		hnode.setTextContent("HTTP/1.1 200 OK");
 		propstat.appendChild(hnode);
 		
 		// append not found status
 		if (!notfound.isEmpty()) {
-			Element nfps   = owner.createElementNS(DAVServer.Namespace, "propstat");
-			Element pfn = owner.createElementNS(DAVServer.Namespace, "prop");
+			Element nfps   = owner.createElementNS(DAVServer.Namespace, "D:propstat");
+			Element pfn = owner.createElementNS(DAVServer.Namespace, "D:prop");
 			rres.appendChild(nfps);
 			nfps.appendChild(pfn);
 			for (PropertyRef pf : notfound) {
 				Element pe = owner.createElementNS(pf.getNs(),pf.getName());
 				pfn.appendChild(pe);
 			}
-			Element nfref = owner.createElementNS(DAVServer.Namespace, "href");
+			Element nfref = owner.createElementNS(DAVServer.Namespace, "D:href");
 			try {
 				href.setTextContent(rurl.getURI());
 			} catch (UnsupportedEncodingException e) {
@@ -168,7 +168,7 @@ public class DAVPropFind extends DAVRequest {
 			} catch (NotAllowedException e) {
 			}
 			nfps.appendChild(nfref);			
-			Element nfnode = owner.createElementNS(DAVServer.Namespace, "status");
+			Element nfnode = owner.createElementNS(DAVServer.Namespace, "D:status");
 			nfnode.setTextContent("HTTP/1.1 404 Not Found");
 			nfps.appendChild(nfnode);			
 		}
@@ -227,6 +227,7 @@ public class DAVPropFind extends DAVRequest {
 						Node sr = e.getFirstChild();
 						while (sr != null) {
 							if (sr instanceof Element) {
+								System.out.println("add req prop: " + sr.getNodeName());
 								plist.getSubRefs().add(new PropertyRef((Element)sr));
 							}
 							sr = sr.getNextSibling();

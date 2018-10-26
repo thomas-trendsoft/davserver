@@ -64,6 +64,8 @@ public class DAVGet extends DAVRequest {
 			Resource r = repos.locate(url.getResref());
 			if (r != null) {
 				resp.addHeader("ETag",r.getETag());
+				if (r.getContentType() != null)
+					resp.addHeader("Content-Type",r.getContentType());
 				if (r instanceof Collection) {
 					throw new DAVException(415,"not implemented");
 				} else if (!head) {

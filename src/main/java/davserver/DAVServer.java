@@ -1,7 +1,5 @@
 package davserver;
 
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
