@@ -15,19 +15,20 @@ import davserver.repository.Collection;
 import davserver.repository.ILockManager;
 import davserver.repository.Resource;
 import davserver.repository.cal.BaseCalDAVRepository;
-import davserver.repository.cal.Calendar;
 import davserver.repository.cal.CalendarCollection;
+import davserver.repository.cal.VCalendar;
 import davserver.repository.cal.resource.VEvent;
 import davserver.repository.error.ConflictException;
 import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.repository.error.ResourceExistsException;
-import davserver.repository.simple.SimpleResource;
 import davserver.utils.SimpleLockManager;
 import ical4dav.caldav.iCalDAVParser;
 import ical4dav.caldav.resources.CalDAVResource;
+import ical4dav.caldav.resources.Calendar;
 import ical4dav.caldav.resources.Event;
+import ical4dav.properties.iCalComponent;
 
 /**
  * CalDAV repository sample implementation 
@@ -223,35 +224,39 @@ public class SimpleCalDAVRepository extends BaseCalDAVRepository {
 			cur = (Collection)r;
 		}
 		
-		if (cur == null) {
+		if (cur == null || !(cur instanceof VCalendar)) {
+			System.out.println("null or no calendar: " + cur);
 			throw new ConflictException("no parent found");
 		}
 		
-		String   last   = comps.get(comps.size()-1);
-		Resource active = cur.getChild(last);
+		String      last   = comps.get(comps.size()-1);
+		Resource    active = cur.getChild(last);
+		VCalendar    vcal  = (VCalendar)cur;
+		CalDAVResource res = null;
 		
-		if (active == null) {
-			// TODO create a calendar resource form stream
-			try {
-				CalDAVResource res = iCalDAVParser.parse(data);
-				if (res instanceof Event) {
-					VEvent ve = new VEvent(last,(Event)res);
-					((SimpleCalendar)cur).addChild(last, ve);
-					System.out.println("added: " + last + ":" + res );
-				} else {
-					throw new ConflictException("wrong resource type");
+		// parse resource component
+		try {
+			res = iCalDAVParser.parse(data);			
+		} catch (ParseException e) {
+			e.printStackTrace();
+			throw new IOException("parse exception: " + e.getMessage());
+		}
+		
+		// TODO create a calendar resource form stream
+		if (res instanceof Event) {
+			VEvent ve = new VEvent(last,(Event)res);
+			((SimpleCalendar)cur).addChild(last, ve);
+			System.out.println("added: " + last + ":" + res );
+		} else if (res instanceof Calendar){
+			Calendar cal = (Calendar)res;
+			for (iCalComponent c : cal.getComponents().values()) {
+				if (c instanceof Event) {
+					vcal.getCalendar().getComponents().put(last, c);
+					System.out.println("add event");
 				}
-			} catch (ParseException e) {
-				e.printStackTrace();
-				throw new IOException("parser error");
 			}
-		} else if (active instanceof CalendarCollection) {
-			throw new NotAllowedException("cannot write to an collection");
-		} 
-		
-		if (active instanceof Calendar) {
-			String strdata = IOUtils.toString(data, "utf-8");
-			System.out.println("NOTADDED:" + strdata);
+		} else {
+			throw new ConflictException("wrong resource type");
 		}
 		
 		return active;

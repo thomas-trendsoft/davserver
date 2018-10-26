@@ -89,11 +89,13 @@ public class DAVCopy extends DAVRequest {
 	 * @throws NotFoundException
 	 * @throws IOException
 	 */
-	private void copyResource(IRepository repos,Resource source,String target) 
+	private Resource copyResource(IRepository repos,Resource source,String target) 
 			throws NotAllowedException, ConflictException, ResourceExistsException, NotFoundException, IOException 
 	{
 		Resource r = repos.createResource(target, source.getContent());	
 		copyProperties(source,r);
+		
+		return r;
 	}
 	
 	/**
@@ -108,6 +110,7 @@ public class DAVCopy extends DAVRequest {
 		while (iter.hasNext()) {
 			Property p = iter.next();
 			try {
+				System.out.println("copy prop: " + p.getName() + ":" + p.getValue());
 				target.setProperty(p);
 			} catch (NotAllowedException e) {
 				// TODO check best handling

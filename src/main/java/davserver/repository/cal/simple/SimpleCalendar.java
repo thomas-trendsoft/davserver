@@ -4,10 +4,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.w3c.dom.Document;
+
+import davserver.DAVServer;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
-import davserver.repository.cal.Calendar;
+import davserver.repository.cal.VCalendar;
 
 /**
  * Memory managed calendar implementation 
@@ -15,7 +18,7 @@ import davserver.repository.cal.Calendar;
  * @author tkrieger
  *
  */
-public class SimpleCalendar extends Calendar {
+public class SimpleCalendar extends VCalendar {
 
 	/**
 	 * Memory childs
@@ -49,6 +52,8 @@ public class SimpleCalendar extends Calendar {
 		properties = new HashMap<String,Property>();
 		created    = new Date();
 		lm         = new Date();
+		
+		properties.put(DAVServer.Namespace + "owner", new Property(DAVServer.Namespace, "owner", "admin"));
 	}
 
 	@Override

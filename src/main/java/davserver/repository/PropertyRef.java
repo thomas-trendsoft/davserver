@@ -82,6 +82,11 @@ public class PropertyRef {
 	 * Constant for resource type property
 	 */
 	public static final int DAV_RESOURCETYPE = 108;
+	
+	/**
+	 * Supported Report sets
+	 */
+	public static final int DAV_SUPPORTEDREPORTSET = 109;
 
 	/**
 	 * Reference type identifier

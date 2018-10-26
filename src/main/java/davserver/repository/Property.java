@@ -173,6 +173,7 @@ public class Property extends DAVXMLObject {
 			davProperties.put(DAVServer.Namespace + "lockdiscovery",new PropertyRef(PropertyRef.DAV_LOCKDISCOVERY));
 			davProperties.put(DAVServer.Namespace + "supportedlock",new PropertyRef(PropertyRef.DAV_SUPPORTEDLOCK));
 			davProperties.put(DAVServer.Namespace + "resourcetype",new PropertyRef(PropertyRef.DAV_RESOURCETYPE));
+			davProperties.put(DAVServer.Namespace + "supported-report-set",new PropertyRef(PropertyRef.DAV_SUPPORTEDREPORTSET));
 		}
 		return davProperties;
 	}

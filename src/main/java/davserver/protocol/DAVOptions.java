@@ -41,9 +41,9 @@ public class DAVOptions extends DAVRequest {
 		
 		// give server or resource type info
 		if (r == null) {
-			resp.addHeader("Allow","GET,POST,OPTIONS,HEAD,MKCOL,PUT,PROPFIND,PROPPATCH,DELETE,MOVE,COPY"+ (repos.supportLocks() ? ",LOCK,UNLOCK" : ""));			
+			resp.addHeader("Allow","GET,POST,OPTIONS,HEAD,MKCOL,PUT,PROPFIND,PROPPATCH,DELETE,MOVE,COPY,REPORT"+ (repos.supportLocks() ? ",LOCK,UNLOCK" : ""));			
 		} else {
-			resp.addHeader("Access-Control-Allow-Methods","PUT,POST,GET,OPTIONS" + (repos.supportLocks() ? ",LOCK,UNLOCK" : ""));
+			resp.addHeader("Access-Control-Allow-Methods","PUT,POST,GET,OPTIONS,REPORT" + (repos.supportLocks() ? ",LOCK,UNLOCK" : ""));
 		} 
 	}
 	

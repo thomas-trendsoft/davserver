@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import davserver.DAVServer;
@@ -22,7 +23,7 @@ public abstract class Collection extends Resource {
 	 * Collection resource type
 	 */
 	private ResourceType resourceType;
-
+	
 	/**
 	 * Defaultconstructor 
 	 * 

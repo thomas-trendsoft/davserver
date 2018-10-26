@@ -1,8 +1,10 @@
 package davserver.repository.cal;
 
 import davserver.DAVServer;
+import davserver.protocol.acl.Principal;
 import davserver.protocol.xml.ResourceType;
 import davserver.repository.Collection;
+import ical4dav.caldav.resources.Calendar;
 
 /**
  * Calendar resource implementation 
@@ -10,7 +12,7 @@ import davserver.repository.Collection;
  * @author tkrieger
  *
  */
-public abstract class Calendar extends Collection {
+public abstract class VCalendar extends Collection {
 	
 	/**
 	 * Calendar resource type
@@ -18,17 +20,42 @@ public abstract class Calendar extends Collection {
 	private ResourceType resourceType;
 	
 	/**
+	 * Internal representation
+	 */
+	private Calendar calendar;
+	
+	/**
+	 * Calendar owner
+	 */
+	private Principal owner;
+	
+	/**
 	 * Defaultconstructor 
 	 * 
 	 * @param name
 	 */
-	public Calendar(String name) {
+	public VCalendar(String name) {
 		super(name);
+		
+		calendar = new Calendar();
 		
 		resourceType = new ResourceType();
 		resourceType.addType(DAVServer.CalDAVNS, "calendar");
+		
 	}
 	
+	public Calendar getCalendar() {
+		return calendar;
+	}
+	
+	public Principal getOwner() {
+		return owner;
+	}
+
+	public void setOwner(Principal owner) {
+		this.owner = owner;
+	}
+
 	@Override 
 	public ResourceType getResourceTypes() {
 		return resourceType;
