@@ -36,7 +36,7 @@ public class DAVDelete extends DAVRequest {
 		
 		try {
 			// check precondition
-			DAVRequest.checkLock(req, repos, durl);
+			DAVRequest.checkLock(req, repos, durl,true);
 			
 			repos.remove(durl.getResref());
 			resp.setStatusCode(204);

@@ -49,7 +49,7 @@ public class DAVPut extends DAVRequest {
 		
 		try {
 			// check preconditions
-			DAVRequest.checkLock(req, repos, url);
+			DAVRequest.checkLock(req, repos, url,false);
 			
 			// create resource
 			Resource r = repos.createResource(url.getResref(),req.getEntity().getContent());

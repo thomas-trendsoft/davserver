@@ -82,12 +82,12 @@ public class VEvent extends Resource {
 
 	@Override
 	public Date getCreationDate() {
-		return event.getTimestamp();
+		return new Date();
 	}
 
 	@Override
 	public Date getLastmodified() {
-		return event.getTimestamp();
+		return new Date();
 	}
 
 	@Override

@@ -68,7 +68,7 @@ public class DAVPropPatch extends DAVRequest {
 		req = (HttpEntityEnclosingRequest)breq;
 
 		// check precondition
-		DAVRequest.checkLock(req, repos, durl);
+		DAVRequest.checkLock(req, repos, durl,false);
 
 		// check target resource
 		target = repos.locate(durl.getResref());

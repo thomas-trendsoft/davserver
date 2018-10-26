@@ -43,7 +43,7 @@ public class DAVMkCol extends DAVRequest {
 		req = (HttpEntityEnclosingRequest)breq;
 
 		// check precondition
-		DAVRequest.checkLock(req, repos, url);
+		DAVRequest.checkLock(req, repos, url,false);
 
 		// check if a body is given
 		if (req.getEntity().getContentLength() > 0) {

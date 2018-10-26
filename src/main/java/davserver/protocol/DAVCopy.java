@@ -154,9 +154,9 @@ public class DAVCopy extends DAVRequest {
 
 			// check preconditions
 			if (move)
-				DAVRequest.checkLock(req, repos, url);
+				DAVRequest.checkLock(req, repos, url,true);
 			else 
-				DAVRequest.checkLock(req, repos, turl);
+				DAVRequest.checkLock(req, repos, turl,false);
 			
 			// check source resource
 			Resource src = repos.locate(url.getResref());

@@ -45,7 +45,7 @@ public abstract class DAVRequest {
 	 * @param url
 	 * @throws DAVException
 	 */
-	public static void checkLock(HttpRequest req,IRepository repos,DAVUrl url) throws DAVException {
+	public static void checkLock(HttpRequest req,IRepository repos,DAVUrl url,boolean child) throws DAVException {
 		Resource r = null;
 		
 		// get resource 
@@ -60,8 +60,13 @@ public abstract class DAVRequest {
 		// check locks
 		HashMap<String,LockEntry> le = null;
 		if (repos.supportLocks()) {
-			le = repos.getLockManager().checkLocked(url.getResref(),false);
+			le = repos.getLockManager().checkLocked(url.getResref(),child);
 		}  
+		
+		System.out.println("lock entries: " + le);
+		if (le != null) {
+			System.out.println("size: " + le.size());
+		}
 		
 		// check precondition
 		Header hif = req.getFirstHeader("If");

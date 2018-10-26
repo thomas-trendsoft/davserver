@@ -56,6 +56,8 @@ public class DAVACL extends DAVRequest {
 			} catch (ParserConfigurationException e) {
 				throw new DAVException(500,e.getMessage());
 			} 
+		} else {
+			System.out.println("no acl body!");
 		}
 	}
 
