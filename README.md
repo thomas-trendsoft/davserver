@@ -14,6 +14,8 @@ THE PROJECT IS WORK IN PROGRESS and no useful release is done yet.
 
 For testing surpose i will try to get this framework running against the litmus project (https://github.com/tolsen/litmus). First steps are done the library passes the base tests.
 
+The CalDAV extension will be tested later against the ccs-caldavtester (https://github.com/apple/ccs-caldavtester/)
+
 ## Litmus Progress
 
 -> running 'http': done
