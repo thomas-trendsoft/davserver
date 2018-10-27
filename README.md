@@ -1,6 +1,6 @@
 # davserver
 
-This is my first real open source project. It is a try to build a java implementation of WebDAV (RFC4918) with additional support for CalDAV and CardDAV. 
+This is my first real open source project. It is a try to build a java implementation of WebDAV (RFC4918) with additional support for CalDAV and CardDAV (RFC 4791). 
 
 It is an learning project to get a protocol implementation. The target is still to get a production ready WebDAV Protocol implementation. The API will be able to make simple implementations of file or database resources behind a WebDAV server interface. 
 

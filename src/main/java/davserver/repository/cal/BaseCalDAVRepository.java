@@ -1,8 +1,9 @@
 package davserver.repository.cal;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,7 +27,6 @@ import davserver.repository.cal.resource.CalDAVResource;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.utils.XMLParser;
-import ical4dav.properties.iCalComponent;
 
 /**
  * Base CalDAV requested methods implementation
@@ -49,7 +49,6 @@ public abstract class BaseCalDAVRepository implements IRepository {
 		List<PropertyRef> properties;
 		List<URI>         rlist;
 		ListElement       resp = new ListElement("multistatus", DAVServer.Namespace);
-		Response          relem;
 		
 		System.out.println("caldav multi get");
 		
@@ -92,23 +91,36 @@ public abstract class BaseCalDAVRepository implements IRepository {
 		
 		// create response
 		System.out.println("check collection multi-get");
-		List<iCalComponent> comps = new LinkedList<>();
-		try {
-			relem = new Response(href.getURI(),207);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			throw new DAVException(500,"server error");
-		}
+		List<Resource> comps = new LinkedList<>();
 		
+		VCalendar vcal = (VCalendar)rres;
 		for (URI url : rlist) {
 			try {
 				DAVUrl turl = new DAVUrl(url.toString(), href.getPrefix());
-				Resource r = this.locate(turl.getResref());
-				if (r == null) {
-					resp.addChild(new Response(url.toString(), 404));
-				} else if (r instanceof CalDAVResource) {
-					comps.add(((CalDAVResource)r).getComponent());
-				} 
+				
+				// check complete calendar (href = request uri) 
+				if (turl.getResref().compareTo(href.getResref())==0) {
+					System.out.println("read full calendar");
+					Iterator<Resource> iter = vcal.getChildIterator();
+					while (iter.hasNext()) {
+						Resource    r = iter.next();
+						DAVUrl   rurl = new DAVUrl(turl.getURI() + "/" + r.getName(),turl.getPrefix());
+						r.dhref       = rurl;
+						comps.add(r);
+					}
+					//vcal.dhref = turl;
+					//comps.add(vcal);
+					break;
+				} else {
+					// get singel components
+					Resource r = this.locate(turl.getResref());
+					if (r == null) {
+						resp.addChild(new Response(url.toString(), 404));
+					} else if (r instanceof CalDAVResource) {
+						r.dhref = turl;
+						comps.add(r);
+					} 					
+				}
 			} catch (NotAllowedException e) {
 				resp.addChild(new Response(url.toString(), 405));										
 			} catch (NotFoundException e) {
@@ -119,22 +131,48 @@ public abstract class BaseCalDAVRepository implements IRepository {
 			}
 		}
 		
-		System.out.println("added comps: " + comps.size() + ":" + relem);
-		
-		VCalendar vcal = (VCalendar)rres;
-		for (PropertyRef p : properties) {
-			// special ical property 
-			if (DAVServer.CalDAVNS.compareTo(p.getNs())==0 && ("calendar-data".compareTo(p.getName())==0)) {
-				Property cd = new Property(DAVServer.CalDAVNS,"calendar-data",vcal.getCalendar().toString(comps));
-				relem.addChild(cd);
+		try {
+			if (comps.isEmpty()) {
+				Response relem = new Response(href.getURI(),200);
+				resp.addChild(relem);
 			} else {
-				Property prop = vcal.getProperty(p);
-				if (prop != null)
-					relem.addChild(prop);
+				for (Resource cres : comps) {
+					Response relem = new Response(cres.dhref.getURI(),200);
+					for (PropertyRef p : properties) {
+						// special ical property 
+						if (DAVServer.CalDAVNS.compareTo(p.getNs())==0 && ("calendar-data".compareTo(p.getName())==0)) {
+							Property cd;
+							if (cres instanceof VCalendar) {
+								cd = new Property(DAVServer.CalDAVNS,"calendar-data",vcal.getComponent().toString());														
+							} else {
+								cd = new Property(DAVServer.CalDAVNS,"calendar-data",vcal.getCalendar().toString(Arrays.asList(((CalDAVResource)cres).getComponent())));							
+							}
+							relem.addChild(cd);
+						} else {
+							Property prop = cres.getProperty(p);
+							if (prop != null) {
+								relem.addChild(prop);
+							} else {
+								prop = Property.getDAVProperty(DAVServer.Namespace + p.getName(), cres, this,href);
+								if (prop != null) {
+									relem.addChild(prop);
+								} else {
+									System.out.println("missed property:  " + p.getNs() + ":" + p.getName());						
+								}
+							}
+						}
+					}			
+					resp.addChild(relem);
+				}				
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new DAVException(500,e.getMessage());
 		}
 		
-		resp.addChild(relem);
+		
+		System.out.println("added comps: " + comps.size());
+		
 		
 		try {
 			System.out.println("resp report: " + XMLParser.singleton().serializeDoc(resp.createDocument()));

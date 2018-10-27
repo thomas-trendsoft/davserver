@@ -15,6 +15,9 @@ import davserver.repository.cal.VCalendar;
 import davserver.repository.cal.properties.SupportedCalendarCompSet;
 import davserver.repository.cal.resource.CalDAVResource;
 import davserver.repository.properties.SupportedReportSet;
+import ical4dav.caldav.resources.Timezone;
+import ical4dav.parser.TokenMap;
+import ical4dav.properties.StringProperty;
 
 /**
  * Memory managed calendar implementation 
@@ -62,11 +65,21 @@ public class SimpleCalendar extends VCalendar {
 		r.add(new Property(DAVServer.Namespace, "expand-property", null));
 		r.add(new Property(DAVServer.CalDAVNS,"calendar-multiget", null));
 		
+		// set the timezone
+		Timezone tz = new Timezone();
+		tz.setTzId(new StringProperty(TokenMap.TZID, "Europe/Berlin", null));
+		this.getCalendar().setTimezone(tz);
+		
 		// supported components
 		this.setProperty(new SupportedCalendarCompSet(Arrays.asList("VEVENT")));
 		this.setProperty(new SupportedReportSet(r));
 		this.setProperty(new Property(DAVServer.Namespace, "owner", "admin"));
 		
+	}
+	
+	@Override
+	public String getContentType() {
+		return "text/calendar";
 	}
 
 	@Override
@@ -76,7 +89,7 @@ public class SimpleCalendar extends VCalendar {
 	
 	@Override
 	public void addChild(String name,CalDAVResource child) {
-		this.childs.put(name, child);
+		this.childs.put(name, (Resource)child);
 	}
 
 	@Override
@@ -113,5 +126,6 @@ public class SimpleCalendar extends VCalendar {
 	public Date getLastmodified() {
 		return lm;
 	}
+
 
 }

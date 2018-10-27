@@ -1,6 +1,6 @@
 package davserver.repository.cal;
 
-import java.util.List;
+import java.util.UUID;
 
 import davserver.DAVServer;
 import davserver.protocol.acl.Principal;
@@ -16,7 +16,7 @@ import ical4dav.properties.iCalComponent;
  * @author tkrieger
  *
  */
-public abstract class VCalendar extends Collection {
+public abstract class VCalendar extends Collection implements CalDAVResource {
 	
 	/**
 	 * Calendar resource type
@@ -50,6 +50,11 @@ public abstract class VCalendar extends Collection {
 	
 	public abstract void addChild(String name,CalDAVResource comp);
 	
+	@Override
+	public String getETag() {
+		return UUID.randomUUID().toString();
+	}
+	
 	public Calendar getCalendar() {
 		return calendar;
 	}
@@ -67,5 +72,9 @@ public abstract class VCalendar extends Collection {
 		return resourceType;
 	}
 
+	@Override
+	public iCalComponent getComponent() {
+		return calendar;
+	}
 
 }

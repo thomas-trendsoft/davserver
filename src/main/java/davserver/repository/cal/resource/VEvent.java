@@ -11,6 +11,7 @@ import java.util.UUID;
 import davserver.DAVUtil;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
+import davserver.repository.Resource;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.properties.ResourceType;
 import ical4dav.caldav.resources.Event;
@@ -22,7 +23,7 @@ import ical4dav.properties.iCalComponent;
  * @author tkrieger
  *
  */
-public class VEvent extends CalDAVResource {
+public class VEvent extends Resource implements CalDAVResource {
 
 	/**
 	 * iCal Event

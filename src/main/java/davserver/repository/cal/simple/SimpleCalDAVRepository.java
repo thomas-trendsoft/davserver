@@ -79,7 +79,7 @@ public class SimpleCalDAVRepository extends BaseCalDAVRepository {
 	
 	@Override
 	public boolean needsAuth() {
-		return true;
+		return false;
 	}
 
 	@Override
