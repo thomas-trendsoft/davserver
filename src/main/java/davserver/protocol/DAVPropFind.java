@@ -13,7 +13,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.nio.entity.NStringEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -346,7 +345,6 @@ public class DAVPropFind extends DAVRequest {
 		}
 		
 		// Create response
-		String xmlDoc = null;
 		try {
 			Document rdoc  = XMLParser.singleton().createDocument();
 			Element  rroot = rdoc.createElementNS(DAVServer.Namespace, "multistatus");
@@ -355,25 +353,13 @@ public class DAVPropFind extends DAVRequest {
 			// Query requested properties
 			createPropFindResp(rroot,durl, r, reflist, depthval, repos);
 			
-			xmlDoc = XMLParser.singleton().serializeDoc(rdoc);
+			respondXML(207,rdoc,resp);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new DAVException(500,e.getMessage());
 		}
 		
-		// MultiStatus Response
-		try {
-			resp.setStatusCode(207);
-			resp.setEntity(new NStringEntity(xmlDoc, "utf-8"));
-			resp.setHeader("Content-Type","application/xml;charset=utf-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			throw new DAVException(500,e.getMessage());
-		}
-
-		if (debug)
-			System.out.println("RET PROPS:" + xmlDoc);
 	}
 
 }

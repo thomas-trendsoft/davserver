@@ -1,16 +1,20 @@
 package davserver.repository.cal.simple;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-
-import org.w3c.dom.Document;
+import java.util.LinkedList;
+import java.util.List;
 
 import davserver.DAVServer;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
 import davserver.repository.cal.VCalendar;
+import davserver.repository.cal.properties.SupportedCalendarCompSet;
+import davserver.repository.cal.resource.CalDAVResource;
+import davserver.repository.properties.SupportedReportSet;
 
 /**
  * Memory managed calendar implementation 
@@ -53,7 +57,16 @@ public class SimpleCalendar extends VCalendar {
 		created    = new Date();
 		lm         = new Date();
 		
-		properties.put(DAVServer.Namespace + "owner", new Property(DAVServer.Namespace, "owner", "admin"));
+		// minimal reports
+		List<Property> r = new LinkedList<>();
+		r.add(new Property(DAVServer.Namespace, "expand-property", null));
+		r.add(new Property(DAVServer.CalDAVNS,"calendar-multiget", null));
+		
+		// supported components
+		this.setProperty(new SupportedCalendarCompSet(Arrays.asList("VEVENT")));
+		this.setProperty(new SupportedReportSet(r));
+		this.setProperty(new Property(DAVServer.Namespace, "owner", "admin"));
+		
 	}
 
 	@Override
@@ -61,8 +74,9 @@ public class SimpleCalendar extends VCalendar {
 		return childs.get(name);
 	}
 	
-	public void addChild(String name,Resource c) {
-		this.childs.put(name, c);
+	@Override
+	public void addChild(String name,CalDAVResource child) {
+		this.childs.put(name, child);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package davserver.protocol.xml;
+package davserver.repository.properties;
 
 import java.util.LinkedList;
 import java.util.List;

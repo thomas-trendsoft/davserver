@@ -15,7 +15,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.nio.entity.NStringEntity;
 import org.pmw.tinylog.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -120,13 +119,7 @@ public class DAVLock extends DAVRequest {
 				resp.addHeader("Lock-Token","<" + l.getToken() + ">");				
 			}
 			
-			String xmlDoc = XMLParser.singleton().serializeDoc(mr.createDocument());
-			
-			Logger.debug(xmlDoc);
-			
-			resp.setEntity(new NStringEntity(xmlDoc,"utf-8"));
-			resp.setHeader("Content-Type","application/xml;charset=utf-8");
-
+			respondXML(200, mr.createDocument(), resp);
 			System.out.println("lock done");
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -117,12 +117,20 @@ public class DAVReport extends DAVRequest {
 			BaseCalDAVRepository crepos = (BaseCalDAVRepository)repos;
 			if (root.getLocalName().compareTo("calendar-multiget")==0) {
 				System.out.println("report calendar-multiget");
-				response = crepos.reportMultiGet(r,root);
+				response = crepos.reportMultiGet(r,url,root);
 			}
 		}
 	
 		if (response == null) {
 			throw new DAVException(415, "unsupported media type");
+		}
+		
+		// MultiStatus Response
+		try {
+			this.respondXML(207, response.createDocument(),resp);
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+			throw new DAVException(500,e.getMessage());
 		}
 		
 	} // handle

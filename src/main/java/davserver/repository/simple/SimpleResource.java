@@ -11,10 +11,10 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import davserver.DAVUtil;
-import davserver.protocol.xml.ResourceType;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
+import davserver.repository.properties.ResourceType;
 
 /**
  * Really simple resource implementation 

@@ -5,10 +5,10 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.Iterator;
 
-import davserver.protocol.xml.ResourceType;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
 import davserver.repository.Resource;
+import davserver.repository.properties.ResourceType;
 
 public class Address extends Resource {
 

@@ -9,12 +9,12 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import davserver.DAVUtil;
-import davserver.protocol.xml.ResourceType;
 import davserver.repository.Property;
 import davserver.repository.PropertyRef;
-import davserver.repository.Resource;
 import davserver.repository.error.NotAllowedException;
+import davserver.repository.properties.ResourceType;
 import ical4dav.caldav.resources.Event;
+import ical4dav.properties.iCalComponent;
 
 /**
  * CalDAV Mapping class from iCal Resource 
@@ -22,7 +22,7 @@ import ical4dav.caldav.resources.Event;
  * @author tkrieger
  *
  */
-public class VEvent extends Resource {
+public class VEvent extends CalDAVResource {
 
 	/**
 	 * iCal Event
@@ -98,6 +98,11 @@ public class VEvent extends Resource {
 	@Override
 	public ResourceType getResourceTypes() {
 		return resourceType;
+	}
+
+	@Override
+	public iCalComponent getComponent() {
+		return event;
 	}
 	
 }

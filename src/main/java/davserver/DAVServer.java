@@ -12,7 +12,7 @@ import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicLineParser;
 import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Level;
-import org.pmw.tinylog.writers.FileWriter;
+import org.pmw.tinylog.writers.ConsoleWriter;
 
 import davserver.protocol.acl.Principal;
 import davserver.protocol.auth.BasicAuthProvider;
@@ -64,7 +64,7 @@ public class DAVServer {
 		
 		// config log 
 		Configurator.defaultConfig()
-			.writer(new FileWriter("data.log"))
+			.writer(new ConsoleWriter())
 			.level(Level.DEBUG)
 			.activate();
 

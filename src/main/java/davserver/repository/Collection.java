@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import davserver.DAVServer;
 import davserver.DAVUtil;
-import davserver.protocol.xml.ResourceType;
+import davserver.repository.properties.ResourceType;
 
 /**
  * Base class for a dav repository collection 

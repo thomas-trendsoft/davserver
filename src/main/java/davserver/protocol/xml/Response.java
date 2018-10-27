@@ -62,6 +62,8 @@ public class Response extends DAVXMLObject {
 		}
 		resp.appendChild(stat);
 		
+		root.appendChild(resp);
+		
 		return resp;
 	}
 	

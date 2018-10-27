@@ -1,10 +1,14 @@
 package davserver.repository.cal;
 
+import java.util.List;
+
 import davserver.DAVServer;
 import davserver.protocol.acl.Principal;
-import davserver.protocol.xml.ResourceType;
 import davserver.repository.Collection;
+import davserver.repository.cal.resource.CalDAVResource;
+import davserver.repository.properties.ResourceType;
 import ical4dav.caldav.resources.Calendar;
+import ical4dav.properties.iCalComponent;
 
 /**
  * Calendar resource implementation 
@@ -41,8 +45,10 @@ public abstract class VCalendar extends Collection {
 		
 		resourceType = new ResourceType();
 		resourceType.addType(DAVServer.CalDAVNS, "calendar");
-		
+
 	}
+	
+	public abstract void addChild(String name,CalDAVResource comp);
 	
 	public Calendar getCalendar() {
 		return calendar;
@@ -60,5 +66,6 @@ public abstract class VCalendar extends Collection {
 	public ResourceType getResourceTypes() {
 		return resourceType;
 	}
+
 
 }

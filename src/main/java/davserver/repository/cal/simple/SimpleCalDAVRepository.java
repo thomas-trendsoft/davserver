@@ -251,7 +251,7 @@ public class SimpleCalDAVRepository extends BaseCalDAVRepository {
 			Calendar cal = (Calendar)res;
 			for (iCalComponent c : cal.getComponents().values()) {
 				if (c instanceof Event) {
-					vcal.getCalendar().getComponents().put(last, c);
+					vcal.addChild(last, new VEvent(last, (Event)c));
 					System.out.println("add event");
 				}
 			}

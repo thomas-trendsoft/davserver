@@ -72,7 +72,7 @@ public class ListElement extends DAVXMLObject {
 	
 	public Document createDocument() throws ParserConfigurationException {
 		Document doc = XMLParser.singleton().createDocument();
-		Element  lr  = doc.createElementNS(namespace, "d:" + name);
+		Element  lr  = doc.createElementNS(namespace, "D:" + name);
 		
 		for (DAVXMLObject c : childs) {
 			c.appendXML(lr);
