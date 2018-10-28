@@ -145,12 +145,20 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		final HttpResponse response = async.getResponse();
 				
 		// check target url
-		DAVUrl durl = new DAVUrl(req.getRequestLine().getUri(),prefix);
+		DAVUrl durl;
+		try {
+			durl = new DAVUrl(req.getRequestLine().getUri(),prefix);
+		} catch (NotAllowedException e1) {
+			DAVUtil.handleError(new DAVException(403,"not allowed"), response);
+			return;
+		}
+		
 		System.out.println("create durl:  "+ durl.getResref());
 		IRepository repos = null;
 		if (durl.getRepository() != null) {
 			repos = repositories.get(durl.getRepository());
-		}
+		} 
+		
 
 		System.out.println("CHECK AUTH: ");
 		// check auth if needed

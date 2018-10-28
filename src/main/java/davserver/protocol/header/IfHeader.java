@@ -81,7 +81,12 @@ public class IfHeader {
 						ec = c.state.compareTo(r.getETag());						
 					} else {
 						// get other resource 
-						DAVUrl   tu = new DAVUrl(sub.getKey().getPath(), url.getPrefix()); 
+						DAVUrl tu;
+						try {
+							tu = new DAVUrl(sub.getKey().getPath(), url.getPrefix());
+						} catch (NotAllowedException e1) {
+							throw new DAVException(403,"not allowed");
+						} 
 						Resource tr;
 						try {
 							tr = repos.locate(tu.getResref());
@@ -111,7 +116,12 @@ public class IfHeader {
 							if (locks == null) 
 								throw new DAVException(412,"precondition failed");
 							LockEntry le = locks.get(c.state);
-							DAVUrl    tu = new DAVUrl(sub.getKey().getPath(), url.getPrefix());
+							DAVUrl tu;
+							try {
+								tu = new DAVUrl(sub.getKey().getPath(), url.getPrefix());
+							} catch (NotAllowedException e) {
+								throw new DAVException(403,"not allowed");
+							}
 							System.out.println("check url: " + tu.getResref() + ":" + le.getRef());
 							if (le.getRef().compareTo(tu.getResref()) != 0) {
 								System.out.println("fail on missed resource url");

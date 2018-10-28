@@ -1,6 +1,7 @@
 package davserver.protocol;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -36,10 +37,17 @@ public class DAVMkCol extends DAVRequest {
 		Resource r = null;
 		HttpEntityEnclosingRequest req;
 		
+		try {
+			System.out.println(url.getURI());
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
+		
 		// check request
 		if (!(breq instanceof HttpEntityEnclosingRequest)) {
 			throw new DAVException(400,"no body");
 		}
+		
 		req = (HttpEntityEnclosingRequest)breq;
 
 		// check precondition

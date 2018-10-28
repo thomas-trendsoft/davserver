@@ -31,12 +31,18 @@ public class DAVUrl {
 	private String resref;
 	
 	/**
+	 * path components
+	 */
+	private List<String> comps;
+	
+	/**
 	 * Defaultkonstruktor 
 	 * 
 	 * @param url
 	 * @param prefix
+	 * @throws NotAllowedException 
 	 */
-	public DAVUrl(String surl,String prefix) {
+	public DAVUrl(String surl,String prefix) throws NotAllowedException {
 
 		this.prefix     = prefix;
 		this.repository = null;
@@ -51,34 +57,35 @@ public class DAVUrl {
 		}
 		
 		try {
-			// get repository part
+			// get repository part						
 			String uri = url.substring(prefix.length());
-			int    ci = uri.indexOf("/", 1); 
-			if (ci <= 0) {
-				repository = URLDecoder.decode(uri.substring(1),"utf-8");
+			
+			// remove query or fragment parts
+			int idx;
+			if ((idx = uri.indexOf("?")) > 0) {
+				uri = uri.substring(0,idx);
+			}
+			if ((idx = uri.indexOf("#")) > 0) {
+				uri = uri.substring(0,idx);
+			}
+
+			comps = DAVUtil.getPathComps(uri);
+
+			if (comps.size() > 0) {
+				repository = URLDecoder.decode(comps.get(0),"utf-8");
 			} else {
-				repository = URLDecoder.decode(uri.substring(1, ci),"utf-8");
+				throw new NotAllowedException("no repository root");
 			}
 						
 			// create resource url
-			if (ci == -1) {
+			resref = "";
+			for (idx=1;idx<comps.size();idx++) {
+				resref += "/" + comps.get(idx);  
+			}
+			
+			if (resref.isEmpty())
 				resref = "/";
-			} else if (uri.length() >= ci) {
-				resref = URLDecoder.decode(uri.substring(ci),"utf-8");
-				System.out.println("resref base: " + resref);
-				int idx;
-				// remove query or fragment parts
-				if ((idx = resref.indexOf("?")) > 0) {
-					resref = resref.substring(0,idx);
-				}
-				if ((idx = resref.indexOf("#")) > 0) {
-					resref = resref.substring(0,idx);
-				}
-				// cut last / to avaid checks
-				if (resref.trim().endsWith("/")) {
-					resref = resref.trim().substring(0,resref.length()-1);
-				}
-			} 	
+			
 			System.out.println("resref: " + resref);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -112,9 +119,8 @@ public class DAVUrl {
 		return resref;
 	}
 	
-	public String getURI() throws NotAllowedException, UnsupportedEncodingException {
+	public String getURI() throws UnsupportedEncodingException {
 		String base = String.valueOf(this);
-		List<String> comps = DAVUtil.getPathComps(base);
 		
 		String uri = "";
 		for (String s : comps) {

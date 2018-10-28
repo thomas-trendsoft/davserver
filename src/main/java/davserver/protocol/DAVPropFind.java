@@ -73,8 +73,8 @@ public class DAVPropFind extends DAVRequest {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			throw new DAVException(500,e.getMessage());
-		} catch (NotAllowedException e) {
-		}
+		} 
+		
 		rres.appendChild(href);
 		
 		// propstat element
@@ -164,8 +164,8 @@ public class DAVPropFind extends DAVRequest {
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 				throw new DAVException(500,e.getMessage());
-			} catch (NotAllowedException e) {
-			}
+			} 
+			
 			nfps.appendChild(nfref);			
 			Element nfnode = owner.createElementNS(DAVServer.Namespace, "D:status");
 			nfnode.setTextContent("HTTP/1.1 404 Not Found");
@@ -190,7 +190,12 @@ public class DAVPropFind extends DAVRequest {
 				} else {
 					nu = base + cr.getName();
 				}
-				DAVUrl curl = new DAVUrl(nu, rurl.getPrefix());
+				DAVUrl curl;
+				try {
+					curl = new DAVUrl(nu, rurl.getPrefix());
+				} catch (NotAllowedException e) {
+					continue;
+				}
 				createPropFindResp(multistatus, curl, cr, refs, 0, repos);
 			}
 		}
