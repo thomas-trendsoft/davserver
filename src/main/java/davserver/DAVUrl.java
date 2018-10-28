@@ -41,8 +41,9 @@ public class DAVUrl {
 	 * @param url
 	 * @param prefix
 	 * @throws NotAllowedException 
+	 * @throws DAVException 
 	 */
-	public DAVUrl(String surl,String prefix) throws NotAllowedException {
+	public DAVUrl(String surl,String prefix) throws NotAllowedException, DAVException {
 
 		this.prefix     = prefix;
 		this.repository = null;
@@ -66,7 +67,7 @@ public class DAVUrl {
 				uri = uri.substring(0,idx);
 			}
 			if ((idx = uri.indexOf("#")) > 0) {
-				uri = uri.substring(0,idx);
+				throw new DAVException(400,"bad request");
 			}
 
 			comps = DAVUtil.getPathComps(uri);

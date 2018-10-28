@@ -138,46 +138,37 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	 * @param ctx HttpContext
 	 */
 	public void handle(HttpRequest req, HttpAsyncExchange async, HttpContext ctx) throws HttpException, IOException {
-		boolean authFailed = false;
 		
 		if (debug) this.debug(req);
 		
 		final HttpResponse response = async.getResponse();
 				
-		// check target url
-		DAVUrl durl;
+		
 		try {
+			// check target url
+			DAVUrl durl = null;
 			durl = new DAVUrl(req.getRequestLine().getUri(),prefix);
-		} catch (NotAllowedException e1) {
-			DAVUtil.handleError(new DAVException(403,"not allowed"), response);
-			return;
-		}
-		
-		System.out.println("create durl:  "+ durl.getResref());
-		IRepository repos = null;
-		if (durl.getRepository() != null) {
-			repos = repositories.get(durl.getRepository());
-		} 
-		
-
-		System.out.println("CHECK AUTH: ");
-		// check auth if needed
-		if (repos != null && repos.needsAuth()) {
-			if (!getAuthentication(req,response,repos.getAuthProvider())) {
-				authFailed = true;
+			
+			String method = req.getRequestLine().getMethod();
+			
+			IRepository repos = null;
+			if (durl != null && durl.getRepository() != null) {
+				repos = repositories.get(durl.getRepository());
+			} 
+					
+			// check out of repos bounds access
+			if (repos == null && method.compareTo("OPTIONS")!=0) {
+				throw new NotAllowedException("not allowed");
 			}
-		}
-		
-		String method = req.getRequestLine().getMethod();
 
-		try {
-			if (authFailed) {
-				repos.getAuthProvider().rejectedResponse(req,response);
-				throw new DAVException(401, "not allowed");
-			} else if (req.getRequestLine().getUri().indexOf("#") > 0) {
-				// disallow fragments on request url
-				throw new DAVException(400,"fragment in request url");
-			} else if (repos == null) {
+			// check auth if needed
+			if (repos != null && repos.needsAuth()) {
+				if (!getAuthentication(req,response,repos.getAuthProvider())) {
+					throw new DAVException(401,"not authed");
+				}
+			}
+
+			if (repos == null) {
 				// 404 if no repository is found
 				response.setStatusCode(404);	
 			} else if (methods.containsKey(method)) {
@@ -201,8 +192,10 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 			EntityUtils.consumeQuietly(((HttpEntityEnclosingRequest)req).getEntity());			
 		}
 
-		async.submitResponse(new BasicAsyncResponseProducer(response));
+		async.submitResponse(new BasicAsyncResponseProducer(response));		
+		
 	}
+	
 	
 	/**
 	 * Check session for auth neede repos 

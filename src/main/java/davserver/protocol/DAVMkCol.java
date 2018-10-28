@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.pmw.tinylog.Logger;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
@@ -37,11 +38,7 @@ public class DAVMkCol extends DAVRequest {
 		Resource r = null;
 		HttpEntityEnclosingRequest req;
 		
-		try {
-			System.out.println(url.getURI());
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		}
+		Logger.debug("MKCOL " + url.toString());
 		
 		// check request
 		if (!(breq instanceof HttpEntityEnclosingRequest)) {
