@@ -21,6 +21,10 @@ public class Principal extends DAVXMLObject {
 	public AlternateURISet getAlternateURIset() {
 		return alternateURIset;
 	}
+	
+	public Property getPrincipalURL() {
+		return principalURL;
+	}
 
 	@Override
 	public Element appendXML(Element root) {

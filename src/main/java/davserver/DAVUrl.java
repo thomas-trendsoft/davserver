@@ -120,9 +120,7 @@ public class DAVUrl {
 		return resref;
 	}
 	
-	public String getURI() throws UnsupportedEncodingException {
-		String base = String.valueOf(this);
-		
+	public String getURI() throws UnsupportedEncodingException {		
 		String uri = "";
 		for (String s : comps) {
 			uri += "/" + URLEncoder.encode(s, "utf-8");

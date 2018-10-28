@@ -27,4 +27,10 @@ public class ACL extends Property {
 		this.acl = new LinkedList<>();
 	}
 
+	public List<ACE> getACList() {
+		return acl;
+	}
+	
+	
+
 }

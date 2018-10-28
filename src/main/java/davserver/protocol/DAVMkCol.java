@@ -1,7 +1,6 @@
 package davserver.protocol;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;

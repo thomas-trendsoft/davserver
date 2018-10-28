@@ -3,6 +3,7 @@ package davserver.repository;
 import java.io.IOException;
 import java.io.InputStream;
 
+import davserver.protocol.acl.ACLProvider;
 import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.repository.error.ConflictException;
 import davserver.repository.error.LockedException;
@@ -30,6 +31,12 @@ public interface IRepository {
 	 * @return
 	 */
 	public IAuthenticationProvider getAuthProvider();
+	
+	/**
+	 * get the acl provider
+	 * @return
+	 */
+	public ACLProvider getACLProvider();
 	
 	/**
 	 * Locate a specific resource by reference 
