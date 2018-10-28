@@ -9,6 +9,7 @@ import org.pmw.tinylog.Logger;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
+import davserver.protocol.auth.Session;
 import davserver.repository.IRepository;
 import davserver.repository.Resource;
 import davserver.repository.error.ConflictException;
@@ -33,7 +34,7 @@ public class DAVMkCol extends DAVRequest {
 	 * @param repos Repository
 	 * @param url DAV Url
 	 */
-	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException,NotAllowedException {
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException,NotAllowedException {
 		Resource r = null;
 		HttpEntityEnclosingRequest req;
 		
@@ -73,7 +74,7 @@ public class DAVMkCol extends DAVRequest {
 		
 		// create new collection
 		try {
-			repos.createCollection(url.getResref());
+			repos.createCollection(url.getResref(),session.getPrincipal());
 			resp.setStatusCode(201);
 		} catch (ConflictException ce) {
 			throw new DAVException(409, ce.getMessage());

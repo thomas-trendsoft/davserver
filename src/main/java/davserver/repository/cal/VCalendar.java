@@ -29,11 +29,6 @@ public abstract class VCalendar extends Collection implements CalDAVResource {
 	private Calendar calendar;
 	
 	/**
-	 * Calendar owner
-	 */
-	private Principal owner;
-	
-	/**
 	 * Defaultconstructor 
 	 * 
 	 * @param name
@@ -59,14 +54,6 @@ public abstract class VCalendar extends Collection implements CalDAVResource {
 		return calendar;
 	}
 	
-	public Principal getOwner() {
-		return owner;
-	}
-
-	public void setOwner(Principal owner) {
-		this.owner = owner;
-	}
-
 	@Override 
 	public ResourceType getResourceTypes() {
 		return resourceType;

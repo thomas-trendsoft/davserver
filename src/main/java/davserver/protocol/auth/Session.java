@@ -48,6 +48,15 @@ public class Session {
 	}
 	
 	/**
+	 * get authenticated user
+	 * 
+	 * @return
+	 */
+	public Principal getPrincipal() {
+		return principal;
+	}
+	
+	/**
 	 * get session id
 	 * 
 	 * @return

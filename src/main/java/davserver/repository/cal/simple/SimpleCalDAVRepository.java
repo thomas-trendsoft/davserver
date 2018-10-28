@@ -10,6 +10,8 @@ import org.apache.commons.io.IOUtils;
 import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUtil;
+import davserver.protocol.acl.ACLProvider;
+import davserver.protocol.acl.Principal;
 import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
@@ -158,7 +160,7 @@ public class SimpleCalDAVRepository extends BaseCalDAVRepository {
 	}
 
 	@Override
-	public Collection createCollection(String ref)
+	public Collection createCollection(String ref,Principal user)
 			throws IOException, NotAllowedException, ResourceExistsException, ConflictException {
 		List<String> comps = DAVUtil.getPathComps(ref);
 		
@@ -207,7 +209,7 @@ public class SimpleCalDAVRepository extends BaseCalDAVRepository {
 	}
 
 	@Override
-	public Resource createResource(String ref, InputStream data)
+	public Resource createResource(String ref, InputStream data,Principal user)
 			throws NotAllowedException, ConflictException, ResourceExistsException, NotFoundException, IOException {
 		List<String> comps = DAVUtil.getPathComps(ref);
 		
@@ -270,6 +272,11 @@ public class SimpleCalDAVRepository extends BaseCalDAVRepository {
 	@Override
 	public ILockManager getLockManager() {
 		return lmanager;
+	}
+
+	@Override
+	public ACLProvider getACLProvider() {
+		return null;
 	}
 	
 }

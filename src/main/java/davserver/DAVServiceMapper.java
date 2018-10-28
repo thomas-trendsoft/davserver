@@ -162,10 +162,14 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 			}
 
 			// check auth if needed
+			Session session = null;
 			if (repos != null && repos.needsAuth()) {
-				if (!getAuthentication(req,response,repos.getAuthProvider())) {
+				if ((session = getAuthentication(req,response,repos.getAuthProvider())) == null) {
 					throw new DAVException(401,"not authed");
 				}
+			} else {
+				// empty fake session
+				session = new Session("none");
 			}
 
 			if (repos == null) {
@@ -173,7 +177,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 				response.setStatusCode(404);	
 			} else if (methods.containsKey(method)) {
 				DAVRequest handler = methods.get(method);
-				handler.handle(req, response, repos, durl);
+				handler.handle(req, response, repos, durl,session);
 			} else {
 				async.getResponse().setStatusCode(404);			
 			}			
@@ -204,7 +208,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 	 * @param authProvider
 	 * @return
 	 */
-	private boolean getAuthentication(HttpRequest req, HttpResponse resp,IAuthenticationProvider authProvider) {
+	private Session getAuthentication(HttpRequest req, HttpResponse resp,IAuthenticationProvider authProvider) {
 		Session session = null;
 		Header  cookie = req.getFirstHeader("Cookie");
 		String  sid = null;
@@ -212,7 +216,7 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		if (cookie == null) {
 			session = sessions.create(req);
 			resp.addHeader("Set-Cookie","DAVSESSID=" + session.getId());
-			return false;
+			return null;
 		}
 		
 		// Parse session ID
@@ -230,10 +234,14 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 		if (session == null) {
 			session = sessions.create(req);
 			resp.addHeader("Set-Cookie","DAVSESSID=" + session.getId());
-			return false;			
+			return null;			
 		}
 		
-		return authProvider.authRequest(req, session);
+		if (!authProvider.authRequest(req, session)) {
+			return null;
+		} else {
+			return session;
+		}
 
 	}
 

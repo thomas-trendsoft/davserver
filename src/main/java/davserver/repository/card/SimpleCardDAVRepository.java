@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import davserver.DAVServer;
+import davserver.protocol.acl.Principal;
 import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.repository.Collection;
 import davserver.repository.Resource;
@@ -32,13 +33,13 @@ public class SimpleCardDAVRepository extends SimpleRepository {
 	}
 
 	@Override
-	public Collection createCollection(String ref)
+	public Collection createCollection(String ref,Principal user)
 			throws NotAllowedException, ResourceExistsException, ConflictException {
 		return null;
 	}
 
 	@Override
-	public Resource createResource(String ref, InputStream data)
+	public Resource createResource(String ref, InputStream data,Principal user)
 			throws NotAllowedException, ConflictException, IOException {
 		return null;
 	}

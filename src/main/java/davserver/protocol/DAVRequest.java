@@ -16,6 +16,7 @@ import org.w3c.dom.Document;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
+import davserver.protocol.auth.Session;
 import davserver.protocol.header.IfCondition;
 import davserver.protocol.header.IfHeader;
 import davserver.repository.IRepository;
@@ -42,7 +43,7 @@ public abstract class DAVRequest {
 	 * @param url
 	 * @throws DAVException
 	 */
-	public abstract void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException,NotFoundException,NotAllowedException;
+	public abstract void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException,NotFoundException,NotAllowedException;
 	
 	/**
 	 * Help method to test lock (precondition)

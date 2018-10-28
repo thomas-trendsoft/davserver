@@ -7,6 +7,7 @@ import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
+import davserver.protocol.auth.Session;
 import davserver.repository.IRepository;
 import davserver.repository.error.LockedException;
 import davserver.repository.error.NotAllowedException;
@@ -28,7 +29,7 @@ public class DAVDelete extends DAVRequest {
 	 * @param repos Repository
 	 * @param durl DAV Url
 	 */
-	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException,NotFoundException,NotAllowedException {
+	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl,Session session) throws DAVException,NotFoundException,NotAllowedException {
 
 		if (durl == null || durl.getResref() == null) {
 			throw new DAVException(404,"not found");

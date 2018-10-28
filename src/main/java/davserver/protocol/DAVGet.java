@@ -10,6 +10,7 @@ import org.apache.http.entity.InputStreamEntity;
 import davserver.DAVException;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.auth.Session;
 import davserver.repository.Collection;
 import davserver.repository.IRepository;
 import davserver.repository.Resource;
@@ -39,7 +40,7 @@ public class DAVGet extends DAVRequest {
 	 * @param head Flag for head request without body
 	 * @throws DAVException 
 	 */
-	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException,NotFoundException,NotAllowedException {
+	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException,NotFoundException,NotAllowedException {
 		System.out.println("handle get");
 		
 		boolean head = req.getRequestLine().getMethod().compareTo("HEAD")==0;

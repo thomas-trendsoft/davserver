@@ -9,6 +9,7 @@ import org.apache.http.HttpResponse;
 import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUrl;
+import davserver.protocol.auth.Session;
 import davserver.repository.IRepository;
 import davserver.repository.Resource;
 import davserver.repository.error.ConflictException;
@@ -34,7 +35,7 @@ public class DAVPut extends DAVRequest {
 	 * @param url DAV URL
 	 * @throws DAVException 
 	 */
-	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException {
 		HttpEntityEnclosingRequest req;
 		
 		// check request
@@ -52,7 +53,7 @@ public class DAVPut extends DAVRequest {
 			DAVRequest.checkLock(req, repos, url,false);
 			
 			// create resource
-			Resource r = repos.createResource(url.getResref(),req.getEntity().getContent());
+			Resource r = repos.createResource(url.getResref(),req.getEntity().getContent(),session.getPrincipal());
 			
 			// strong etag return for carddav 
 			if (repos.getProtocol() == DAVServer.PROT_CARDDAV && r != null) {

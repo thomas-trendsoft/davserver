@@ -174,6 +174,7 @@ public class Property extends DAVXMLObject {
 			davProperties.put(DAVServer.Namespace + "supportedlock",new PropertyRef(PropertyRef.DAV_SUPPORTEDLOCK));
 			davProperties.put(DAVServer.Namespace + "resourcetype",new PropertyRef(PropertyRef.DAV_RESOURCETYPE));
 			davProperties.put(DAVServer.Namespace + "supported-report-set",new PropertyRef(PropertyRef.DAV_SUPPORTEDREPORTSET));
+			davProperties.put(DAVServer.Namespace + "owner",new PropertyRef(PropertyRef.DAV_OWNER));
 		}
 		return davProperties;
 	}
@@ -242,6 +243,9 @@ public class Property extends DAVXMLObject {
 		case PropertyRef.DAV_RESOURCETYPE:
 			System.out.println("get resource type: " + r);
 			p = r.getResourceTypes();
+			break;
+		case PropertyRef.DAV_OWNER:
+			p = r.getOwner();
 			break;
 		} 
 		

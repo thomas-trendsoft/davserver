@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import davserver.protocol.acl.ACLProvider;
+import davserver.protocol.acl.Principal;
 import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.repository.error.ConflictException;
 import davserver.repository.error.LockedException;
@@ -34,6 +35,7 @@ public interface IRepository {
 	
 	/**
 	 * get the acl provider
+	 * 
 	 * @return
 	 */
 	public ACLProvider getACLProvider();
@@ -64,7 +66,7 @@ public interface IRepository {
 	 * @param ref Resource reference
 	 * @throws RepositoryException
 	 */
-	public Collection createCollection(String ref) throws IOException,NotAllowedException,ResourceExistsException,ConflictException;
+	public Collection createCollection(String ref,Principal user) throws IOException,NotAllowedException,ResourceExistsException,ConflictException;
 	
 	/**
 	 * Create a new resource on the given resource reference 
@@ -74,7 +76,7 @@ public interface IRepository {
 	 * @throws RepositoryException
 	 * @throws IOException
 	 */
-	public Resource createResource(String ref,InputStream data) throws NotAllowedException,ConflictException,ResourceExistsException,NotFoundException,IOException;
+	public Resource createResource(String ref,InputStream data,Principal user) throws NotAllowedException,ConflictException,ResourceExistsException,NotFoundException,IOException;
 	
 	/**
 	 * Check if the repository supports locking

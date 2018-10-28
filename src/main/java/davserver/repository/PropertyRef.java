@@ -87,6 +87,11 @@ public class PropertyRef {
 	 * Supported Report sets
 	 */
 	public static final int DAV_SUPPORTEDREPORTSET = 109;
+	
+	/**
+	 * ACL Owner property
+	 */
+	public static final int DAV_OWNER = 110;
 
 	/**
 	 * Reference type identifier

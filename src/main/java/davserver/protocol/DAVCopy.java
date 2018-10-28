@@ -13,6 +13,8 @@ import org.apache.http.HttpResponse;
 import davserver.DAVException;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.acl.Principal;
+import davserver.protocol.auth.Session;
 import davserver.repository.Collection;
 import davserver.repository.IRepository;
 import davserver.repository.LockEntry;
@@ -41,7 +43,7 @@ public class DAVCopy extends DAVRequest {
 	 * @param source
 	 * @param target
 	 */
-	private void copyCollection(IRepository repos, Collection source,String target,Resource tres,int depth) 
+	private void copyCollection(IRepository repos, Collection source,String target,Resource tres,int depth,Principal user) 
 			throws NotAllowedException, ConflictException, ResourceExistsException, NotFoundException, IOException 
 	{
 		Iterator<Resource> citer = null;
@@ -51,11 +53,11 @@ public class DAVCopy extends DAVRequest {
 		}
 		
 		if (target == null) {
-			nc    = repos.createCollection(target);	
+			nc    = repos.createCollection(target,user);	
 		} else if (depth == 0 && tres instanceof Collection) {
 			nc = (Collection)tres;
 		} else {
-			nc    = repos.createCollection(target);	
+			nc    = repos.createCollection(target,user);	
 		}
 
 		copyProperties(source, nc);
@@ -69,9 +71,9 @@ public class DAVCopy extends DAVRequest {
 		while (citer.hasNext()) {
 			Resource r = citer.next();
 			if (r instanceof Collection && depth > 0) {
-				copyCollection(repos,(Collection)r,target + "/" + ((Collection)r).getName(),null,depth-1);
+				copyCollection(repos,(Collection)r,target + "/" + ((Collection)r).getName(),null,depth-1,user);
 			} else {
-				copyResource(repos,r,target + "/" + r.getName());
+				copyResource(repos,r,target + "/" + r.getName(),user);
 			}
 		}
 		
@@ -89,10 +91,10 @@ public class DAVCopy extends DAVRequest {
 	 * @throws NotFoundException
 	 * @throws IOException
 	 */
-	private Resource copyResource(IRepository repos,Resource source,String target) 
+	private Resource copyResource(IRepository repos,Resource source,String target,Principal user) 
 			throws NotAllowedException, ConflictException, ResourceExistsException, NotFoundException, IOException 
 	{
-		Resource r = repos.createResource(target, source.getContent());	
+		Resource r = repos.createResource(target, source.getContent(),user);	
 		copyProperties(source,r);
 		
 		return r;
@@ -131,7 +133,7 @@ public class DAVCopy extends DAVRequest {
 	 * @throws NotFoundException 
 	 * @throws NotAllowedException 
 	 */
-	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException, NotAllowedException, NotFoundException {
+	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException, NotAllowedException, NotFoundException {
 		System.out.println("handle copy/move");
 		int stat = 201;
 
@@ -214,10 +216,10 @@ public class DAVCopy extends DAVRequest {
 			
 			// Check resource type of source element 
 			if (src instanceof Collection) {
-				copyCollection(repos,(Collection)src,turl.getResref(),target,dv);
+				copyCollection(repos,(Collection)src,turl.getResref(),target,dv,session.getPrincipal());
 			// copy simple resource
 			} else {
-				copyResource(repos,src,turl.getResref());
+				copyResource(repos,src,turl.getResref(),session.getPrincipal());
 			}
 			
 			// if move delete the source

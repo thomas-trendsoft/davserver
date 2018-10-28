@@ -23,6 +23,7 @@ import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.auth.Session;
 import davserver.protocol.header.IfCondition;
 import davserver.protocol.header.IfHeader;
 import davserver.protocol.xml.ListElement;
@@ -68,7 +69,7 @@ public class DAVLock extends DAVRequest {
 	 * @param resp
 	 * @return
 	 */
-	private Resource getLockResource(IRepository repos,String ref,HttpResponse resp) {
+	private Resource getLockResource(IRepository repos,String ref,HttpResponse resp,Session session) {
 		
 		// check if target exists
 		Resource target = null;
@@ -87,7 +88,7 @@ public class DAVLock extends DAVRequest {
 		
 		// create empty resource if not exists
 		try {
-			target = repos.createResource(ref, new ByteArrayInputStream(new byte[0]));
+			target = repos.createResource(ref, new ByteArrayInputStream(new byte[0]),session.getPrincipal());
 			resp.setStatusCode(201);
 		} catch (NotAllowedException e2) {
 			DAVUtil.handleError(new DAVException(403,"not allowed"), resp);
@@ -132,11 +133,11 @@ public class DAVLock extends DAVRequest {
 	/**
 	 * Router method
 	 */
-	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException {
 		if (breq.getRequestLine().getMethod().compareTo("UNLOCK")==0) {
-			this.handleUnlock(breq, resp, repos, url);
+			this.handleUnlock(breq, resp, repos, url,session);
 		} else {
-			this.handleLock(breq, resp, repos, url);
+			this.handleLock(breq, resp, repos, url,session);
 		}
 	}
 
@@ -149,7 +150,7 @@ public class DAVLock extends DAVRequest {
 	 * @param r Resource
 	 * @param url DAV URL
 	 */
-	public void handleLock(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+	public void handleLock(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException {
 		int          depth;
 		ILockManager lm;
 		HttpEntityEnclosingRequest req;
@@ -251,7 +252,7 @@ public class DAVLock extends DAVRequest {
 		}
 		
 		// get or create resource
-		Resource target = getLockResource(repos, url.getResref(), resp);
+		Resource target = getLockResource(repos, url.getResref(), resp,session);
 		if (target == null)
 			return;
 		
@@ -297,7 +298,7 @@ public class DAVLock extends DAVRequest {
 	 * @param url Resource url
 	 * @throws DAVException 
 	 */
-	public void handleUnlock(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+	public void handleUnlock(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException {
 		System.out.println("handle unlock");
 		
 		// check lock support

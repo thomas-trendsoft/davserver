@@ -16,6 +16,7 @@ import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.auth.Session;
 import davserver.protocol.xml.ListElement;
 import davserver.repository.IRepository;
 import davserver.repository.Property;
@@ -55,7 +56,7 @@ public class DAVPropPatch extends DAVRequest {
 	 * @throws NotAllowedException 
 	 * @throws NotFoundException 
 	 */
-	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException, NotAllowedException {
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl durl,Session session) throws DAVException, NotFoundException, NotAllowedException {
 		Resource target;
 		Document body;
 		HttpEntityEnclosingRequest req;

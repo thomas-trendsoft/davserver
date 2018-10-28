@@ -8,7 +8,10 @@ import org.apache.commons.io.IOUtils;
 
 import davserver.DAVServer;
 import davserver.DAVUtil;
+import davserver.protocol.acl.ACLProvider;
+import davserver.protocol.acl.Principal;
 import davserver.protocol.auth.IAuthenticationProvider;
+import davserver.protocol.auth.Session;
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
 import davserver.repository.IRepository;
@@ -38,11 +41,17 @@ public class SimpleRepository implements IRepository {
 	private SimpleLockManager lmanager;
 	
 	/**
+	 * ACL simple implementation
+	 */
+	private SimpleACLProvider aclProvider;
+	
+	/**
 	 * Defaultkonstruktor 
 	 */
 	public SimpleRepository() {
-		root    = new SimpleCollection("");
-		lmanager = new SimpleLockManager();
+		root        = new SimpleCollection("");
+		lmanager    = new SimpleLockManager();
+		aclProvider = new SimpleACLProvider();
 	}
 	
 	@Override
@@ -121,7 +130,7 @@ public class SimpleRepository implements IRepository {
 
 	
 	@Override
-	public Collection createCollection(String uri) throws ResourceExistsException,NotAllowedException,ConflictException {
+	public Collection createCollection(String uri,Principal user) throws ResourceExistsException,NotAllowedException,ConflictException {
 		List<String> comps = DAVUtil.getPathComps(uri);
 		
 		if (comps.size() == 0) {
@@ -162,7 +171,7 @@ public class SimpleRepository implements IRepository {
 	}
 	
 	@Override
-	public Resource createResource(String ref,InputStream data) throws ConflictException,NotAllowedException,IOException {
+	public Resource createResource(String ref,InputStream data,Principal user) throws ConflictException,NotAllowedException,IOException {
 		List<String> comps = DAVUtil.getPathComps(ref);
 		
 		if (comps.size() == 0) {
@@ -225,6 +234,11 @@ public class SimpleRepository implements IRepository {
 	@Override
 	public IAuthenticationProvider getAuthProvider() {
 		return null;
+	}
+
+	@Override
+	public ACLProvider getACLProvider() {
+		return aclProvider;
 	}
 
 

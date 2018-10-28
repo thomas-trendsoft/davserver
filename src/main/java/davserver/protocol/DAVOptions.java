@@ -5,6 +5,7 @@ import org.apache.http.HttpResponse;
 
 import davserver.DAVException;
 import davserver.DAVUrl;
+import davserver.protocol.auth.Session;
 import davserver.repository.IRepository;
 import davserver.repository.Resource;
 import davserver.repository.error.NotAllowedException;
@@ -26,7 +27,7 @@ public class DAVOptions extends DAVRequest {
 	 * @param repos Repository
 	 * @param durl DAV Url
 	 */
-	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException,NotAllowedException {
+	public void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl durl,Session session) throws DAVException, NotFoundException,NotAllowedException {
 		Resource r = null;
 		
 		System.out.println("handle options request: " + req.getRequestLine().getUri());

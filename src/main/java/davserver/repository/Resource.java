@@ -8,10 +8,11 @@ import java.util.Iterator;
 import org.w3c.dom.Document;
 
 import davserver.DAVUrl;
+import davserver.protocol.acl.ACLNode;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.properties.ResourceType;
 
-public abstract class Resource {
+public abstract class Resource extends ACLNode {
 	
 	/**
 	 * Dynamic Href for External Referencing

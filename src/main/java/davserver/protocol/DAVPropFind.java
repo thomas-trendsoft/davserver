@@ -23,6 +23,7 @@ import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.auth.Session;
 import davserver.repository.Collection;
 import davserver.repository.IRepository;
 import davserver.repository.Property;
@@ -276,7 +277,7 @@ public class DAVPropFind extends DAVRequest {
 	 * @param r Resource if found otherwithe null
 	 * @throws NotFoundException 
 	 */
-	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl durl) throws DAVException, NotFoundException {
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl durl,Session session) throws DAVException, NotFoundException {
 		Integer depthval;
 		Header  depth;
 		HttpEntityEnclosingRequest req;

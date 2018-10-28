@@ -15,6 +15,7 @@ import org.xml.sax.SAXParseException;
 import davserver.DAVException;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.auth.Session;
 import davserver.repository.IRepository;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
@@ -29,7 +30,7 @@ import davserver.utils.XMLParser;
 public class DAVACL extends DAVRequest {
 
 	@Override
-	public void handle(HttpRequest breq, HttpResponse resp, IRepository repos, DAVUrl url)
+	public void handle(HttpRequest breq, HttpResponse resp, IRepository repos, DAVUrl url,Session session)
 			throws DAVException, NotFoundException, NotAllowedException {
 		HttpEntityEnclosingRequest req;
 		

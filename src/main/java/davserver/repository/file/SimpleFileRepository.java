@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import org.apache.commons.io.FileExistsException;
 
 import davserver.DAVServer;
+import davserver.protocol.acl.ACLProvider;
+import davserver.protocol.acl.Principal;
 import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
@@ -105,7 +107,7 @@ public class SimpleFileRepository implements IRepository {
 	}
 
 	@Override
-	public Collection createCollection(String ref) throws IOException,NotAllowedException, ResourceExistsException, ConflictException {
+	public Collection createCollection(String ref,Principal user) throws IOException,NotAllowedException, ResourceExistsException, ConflictException {
 		Path coll = fs.getPath(root.toString(), ref);
 		Path dir  = null;
 		
@@ -119,7 +121,7 @@ public class SimpleFileRepository implements IRepository {
 	}
 
 	@Override
-	public Resource createResource(String ref, InputStream data)
+	public Resource createResource(String ref, InputStream data,Principal user)
 			throws NotAllowedException, ConflictException, ResourceExistsException, NotFoundException, IOException {
 		Path res = fs.getPath(root.toString(), ref);
 		
@@ -171,6 +173,11 @@ public class SimpleFileRepository implements IRepository {
 
 	@Override
 	public IAuthenticationProvider getAuthProvider() {
+		return null;
+	}
+
+	@Override
+	public ACLProvider getACLProvider() {
 		return null;
 	}
 

@@ -16,6 +16,7 @@ import davserver.DAVException;
 import davserver.DAVServer;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.auth.Session;
 import davserver.protocol.xml.ListElement;
 import davserver.repository.IRepository;
 import davserver.repository.Resource;
@@ -53,7 +54,7 @@ public class DAVReport extends DAVRequest {
 	 * @param url
 	 * @throws DAVException
 	 */
-	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url) throws DAVException {
+	public void handle(HttpRequest breq,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException {
 		HttpEntityEnclosingRequest req;
 		Document                   body = null;
 		

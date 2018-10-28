@@ -74,8 +74,10 @@ public class DAVServer {
 		DAVServiceMapper      davService  = new DAVServiceMapper("");
 		
 		// demo admin and user 
-		credentials.addCredentials("admin", "admin", new Principal());
-		credentials.addCredentials("test", "test", new Principal());
+		Principal p1 = new Principal("http://myadmin");
+		Principal p2 = new Principal("http://mytestuser");
+		credentials.addCredentials("admin", "admin", p1);
+		credentials.addCredentials("test", "test", p2);
 		
 		// configure demo repositories
 		davService.addRepository("simple", new SimpleRepository());
@@ -90,8 +92,8 @@ public class DAVServer {
 			
 			SimpleCalDAVRepository caldav = new SimpleCalDAVRepository();
 			caldav.setAuthProvider(auth);
-			caldav.createCollection("/test");
-			caldav.createCollection("/test/mycalendar");
+			caldav.createCollection("/test",p1);
+			caldav.createCollection("/test/mycalendar",p1);
 			davService.addRepository("calendars", caldav);
 
 			String root = Paths.get(".").toAbsolutePath().toString() + "/files";
