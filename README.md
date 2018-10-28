@@ -16,14 +16,26 @@ For testing surpose i will try to get this framework running against the litmus 
 
 The CalDAV extension will be tested later against the ccs-caldavtester (https://github.com/apple/ccs-caldavtester/)
 
+## Test Installation
+
+At the moment it is really simple to get the server run. You will also need the ical4dav package (https://github.com/thomas-trendsoft/ical4dav)  installed.
+
+* change to davserver directory
+* mkdir files
+* mvn clean package
+* java -jar target/davserver-0.2-jar-with-dependencies.jar
+
+If auth is needed use "admin" with password "admin". Changes will be done later to get a real user management. The test repositories are:
+
+* http://yourhost:8843/files (Simple File Repository)
+* http://yourhost:8843/calendars/mytest/calendar (static CalDAV test calendar)
+* http://yourhost:8843/simple (Simple Memory managed repository)
+
+
 ## Litmus Progress
 
--> running 'http': done
-
--> running `basic': done 
-
--> running 'copymove': done (with warnings)
-
--> running 'props': done (with warnings)
-
--> running 'locks': 69 tests run: 67 passed, 2 failed. 97.1%
+* running 'http': done
+* running `basic': done 
+* running 'copymove': done (with warnings)
+* running 'props': done (with warnings)
+* running 'locks': 69 tests run: 67 passed, 2 failed. 97.1%
