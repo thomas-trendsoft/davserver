@@ -207,11 +207,11 @@ public class DAVCopy extends DAVRequest {
 							throw new DAVException(412,"locked");
 						}
 					} 
-				}
+				} 
 			} catch (NotFoundException nfe) {
-				// exception ok 
+				// exception ok
 			}
-			
+						
 			// TODO check for extra operation rename 
 			
 			// Check resource type of source element 

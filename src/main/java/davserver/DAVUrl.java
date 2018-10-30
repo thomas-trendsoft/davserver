@@ -128,6 +128,15 @@ public class DAVUrl {
 		return uri;
 	}
 	
+	public String getParentURI() throws UnsupportedEncodingException {
+		String uri = "";
+		for (int i=0;i<comps.size()-1;i++) {
+			String s = comps.get(i);
+			uri += "/" + URLEncoder.encode(s, "utf-8");
+		}
+		return uri;
+	}
+	
 	@Override
 	public String toString() {
 		return prefix + "/" + repository + resref;
