@@ -30,6 +30,7 @@ public class SimpleCardDAVRepository extends SimpleRepository {
 	 * Defaultkonstruktor 
 	 */
 	public SimpleCardDAVRepository() {
+		super(null);
 	}
 
 	@Override

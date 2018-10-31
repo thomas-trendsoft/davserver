@@ -22,6 +22,7 @@ import davserver.protocol.header.IfHeader;
 import davserver.repository.IRepository;
 import davserver.repository.LockEntry;
 import davserver.repository.Resource;
+import davserver.repository.error.ConflictException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 import davserver.utils.XMLParser;
@@ -43,7 +44,7 @@ public abstract class DAVRequest {
 	 * @param url
 	 * @throws DAVException
 	 */
-	public abstract void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException,NotFoundException,NotAllowedException;
+	public abstract void handle(HttpRequest req,HttpResponse resp,IRepository repos,DAVUrl url,Session session) throws DAVException,NotFoundException,NotAllowedException,ConflictException;
 	
 	/**
 	 * Help method to test lock (precondition)

@@ -80,7 +80,7 @@ public class DAVServer {
 		credentials.addCredentials("test", "test", p2);
 		
 		// configure demo repositories
-		davService.addRepository("simple", new SimpleRepository());
+		davService.addRepository("simple", new SimpleRepository(auth));
 		
 		
 		

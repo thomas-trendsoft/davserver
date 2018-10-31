@@ -38,7 +38,11 @@ public class DAVOptions extends DAVRequest {
 		}
 		
 		// add dav supported versions
-		resp.addHeader("DAV", "1,2");
+		if (repos != null && repos.getACLProvider() != null) {
+			resp.addHeader("DAV", "1, 2, access-control");			
+		} else {
+			resp.addHeader("DAV", "1, 2");			
+		}
 		
 		// give server or resource type info
 		if (r == null) {

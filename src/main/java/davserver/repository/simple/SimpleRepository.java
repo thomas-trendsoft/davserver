@@ -10,8 +10,8 @@ import davserver.DAVServer;
 import davserver.DAVUtil;
 import davserver.protocol.acl.ACLProvider;
 import davserver.protocol.acl.Principal;
+import davserver.protocol.auth.BasicAuthProvider;
 import davserver.protocol.auth.IAuthenticationProvider;
-import davserver.protocol.auth.Session;
 import davserver.repository.Collection;
 import davserver.repository.ILockManager;
 import davserver.repository.IRepository;
@@ -46,12 +46,18 @@ public class SimpleRepository implements IRepository {
 	private SimpleACLProvider aclProvider;
 	
 	/**
+	 * AuthProvider 
+	 */
+	private BasicAuthProvider auth;
+	
+	/**
 	 * Defaultkonstruktor 
 	 */
-	public SimpleRepository() {
+	public SimpleRepository(BasicAuthProvider auth) {
 		root        = new SimpleCollection("");
 		lmanager    = new SimpleLockManager();
 		aclProvider = new SimpleACLProvider();
+		this.auth   = auth;
 	}
 	
 	@Override
@@ -233,7 +239,7 @@ public class SimpleRepository implements IRepository {
 
 	@Override
 	public IAuthenticationProvider getAuthProvider() {
-		return null;
+		return auth;
 	}
 
 	@Override

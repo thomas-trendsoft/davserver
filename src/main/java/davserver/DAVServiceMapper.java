@@ -35,6 +35,7 @@ import davserver.protocol.auth.IAuthenticationProvider;
 import davserver.protocol.auth.Session;
 import davserver.protocol.auth.SessionStore;
 import davserver.repository.IRepository;
+import davserver.repository.error.ConflictException;
 import davserver.repository.error.NotAllowedException;
 import davserver.repository.error.NotFoundException;
 
@@ -187,6 +188,8 @@ public class DAVServiceMapper implements HttpAsyncRequestHandler<HttpRequest> {
 			DAVUtil.handleError(new DAVException(404,e.getMessage()),response);
 		} catch (NotAllowedException e) {
 			DAVUtil.handleError(new DAVException(403,e.getMessage()),response);
+		} catch (ConflictException e) {
+			DAVUtil.handleError(new DAVException(409,e.getMessage()), response);
 		}
 		
 		if (debug) debug(response);

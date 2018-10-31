@@ -14,7 +14,7 @@ import davserver.repository.Property;
  *
  */
 public class Principal extends DAVXMLObject {
-
+	
 	private AlternateURISet alternateURIset;
 	
 	private Property principalURL;
