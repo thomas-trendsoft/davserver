@@ -94,6 +94,11 @@ public class PropertyRef {
 	public static final int DAV_OWNER = 110;
 
 	/**
+	 * ACL property
+	 */
+	public static final int DAV_ACL = 111;
+
+	/**
 	 * Reference type identifier
 	 */
 	private int type;

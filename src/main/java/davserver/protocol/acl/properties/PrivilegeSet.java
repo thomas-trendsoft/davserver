@@ -9,10 +9,10 @@ import davserver.repository.Property;
  * @author tkrieger
  *
  */
-public class SupportedPrivilegeSet extends Property {
+public class PrivilegeSet extends Property {
 
-	public SupportedPrivilegeSet() {
-		super(DAVServer.Namespace, "supported-privilege-set", null);
+	public PrivilegeSet(String name) {
+		super(DAVServer.Namespace, name, null);
 	}
 
 }

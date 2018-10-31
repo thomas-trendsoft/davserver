@@ -1,8 +1,11 @@
 package davserver.protocol.acl;
 
+import davserver.protocol.acl.properties.ACL;
 import davserver.repository.Property;
 
 public class ACLNode {
+	
+	private ACL acl;
 	
 	private Property owner;
 	
@@ -16,5 +19,8 @@ public class ACLNode {
 		return group;
 	}
 
+	public ACL getACL() {
+		return acl;
+	}
 
 }

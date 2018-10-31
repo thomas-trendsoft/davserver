@@ -15,6 +15,7 @@ import org.xml.sax.SAXParseException;
 import davserver.DAVException;
 import davserver.DAVUrl;
 import davserver.DAVUtil;
+import davserver.protocol.acl.properties.ACL;
 import davserver.protocol.auth.Session;
 import davserver.repository.IRepository;
 import davserver.repository.error.NotAllowedException;
@@ -33,6 +34,7 @@ public class DAVACL extends DAVRequest {
 	public void handle(HttpRequest breq, HttpResponse resp, IRepository repos, DAVUrl url,Session session)
 			throws DAVException, NotFoundException, NotAllowedException {
 		HttpEntityEnclosingRequest req;
+		ACL acl = null;
 		
 		// check request
 		if (!(breq instanceof HttpEntityEnclosingRequest)) {

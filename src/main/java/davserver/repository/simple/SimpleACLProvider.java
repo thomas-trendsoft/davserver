@@ -2,8 +2,8 @@ package davserver.repository.simple;
 
 import java.util.HashMap;
 
-import davserver.protocol.acl.ACL;
 import davserver.protocol.acl.ACLProvider;
+import davserver.protocol.acl.properties.ACL;
 
 public class SimpleACLProvider extends ACLProvider {
 

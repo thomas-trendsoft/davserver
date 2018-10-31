@@ -30,15 +30,15 @@ public class WebDAVRequestFactory implements HttpRequestFactory {
             "PROPPATCH",
             "MKCOL",
             "LOCK",
-            "REPORT"
+            "REPORT",
+            "ACL"
     };
 
     private static final String[] RFC4918_COMMON_METHODS = {
             "COPY",
             "MOVE",
             "BIND",
-            "UNLOCK",
-            "ACL"
+            "UNLOCK"
     };
 
     private static final String[] RFC2616_SPECIAL_METHODS = {
